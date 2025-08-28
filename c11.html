@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>地圖編輯 + 大富翁遊戲</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #main {
+      display: flex;
+      flex: 1;
+    }
+    #editor, #game {
+      flex: 1;
+      overflow: auto;
+      padding: 10px;
+    }
+    #editor {
+      border-right: 2px solid #ccc;
+    }
+    #sidebar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    #sidebar img {
+      width: 60px;
+      height: 60px;
+      cursor: grab;
+      border: 1px solid #aaa;
+      background: white;
+      border-radius: 6px;
+    }
+    #map {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      gap: 2px;
+      background-color: #888;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: #fff;
+      border: 1px solid #aaa;
+      position: relative;
+      overflow: hidden;
+    }
+    .cell img {
+      width: 60px;
+      height: 60px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: contain;
+    }
+    .cell .order-number {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-size: 10px;
+      color: black;
+      background: rgba(255,255,255,0.7);
+      padding: 1px 3px;
+      border-radius: 4px;
+      z-index: 3;
+    }
+    .start-cell {
+      border: 2px solid green !important;
+    }
+    .goal-cell {
+      border: 2px solid gold !important;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      gap: 2px;
+    }
+    .player {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      z-index: 5;
+      transition: transform 0.4s ease;
+    }
+    .player1 {
+      top: 4px;
+      left: 4px;
+    }
+    .player2 {
+      top: 4px;
+      right: 4px;
+    }
+    .player img {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>大富翁地圖編輯器 + 遊戲1234567</h1>
+  <div id="main">
+    <div id="editor">
+      <h3>拖曳圖片進格子</h3>
+      <div id="sidebar">
+        <img src="start.jpg" class="item" draggable="true" data-img="start.jpg">
+        <img src="goal.jpg" class="item" draggable="true" data-img="goal.jpg">
+        <img src="event1.png" class="item" draggable="true" data-img="event1.png">
+        <img src="fire1.png" class="item" draggable="true" data-img="fire1.png">
+        <img src="firstaid2.png" class="item" draggable="true" data-img="firstaid2.png">
+      </div>
+	  <button onclick="loadMap1()">📌 地圖1</button><button onclick="startGame()">▶ 開始遊戲</button>
+      <div id="map"></div>
+      
+    </div>
+    <div id="game">
+      <h3>遊戲區</h3>
+      <div id="game-board"></div>
+      <p>
+        <button onclick="rollDice()">🎲 玩家 <span id="currentPlayer">1</span> 擲骰</button>
+        擲出 <span id="diceResult">-</span>
+      </p>
+    </div>
+  </div>
+  <script>
+  const mapEl = document.getElementById("map");
+  const gameBoard = document.getElementById("game-board");
+  let mapData = [], pathIndices = [], placedOrder = [];
+  let playerSteps = [0, 0];
+  let currentPlayer = 0;
+  let gameEnded = false;
+  let playerTokens = [null, null];
+
+  for (let i = 0; i < 64; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.cell = i;
+    cell.ondragover = e => e.preventDefault();
+    cell.ondrop = drop;
+    mapEl.appendChild(cell);
+  }
+
+  document.querySelectorAll('.item').forEach(item => {
+    item.ondragstart = e => {
+      e.dataTransfer.setData('text/plain', item.dataset.img);
+    };
+  });
+
+  function drop(e) {
+    e.preventDefault();
+    const filename = e.dataTransfer.getData('text/plain');
+    const cell = e.target.closest('.cell');
+    const index = parseInt(cell.dataset.cell);
+    cell.innerHTML = '';
+    const img = new Image();
+    img.src = filename;
+    img.width = img.height = 60;
+    cell.appendChild(img);
+    if (!placedOrder.includes(index)) {
+      placedOrder.push(index);
+    }
+  }
+
+  function loadMap1() {
+    const map1 = [
+      { index: 0, img: 'start.jpg' },
+      { index: 1, img: 'event1.png' },
+      { index: 2, img: 'fire1.png' },
+      { index: 3, img: 'firstaid2.png' },
+      { index: 4, img: 'fire1.png' },
+      { index: 12, img: 'firstaid2.png' },
+      { index: 20, img: 'fire1.png' },
+      { index: 28, img: 'event1.png' },
+      { index: 35, img: 'goal.jpg' },
+    ];
+    placedOrder = [];
+    map1.forEach(({ index, img }) => {
+      const cell = mapEl.querySelector(`.cell[data-cell="${index}"]`);
+      cell.innerHTML = '';
+      const image = new Image();
+      image.src = img;
+      image.width = image.height = 60;
+      cell.appendChild(image);
+      placedOrder.push(index);
+    });
+  }
+
+  function startGame() {
+    gameBoard.innerHTML = '';
+    mapData = [];
+    pathIndices = [...placedOrder];
+    const cells = mapEl.querySelectorAll('.cell');
+    cells.forEach((cell, index) => {
+      const img = cell.querySelector('img');
+      const imgSrc = img ? img.src : null;
+      mapData.push(imgSrc);
+    });
+    console.log("行走順序:", pathIndices);
+    playerSteps = [0, 0];
+    playerTokens = [null, null];
+    currentPlayer = 0;
+    gameEnded = false;
+    buildGame();
+  }
+
+  function buildGame() {
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      if (mapData[i]) {
+        const img = new Image();
+        img.src = mapData[i];
+        cell.appendChild(img);
+      }
+      if (pathIndices.includes(i)) {
+        const orderNum = pathIndices.indexOf(i) + 1;
+        const label = document.createElement("div");
+        label.className = "order-number";
+        label.textContent = orderNum;
+        cell.appendChild(label);
+      }
+      if (mapData[i]?.includes("start.jpg")) cell.classList.add("start-cell");
+      if (mapData[i]?.includes("goal.jpg")) cell.classList.add("goal-cell");
+      gameBoard.appendChild(cell);
+    }
+    renderPlayers(true);
+  }
+
+  function rollDice() {
+    if (gameEnded) return;
+    const dice = Math.floor(Math.random() * 6) + 1;
+    document.getElementById("diceResult").textContent = dice;
+
+    const fromIndex = pathIndices[playerSteps[currentPlayer]];
+    playerSteps[currentPlayer] += dice;
+    if (playerSteps[currentPlayer] >= pathIndices.length)
+      playerSteps[currentPlayer] = pathIndices.length - 1;
+    const toIndex = pathIndices[playerSteps[currentPlayer]];
+
+    animateMove(currentPlayer, fromIndex, toIndex, () => {
+      if (mapData[toIndex]?.includes('goal.jpg')) {
+        alert(`🎉 玩家 ${currentPlayer + 1} 抵達終點，獲勝！`);
+        gameEnded = true;
+      } else {
+        currentPlayer = (currentPlayer + 1) % 2;
+        document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+      }
+    });
+  }
+
+  function animateMove(playerIdx, from, to, callback) {
+    const token = playerTokens[playerIdx];
+    if (!token) return;
+    const fromCell = gameBoard.children[from];
+    const toCell = gameBoard.children[to];
+    const rectFrom = fromCell.getBoundingClientRect();
+    const rectTo = toCell.getBoundingClientRect();
+    const dx = rectTo.left - rectFrom.left;
+    const dy = rectTo.top - rectFrom.top;
+
+    token.style.transform = `translate(${dx}px, ${dy}px)`;
+    setTimeout(() => {
+      toCell.appendChild(token);
+      token.style.transform = 'translate(0,0)';
+      if (callback) callback();
+    }, 400);
+  }
+
+  function renderPlayers(initial = false) {
+    document.querySelectorAll(".player").forEach(p => p.remove());
+    playerSteps.forEach((step, index) => {
+      const cellIndex = pathIndices[step];
+      const cell = gameBoard.children[cellIndex];
+      if (!cell) return;
+      const token = document.createElement("div");
+      token.className = `player player${index + 1}`;
+      const car = new Image();
+      car.src = index === 0 ? "car_red.png" : "car_blue.png";
+      car.alt = `玩家${index + 1}`;
+      token.appendChild(car);
+      cell.appendChild(token);
+      playerTokens[index] = token;
+    });
+  }
+</script>
+    
+</body>
+</html>

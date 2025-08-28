@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>編輯地圖</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 1rem; }
+    #map { display: grid; grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); gap: 2px; }
+    .cell { width: 60px; height: 60px; border: 1px solid #aaa; position: relative; overflow: hidden; background: white; }
+    .cell img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; }
+    .order-number { position: absolute; bottom: 2px; right: 4px; font-size: 10px; background: rgba(255,255,255,0.7); padding: 1px 3px; border-radius: 4px; }
+    #sidebar img { width: 60px; height: 60px; cursor: grab; border: 1px solid #aaa; border-radius: 6px; margin: 3px; background: white; }
+	#sidebar .item-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#sidebar .item-wrapper .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 150px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  z-index: 10;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
+#sidebar .item-wrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.drop-item-wrapper, .map-item-wrapper {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex;         /* 新增這行 */
+  justify-content: center;
+  align-items: center;
+}
+.drop-item-wrapper img, .map-item-wrapper img {
+  width: 100%; height: 100%; object-fit: contain;
+  /* 加一行確保 img 不會遮蔽 pointer 事件 */
+  pointer-events: none;
+}
+
+
+.drop-item-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: white;
+}
+.drop-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 140px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 2px 2px;
+  /*position: absolute;*/
+  z-index: 10;
+  bottom:auto;
+  top:-8px; 
+  
+  transition: opacity 0.3s;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
+.drop-item-wrapper:hover .drop-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+	
+	
+
+.map-item-wrapper:hover .map-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.map-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  /*position: absolute;*/
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 2px 2px;
+  border-radius: 6px;
+  bottom: 105%;
+  left: 50%;
+  
+  font-size: 12px;
+  white-space: pre-line;
+  z-index: 10;
+  transition: opacity 0.3s;
+}
+	
+	
+  </style>
+</head>
+<body>
+  <h2>🧩 編輯地圖與設定</h2>
+  <label><input type="radio" name="mode" value="time" checked onchange="updateMode()"> 限時制</label>
+  <select id="timeLimit">
+    <option value="20">20 秒</option>
+    <option value="50">50 秒</option>
+    <option value="120">2 分鐘</option>
+  </select>
+  <label style="margin-left: 10px"><input type="radio" name="mode" value="score" onchange="updateMode()"> 積分制</label>
+  <select id="scoreTarget" disabled>
+    <option value="5">5 分</option>
+    <option value="10">10 分</option>
+    <option value="15">15 分</option>
+  </select>
+<label style="margin-left:10px">人數
+  <select id="playerCount">
+    <option value="2">2人</option>
+    <option value="3">3人</option>
+    <option value="4">4人</option>
+  </select>
+</label>
+
+
+
+  <div id="sidebar">
+       <div class="item-wrapper">
+    <img src="start.png" class="item" draggable="true" data-img="start.png">
+    <div class="tooltip">起點：玩家從這裡開始</div>
+  </div>
+  <div class="item-wrapper">
+   <img src="dice.png" class="item" draggable="true" data-img="dice.png">
+    <div class="tooltip">骰子格：可以再擲一次</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="event1.png" class="item" draggable="true" data-img="event1.png">
+    <div class="tooltip">事件卡1：隨機事件</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="event2.png" class="item" draggable="true" data-img="event2.png">
+    <div class="tooltip">事件卡2：隨機事件</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="quiz.png" class="item" draggable="true" data-img="quiz.png">
+    <div class="tooltip">答題格：答對可得分</div>
+  </div>
+  
+  <div class="item-wrapper">
+	<img src="fire1.png" class="item" draggable="true" data-img="fire1.png">
+    <div class="tooltip">火災</div>
+  </div>
+  
+  <div class="item-wrapper">
+	<img src="fire2.png" class="item" draggable="true" data-img="fire2.png">
+      <div class="tooltip">火災</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="light.png" class="item" draggable="true" data-img="light.png">
+    <div class="tooltip">燈光</div>
+  </div>
+  
+    
+	
+  <div class="item-wrapper">
+    <img src="bag1.png" class="item" draggable="true" data-img="bag1.png">
+    <div class="tooltip">包包</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="bag2.png" class="item" draggable="true" data-img="bag2.png">
+    <div class="tooltip">包包</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="card1.png" class="item" draggable="true" data-img="card1.png">
+    <div class="tooltip">空白卡片要幹嘛</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="card2.png" class="item" draggable="true" data-img="card2.png">
+    <div class="tooltip">特殊技能卡</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="earthquake1.png" class="item" draggable="true" data-img="earthquake1.png">
+        
+    <div class="tooltip">地震了</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="earthquake2.png" class="item" draggable="true" data-img="earthquake2.png">
+	<div class="tooltip">地震了</div>
+  </div>
+  
+<div class="item-wrapper">
+    <img src="earthquake3.png" class="item" draggable="true" data-img="earthquake3.png">
+    <div class="tooltip">地震了</div>
+  </div>
+	 
+	<div class="item-wrapper">
+    <img src="ok1.png" class="item" draggable="true" data-img="ok1.png">
+    <div class="tooltip">沒事</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="ok2.png" class="item" draggable="true" data-img="ok2.png">	
+    <div class="tooltip">沒事</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="ok3.png" class="item" draggable="true" data-img="ok3.png">
+    <div class="tooltip">沒事</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="rain1.png" class="item" draggable="true" data-img="rain1.png">	
+    <div class="tooltip">下雨</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="rain2.png" class="item" draggable="true" data-img="rain2.png">	
+    <div class="tooltip">下雨</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="rain3.png" class="item" draggable="true" data-img="rain3.png">
+    <div class="tooltip">下雨</div>
+  </div>
+	
+	<div class="item-wrapper">
+    <img src="safe.png" class="item" draggable="true" data-img="safe.png">
+	
+    <div class="tooltip">答題格：答對可得分</div>
+  </div>
+	
+		<div class="item-wrapper">
+    <img src="safezone.png" class="item" draggable="true" data-img="safezone.png">
+    <div class="tooltip">安全區</div>
+  </div>
+  
+  	<div class="item-wrapper">
+    <img src="warning1.png" class="item" draggable="true" data-img="warning1.png">
+    <div class="tooltip">警告</div>
+  </div>
+  
+  	<div class="item-wrapper">
+    <img src="warning2.png" class="item" draggable="true" data-img="warning2.png">
+    <div class="tooltip">警告</div>
+  </div>
+  
+  	<div class="item-wrapper">
+    <img src="underdesk.png" class="item" draggable="true" data-img="underdesk.png">
+    <div class="tooltip">地震來了躲到桌下，回到起點</div>
+  </div>
+	
+	
+	
+	
+    
+	
+	
+	
+	
+	
+      </div>
+	  <button onclick="loadMap1()">📌 地圖1</button><button onclick="saveAndStart()">▶ 開始遊戲</button>
+  <div id="map"></div>
+  
+
+<script>
+
+
+const mapEl = document.getElementById("map");
+let placedOrder = [];
+for (let i = 0; i < 64; i++) {
+  const cell = document.createElement("div");
+  cell.className = "cell";
+  cell.dataset.cell = i;
+  cell.ondragover = e => e.preventDefault();
+  cell.ondrop = drop;
+  mapEl.appendChild(cell);
+}
+function getDescription(filename) {
+  const name = filename.split('/').pop().trim();
+  const descriptions = {
+    "start.png": "起點：玩家從這裡開始",    
+    "quiz.png": "答題格：答對可得分",
+    "event1.png": "事件卡1：隨機事件",
+    "event2.png": "事件卡2：隨機事件",
+	"fire1.png": "火災",
+    "fire2.png": "火災", 
+	"light.png": "燈光",
+    "bag1.png": "包包", 
+	"bag2.png": "包包",
+    "card1.png": "空白卡片",
+	"card2.png": "特殊技能卡",
+	"earthquake1.png": "地震了", 
+	"earthquake2.png": "地震了",
+    "earthquake3.png": "地震了",
+	"ok1.png": "沒事",
+	"ok2.png": "沒事",
+	"ok3.png": "沒事",
+	"rain1.png": "下雨",
+	"rain2.png": "下雨",
+	"rain3.png": "下雨",
+	"safe.png": "安全區",
+	"safezone.png": "安全區",
+	"warning1.png": "警告",
+	"warning2.png": "警告",	
+    "underdesk.png": "被書壓倒退回起點",
+    "dice.png": "骰子格：可以再擲一次",
+    // ...可以加更多
+  };
+  return descriptions[name] ||  "";
+}
+   
+
+
+function drop(e) {
+  
+  
+
+  
+  e.preventDefault();
+  const filename = e.dataTransfer.getData('text/plain');
+  const cell = e.target.closest('.cell');
+  const index = parseInt(cell.dataset.cell);
+  cell.innerHTML = '';
+  
+  // 建立 wrapper + 圖片 + tooltip
+  
+  const wrapper = document.createElement("div");
+  wrapper.className = "drop-item-wrapper";
+
+
+  const img = new Image();
+  img.src = filename;
+  //img.className = "item";
+  wrapper.appendChild(img);
+  
+   const tip = document.createElement("div");
+  tip.className = "drop-tooltip";
+  tip.textContent = getDescription(filename);  // 根據圖檔名稱給說明文字
+  wrapper.appendChild(tip);
+  
+   
+  cell.appendChild(wrapper);
+  
+  
+  if (!placedOrder.includes(index)) placedOrder.push(index);
+}
+
+ function loadMap1() {
+    const map1 = [
+      { index: 0, img: 'start.png' },
+      { index: 1, img: 'event1.png' },
+      { index: 2, img: 'ok1.png' },
+      { index: 3, img: 'card2.png' },
+      { index: 4, img: 'event1.png' },
+      { index: 5, img: 'earthquake2.png' },
+      { index: 6, img: 'card2.png' },
+      { index: 7, img: 'event1.png' },
+      { index: 15, img: 'quiz.png' },
+	  { index: 23, img: 'card2.png' },
+      { index: 31, img: 'event1.png' },
+      { index: 30, img: 'fire2.png' },
+      { index: 29, img: 'quiz.png' },
+      { index: 28, img: 'dice.png' },
+	  { index: 27, img: 'event1.png' },
+      { index: 26, img: 'card2.png' },
+      { index: 25, img: 'event2.png' },
+      { index: 24, img: 'card2.png' },
+	  { index: 16, img: 'event2.png' },
+      { index: 8, img: 'underdesk.png' },
+    ];
+    placedOrder = [];
+    map1.forEach(({ index, img }) => {
+      const cell = mapEl.querySelector(`.cell[data-cell="${index}"]`);
+      cell.innerHTML = '';
+      const wrapper = document.createElement("div");
+    wrapper.className = "map-item-wrapper";
+	  
+	  const image = new Image();
+      image.src = img;
+      image.width = image.height = 60;
+      const tooltip = document.createElement("div");
+		tooltip.className = "map-tooltip";
+		
+		tooltip.textContent = getDescription(img);
+		
+		
+	  wrapper.appendChild(image);
+    wrapper.appendChild(tooltip);
+    cell.appendChild(wrapper);
+	  
+      placedOrder.push(index);
+    });
+  }
+
+
+function updateMode() {
+  const timeSel = document.getElementById("timeLimit");
+  const scoreSel = document.getElementById("scoreTarget");
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  timeSel.disabled = mode !== "time";
+  scoreSel.disabled = mode !== "score";
+}
+function saveAndStart() {
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  const timeLimit = parseInt(document.getElementById("timeLimit").value);
+  const scoreTarget = parseInt(document.getElementById("scoreTarget").value);
+  const playerCount = parseInt(document.getElementById("playerCount").value); 
+  const cells = mapEl.querySelectorAll(".cell");
+  const mapData = [];
+  cells.forEach(cell => {
+    const img = cell.querySelector("img");
+    mapData.push(img ? img.src : null);
+  });
+  const config = {
+    mode,
+    timeLimit,
+    scoreTarget,
+	playerCount,
+    mapData,
+    pathIndices: placedOrder
+  };
+  localStorage.setItem("gameConfig", JSON.stringify(config));
+  console.log(config);
+  window.location.href = "gamep10.html";
+}
+</script>
+</body>
+</html>

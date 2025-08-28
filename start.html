@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>版本說明</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    a {
+      color: #0078d7;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    video {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    figure {
+      flex: 1 1 45%;
+      text-align: center;
+    }
+    figcaption {
+      margin-top: 8px;
+      font-size: 0.9em;
+      color: #555;
+    }
+    code {
+      background: #eee;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📜 版本說明</h1>
+
+  <!-- 版本更新紀錄 -->
+  <section class="card">
+    <h2>🆕 更新紀錄</h2>
+    <ul>
+      <li>v1.0 - 初版遊戲發布，包含基本擲骰、移動與事件卡功能</li>
+      <li>v2.0 - 新增可購買土地、付租金系統，加入消防局、水利局、921博物館特殊事件</li>
+      <li>v2.5 - 新增分類題目系統（地震、火災、水災），並調整答對 +3 分規則</li>
+      <li>v3.0 - 新增道具卡、背包加分功能（bag1.png +5 分）</li>
+    </ul>
+  </section>
+
+  <!-- 遊戲連結 -->
+  <section class="card">
+    <h2>🎮 遊戲連結</h2>
+	<p>v0.0 單一頁面 支援地圖拖曳 起始是start 終點是goal 只有一個玩家  能依拖曳地圖順序行進 走到goal遊戲結束<a href="c5.html" target="_blank">開始遊戲</a></p>
+	<p>v0.1 兩位玩家  可載入地圖<a href="c11.html" target="_blank">開始遊戲</a></p>
+	<p>v0.2 可選積分制或回合制<a href="c13.html" target="_blank">開始遊戲</a></p> 
+    <p>v1.0chatgpt版本 可分兩個頁面 設定頁面和遊戲頁面(0809setup.html 0809game.html)<a href="0809setup.html" target="_blank">開始遊戲</a></p>
+	<p>v1.1加入下列圖片效果 dice,underdesk,card,quiz,event 加入技能卡(editor6.html game16.html)  <a href="editor6.html" target="_blank">開始遊戲</a></p>
+	<p>v1.2可檢視填答紀錄(editorp.html gamep8.html)  <a href="editor6.html" target="_blank">開始遊戲</a></p>
+	
+	<p>v1.3可以設定人數2~4人(editorp10.html gamep10.html)<a href="editorp10.html" target="_blank">開始遊戲</a></p>
+	<p>v1.4雙語版(gamep10me.html  gamep10m.html)<a href="editorp10m.html" target="_blank">開始遊戲</a></p>
+	<p>v2.1新增買地 走到別人家要付錢 怪獸卡效果(gamep10mb7.html)<a href="editorp10mb3.html" target="_blank">開始遊戲</a></p>
+	<p>v2.2調整行進動畫 quiz card2 bag1 的事件效果(gamep10mb9.html)<a href="editorp10mb9.html" target="_blank">開始遊戲</a></p>
+	<p>v2.3後退一步兩步退回起點的效果(gamep10mb11.html)<a href="editorp10mb11.html" target="_blank">開始遊戲</a></p>
+	<p>v2.4MAP1 MAP2 MAP3(gamep10mb12.html)<a href="editorp10mb12.html" target="_blank">開始遊戲</a></p>
+	<p>v2.5預設載入圖片(gamep10mb13.html)<a href="editorp10mb13.html" target="_blank">開始遊戲</a></p>
+  <p>v2.6記分板(gamep10mb14.html)<a href="editorp10mb14.html" target="_blank">開始遊戲</a></p>
+  <p>v2.8記分板進度條(gamep10mb18.html)<a href="editorp10mb18.html" target="_blank">開始遊戲</a></p>
+   <p>顯示答題比較(gamep10mb20.html)<a href="editorp10mb19.html" target="_blank">開始遊戲</a></p>
+   <p>改題目(gamep10mb22.html)<a href="editorp10mb20.html" target="_blank">開始遊戲</a></p>
+   <p>雙語版  改圖  問答答對清空別人的 保留自己的  答錯清空自己的 保留別人的(gamep10mb23m.html gamep10mb23e.html)<a href="editorp10mb23.html" target="_blank">開始遊戲</a></p>
+   <p>改loadmap(gamep10mb24m.html gamep10mb23e.html)<a href="editorp10mb24.html" target="_blank">開始遊戲</a></p>
+	    
+  </section>
+
+  <!-- 影片展示 -->
+  <section class="card">
+    <h2>🎬 影片集</h2>
+    <p class="meta">影片檔放在 <code>videos/</code> 資料夾</p>
+    <div class="grid" id="videoGrid">
+      <figure>
+        <video controls preload="metadata" src="v1.mp4"></video>
+        <figcaption>版本 1 遊戲展示</figcaption>
+      </figure>
+      <figure>
+        <video controls preload="metadata" src="v2.mp4"></video>
+        <figcaption>版本 2 遊戲展示</figcaption>
+      </figure>
+    </div>
+  </section>
+
+</body>
+</html>
+

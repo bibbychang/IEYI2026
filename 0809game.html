@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>遊戲開始</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(8, 60px); gap: 5px; justify-content: center; margin-top: 10px; }
+    .cell { width: 60px; height: 60px; border: 1px solid #aaa; position: relative; }
+    .cell img { width: 100%; height: 100%; object-fit: cover; }
+    .player { position: absolute; width: 25px; height: 25px; border-radius: 50%; background: red; border: 2px solid white; top: 0; left: 0; }
+    .info { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>大富翁遊戲</h1>
+  <div class="grid" id="mapGrid"></div>
+
+  <div class="info">
+    <p id="status"></p>
+    <button onclick="rollDice()">擲骰子</button>
+    <p id="diceResult"></p>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+    const mapGrid = document.getElementById("mapGrid");
+    const map = Array(64).fill(null);
+    const order = data.map || [];
+
+    // 在 map[index] 中放入格子圖示
+    order.forEach(entry => {
+      map[entry.index] = entry.img;
+    });
+
+    // 渲染 8x8 地圖
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.dataset.index = i;
+      if (map[i]) {
+        const img = document.createElement("img");
+        img.src = map[i];
+        cell.appendChild(img);
+
+        const label = document.createElement("div");
+        label.style.position = 'absolute';
+        label.style.bottom = '2px';
+        label.style.right = '2px';
+        label.style.fontSize = '10px';
+        label.style.background = 'rgba(255,255,255,0.8)';
+        label.textContent = order.findIndex(o => o.index === i) + 1;
+        cell.appendChild(label);
+      }
+      mapGrid.appendChild(cell);
+    }
+
+    // 玩家資料初始化
+    const playerCount = parseInt(data.players) || 2;
+    const players = Array(playerCount).fill(0); // 存位置：順序 array index = playerId
+    const colors = ["red", "blue", "green", "orange"];
+    let currentPlayer = 0;
+
+    // 初始顯示玩家
+    function renderPlayers() {
+      document.querySelectorAll(".player").forEach(p => p.remove());
+      players.forEach((pos, id) => {
+        const gridIndex = order[pos]?.index;
+        if (gridIndex === undefined) return;
+        const cell = document.querySelector(`.cell[data-index='${gridIndex}']`);
+        const marker = document.createElement("div");
+        marker.className = "player";
+        marker.style.background = colors[id];
+        marker.style.top = `${(id * 25) % 60}px`;
+        marker.style.left = `${(id * 25) % 60}px`;
+        cell.appendChild(marker);
+      });
+    }
+
+    renderPlayers();
+
+    // 擲骰子並移動
+    function rollDice() {
+      const dice = Math.floor(Math.random() * 6) + 1;
+      document.getElementById("diceResult").textContent = `🎲 玩家 ${currentPlayer + 1} 擲出 ${dice}`;
+      let pos = players[currentPlayer];
+      pos += dice;
+      if (pos >= order.length) {
+        pos = order.length - 1; // 到終點
+      }
+      players[currentPlayer] = pos;
+      renderPlayers();
+
+      const tileType = order[pos]?.img;
+      document.getElementById("status").textContent = `玩家 ${currentPlayer + 1} 抵達格子：${tileType || "空白"}`;
+
+      // TODO: 處理特殊格（quiz, event1, fire 等）
+
+      // 換下一位
+      currentPlayer = (currentPlayer + 1) % playerCount;
+    }
+  </script>
+</body>
+</html>

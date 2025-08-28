@@ -1,0 +1,125 @@
+[
+  {
+    "category": "earthquake",
+	"question": "e地震來時最安全的躲避位置是？",
+    "options": [
+      "A. 電梯裡",
+      "B. 桌子下",
+      "C. 陽台"
+    ],
+    "answer": "B"
+  },
+  {
+    "category": "earthquake",
+	"question": "e地震時，應該立刻做什麼？",
+    "options": [
+      "A. 跑出教室",
+      "B. 找堅固物品躲避",
+      "C. 拿手機拍照"
+    ],
+    "answer": "B"
+  },
+  {
+    "category": "earthquake",
+	"question": "e哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  }  ,
+  {
+    "category": "fire",
+	"question": "f哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "fire",
+	"question": "f哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "fire",
+	"question": "f哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "water",
+	"question": "w哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "water",
+	"question": "w哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "water",
+	"question": "w哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "earthquake",
+	"question": "哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "earthquake",
+	"question": "哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  },
+  {
+    "category": "earthquake",
+	"question": "哪一項是地震時「不應該」做的事？",
+    "options": [
+      "A. 躲在牆角",
+      "B. 往窗戶靠近",
+      "C. 保持冷靜"
+    ],
+    "answer": "A"
+  }
+  
+]
+
+

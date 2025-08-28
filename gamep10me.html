@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>monopoly</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 1rem; display: flex; }
+	#left-panel { flex: 1; }
+    #right-panel { width: 750px; margin-left: 10px; }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      gap: 2px;
+    }
+    .cell {
+      width: 60px; height: 60px; border: 1px solid #aaa;
+      position: relative; background: white;
+    }
+    .cell img {
+      width: 100%; height: 100%; object-fit: contain;
+      position: absolute; top: 0; left: 0;
+    }
+    .order-number {
+      position: absolute; bottom: 2px; right: 4px;
+      font-size: 10px; background: rgba(255,255,255,0.7);
+      padding: 1px 3px; border-radius: 4px;
+    }
+    .player {
+      width: 40px; height: 40px; position: absolute;
+      z-index: 5;
+    }
+    .player1 { top: 4px; left: 4px; }
+    .player2 { top: 4px; right: 4px; }
+	.player3 { bottom: 4px; left: 4px; }
+.player4 { bottom: 4px; right: 4px; }
+    .player img { width: 100%; height: 100%; }
+    #log {     
+	  
+	  white-space: pre-line; font-size: 14px;
+      background: #f5f5f5; border: 1px solid #ccc; padding: 6px;
+      max-height: 600px; overflow-y: auto;  
+	  
+    }
+	 #configInfo {
+      background: #e8f4ff;
+      padding: 10px;
+      border: 1px solid #89b;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 14px;
+	  width:80%;
+    }
+	#event-card-display {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px; height: 380px;
+      background: white;
+      border: 2px solid #444;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      padding: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+    #event-card-display.show {
+      display: flex;
+    }
+	
+	.game-map-wrapper {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+
+.game-map-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 140px;
+  background: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 2px 2px;
+  z-index: 10;
+  bottom: 100%; left: 50%;
+  
+  font-size: 12px;
+  pointer-events: none;
+  white-space: pre-line;
+  transition: opacity 0.3s;
+}
+.game-map-wrapper:hover .game-map-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+#game-over {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: linear-gradient(135deg, #ff5f6d, #ffc371);
+  color: white;
+  border: 4px solid #fff;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  z-index: 10000;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  opacity: 0;
+}
+
+#game-over.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+#game-over h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+#game-over button {
+  background: white;
+  color: #ff5f6d;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+
+#game-over button:hover {
+  background: #ffe0e6;
+  transform: scale(1.1);
+}
+	#quiz-history {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: #fff;
+  color: #333;
+  border: 3px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  z-index: 10001;
+  width: 400px;
+  max-height: 70%;
+  overflow-y: auto;
+  opacity: 0;
+  transition: transform 0.4s, opacity 0.4s;
+}
+
+#quiz-history.show {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+#quiz-history h2 {
+  text-align: center;
+}
+
+#roll-dice-btn {
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  border: none;
+  color: white;
+  padding: 2px 2px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+}
+
+#roll-dice-btn:hover {
+  background: linear-gradient(135deg, #feb47b, #ff7e5f);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+#roll-dice-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+  </style>
+</head>
+<body>
+<div id="left-panel">
+  <h2>🎲 Game Start!</h2><div id="configInfo"></div>
+   <div id="status" style="margin: 10px 0;"></div>
+  <div>
+    <button id="roll-dice-btn" onclick="rollDice()">🎲 player <span id="currentPlayer">1</span></button>
+	
+    player<span id="people">-</span> throw <span id="diceResult">-</span>
+	
+	
+	
+	
+	
+  </div>
+  <fieldset style="margin-top: 10px; border: 1px solid #ccc; padding: 10px;width:80%">
+  
+  <legend>🎯 Pick Dice(for cheating)</legend>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="0" checked> 不指定</label>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="1"> 1</label>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="2"> 2</label>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="3"> 3</label>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="4"> 4</label>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="5"> 5</label>
+  <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="6"> 6</label>
+</fieldset>
+  <div id="game-board"></div>
+  
+  
+</div>
+<div id="right-panel">
+    <h2>Record</h2>
+  <div id="log"></div>
+  <div id="event-card-display"></div>
+  </div>
+  <div id="game-over" class="hidden">
+  <h1>🏆 Game Over 🏆</h1>
+  <p id="winner-text"></p>
+  <button onclick="restartGame()">Restart</button>
+  <button onclick="showQuizHistory()">View Quiz History</button>
+  <button onclick="closeGameOver()">❌ Close</button>
+</div>
+  <!-- 顯示答題記錄的區塊 -->
+<div id="quiz-history" class="hidden">
+  <h2>📚 Answer History</h2>
+  <div id="quiz-list"></div>
+  <button onclick="closeQuizHistory()">Close</button>
+</div>
+  
+<audio id="diceSound" src="dice-sound.mp3" preload="auto"></audio>
+<script>
+
+const config = JSON.parse(localStorage.getItem("gameConfig") || '{}');
+const { mode, timeLimit, scoreTarget,playerCount, mapData, pathIndices } = config;
+const nPlayers = config.playerCount || 2; 
+document.getElementById("configInfo").innerText =
+  mode === "time"
+    ? `🎯 Mode：time（${timeLimit} seconds）`
+    : `🎯 Mode：score（${scoreTarget} points）`;
+const gameBoard = document.getElementById("game-board");
+const logEl = document.getElementById("log");
+
+console.log(config);
+
+let playerSteps = new Array(nPlayers).fill(0);
+let playerScores = new Array(nPlayers).fill(0);
+let playerSkills = new Array(nPlayers).fill(1); // 每人初始1技能卡
+let skipTurn = new Array(nPlayers).fill(false);
+let lastDiceRoll = new Array(nPlayers).fill(0);
+let playerTokens = new Array(nPlayers).fill(null);
+let currentPlayer = 0;
+
+let gameEnded = false;
+let timer = null;
+let timeLeft = timeLimit;
+
+let quizHistory = []; 
+function closeGameOver() {
+  document.getElementById('game-over').classList.remove('show');
+}
+let quizQuestions = [];
+let passedStart = false;
+fetch("quiz.json")
+  .then(res => res.json())
+  .then(data => quizQuestions = data);
+  const quiz = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+  
+
+const eventList = [
+  { desc: "E01：An earthquake strikes! You hide under a sturdy table. Safe move! Advance 1 space.", effect: "Advance 1 space" },
+  { desc: "E02：During the earthquake, you run to the stairs for escape but are stopped by the guard. Skip 1 turn for reflect.", effect: "Skip 1 turn" },
+  { desc: "E03：You forgot to secure the bookshelf, and during the earthquake, things fell down. Move back 1 space.", effect: "Move back 1 space" },
+  { desc: "E04：After the earthquake, you immediately turn on the gas to cook instant noodles, causing a fire!", effect: "Return to start" },
+  { desc: "E05：You memorized the evacuation route and quickly led your classmates to escape, earning 2 points.", effect: "Gain 1 point" },
+  { desc: "E06：You used the whistle in the disaster kit to call for help and were successfully rescued!", effect: "Advance 2 spaces" },
+  { desc: "E07：You calmly avoided danger and helped your classmates escape, showing excellent performance!", effect: "Advance 2 spaces" },
+  { desc: "E08：After the earthquake, you called to report safety, but the line was busy.", effect: "Skip 1 turn" },
+  { desc: "E09：During the earthquake, the window shattered and you were cut by the glass.", effect: "Move back 1 space" },
+  { desc: "E10：You participated in earthquake drills and became familiar with evacuation routes!", effect: "Gain 1 point" },
+  { desc: "E11：You hid next to the bookshelf and were crushed by falling books.", effect: "Return to start" },
+  { desc: "E12：During the earthquake, you shouted 'Don't move!' causing panic.", effect: "Move back 1 space" },
+  { desc: "E13：You hid in the bathroom and got stuck!", effect: "Advance 1 space" },
+  { desc: "E14：You joked with your friend saying 'The earthquake is coming', and it really shook!", effect: "Gain 1 point" },
+  { desc: "E15：During the earthquake, you filmed a video to upload but tripped and got stuck.", effect: "Skip 1 turn" },
+  { desc: "E16：You helped the teacher move disaster supplies, being well-prepared.", effect: "Move back 1 space" },
+  { desc: "E17：The disaster kit contains water and a whistle, and you calmly wait for rescue!", effect: "Return to start" },
+  { desc: "E18：You followed the broadcast instructions to evacuate to an open area.", effect: "Gain 1 point" }
+];
+
+buildBoard();
+updateStatus();
+
+
+  if (mode === "score") {
+    // 积分制：設定目標分數
+	
+    //scoreGoal = parseInt(document.getElementById("scoreTarget").value);
+  } else if (mode === "time") {
+    // 限時制：啟動倒數計時
+    timeLeft = config.timeLimit;
+    const configInfo = document.getElementById("configInfo");
+    configInfo.textContent = `time：CountDown ${timeLeft} seconds `;
+
+    timer = setInterval(() => {
+      timeLeft--;
+      configInfo.textContent = `time：CountDown ${timeLeft} seconds `;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        gameEnded = true;
+
+        // 比較雙方分數
+        const maxScore = Math.max(...playerScores);
+		// 找出所有最高分的玩家（支援多人平手）
+		const winners = [];
+		for (let i = 0; i < playerScores.length; i++) {
+		  if (playerScores[i] === maxScore) {
+			winners.push(i + 1); // 玩家編號從1開始
+		  }
+		}
+		if (winners.length === 1) {
+		  alert(`⌛ Time Over！ player ${winners[0]} gets ${maxScore} and win`);
+		  showGameOverScreen(`⌛ Time Over！ player ${winners[0]} gets ${maxScore} and win`);
+		} else {
+		  alert(`⌛ Time Over！🤝 Tie！player ${winners.join("、")} both get ${maxScore} `);
+		  showGameOverScreen(`⌛ Time Over！🤝 Tie！player ${winners.join("、")} both get ${maxScore} `);
+		}
+		
+		
+		
+      }
+    }, 1000);
+  }
+
+function getDescription(filename) {
+  const name = filename.split('/').pop().trim();
+  const descriptions = {
+    "start.png": "start",    
+    "quiz.png": "quiz",
+    "event1.png": "random event",
+    "event2.png": "random event",
+	"fire1.png": "fire",
+    "fire2.png": "fire", 
+	"light.png": "light",
+    "bag1.png": "bag", 
+	"bag2.png": "bag",
+    "card1.png": "empty card",
+	"card2.png": "card",
+	"earthquake1.png": "earthquake", 
+	"earthquake2.png": "earthquake",
+    "earthquake3.png": "earthquake",
+	"ok1.png": "nothing",
+	"ok2.png": "nothing",
+	"ok3.png": "nothing",
+	"rain1.png": "raining",
+	"rain2.png": "raining",
+	"rain3.png": "raining",
+	"safe.png": "safe ",
+	"safezone.png": "safe zone",
+	"warning1.png": "warning",
+	"warning2.png": "warning",	
+    "underdesk.png": "back to start point",
+    "dice.png": "dice: roll again",
+    // ...可以加更多
+  };
+  return descriptions[name] ||  "";
+}
+
+
+function buildBoard() {
+  for (let i = 0; i < 64; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    if (mapData[i]) {
+      const wrapper = document.createElement("div");
+	  wrapper.className = "game-map-wrapper";
+	  // 加圖片
+	  const img = new Image();
+	  img.src = mapData[i];
+	  wrapper.appendChild(img);
+	  // 加 tooltip
+	  const tooltip = document.createElement("div");
+	  tooltip.className = "game-map-tooltip";
+	  tooltip.textContent = getDescription(img.src);
+	  wrapper.appendChild(tooltip);
+
+	  cell.appendChild(wrapper);
+    }
+    if (pathIndices.includes(i)) {
+      const label = document.createElement("div");
+      label.className = "order-number";
+      label.textContent = pathIndices.indexOf(i) + 1;
+      cell.appendChild(label);
+    }
+    gameBoard.appendChild(cell);
+  }
+  renderPlayers();
+  if (!pathIndices || pathIndices.length === 0) {
+  alert("⚠️ please from  editor.html to setup game and start！");
+}
+}
+function askQuiz(playerIndex,onCorrect, onWrong) {
+  const synth = window.speechSynthesis;
+  const quiz = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+
+  const modal = document.createElement("div");
+  
+  console.log("askQuiz");
+  modal.style.position = "fixed";
+  modal.style.top = "0";
+  modal.style.left = "0";
+  modal.style.width = "100%";
+  modal.style.height = "100%";
+  modal.style.backgroundColor = "rgba(0,0,0,0.7)";
+  modal.style.display = "flex";
+  modal.style.justifyContent = "center";
+  modal.style.alignItems = "center";
+  modal.style.zIndex = "9999";
+
+  const box = document.createElement("div");
+  box.style.background = "white";
+  box.style.padding = "20px";
+  box.style.borderRadius = "8px";
+  box.style.width = "300px";
+  box.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+  box.style.textAlign = "center";
+  box.style.animation = "slideIn 0.4s ease-out";
+
+  const q = document.createElement("h3");
+  q.textContent = quiz.question;
+  box.appendChild(q);
+
+  quiz.options.forEach(opt => {
+    const btn = document.createElement("button");
+	const log = document.getElementById("log");
+    btn.textContent = opt;
+    btn.style.display = "block";
+    btn.style.margin = "8px auto";
+    btn.style.padding = "8px 16px";
+    btn.style.fontSize = "16px";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => {
+      document.body.removeChild(modal); 
+	  console.log("askQuiz_btn_click");
+	  const isCorrect = opt.trim().startsWith(quiz.answer);
+const correctOption = quiz.options.find(o => o.trim().startsWith(quiz.answer));
+  quizHistory.push({
+    player: playerIndex + 1,
+    question: quiz.question,
+    selected: opt,
+    correctAnswer: `${quiz.answer} (${correctOption})`,
+    result: isCorrect ? "✔️ Right" : "❌ Wrong"
+  });
+      if (opt.trim().startsWith(quiz.answer)) {
+        alert("Right！ get 3 points。");
+		log.innerText += `  Right Answer ${quiz.question}」 get 3 points`;
+		
+		//log.innerText += `  玩家${playerIndex + 1} 答對題目：「${quiz.question}」 加 3 分`;
+		log.scrollTop = log.scrollHeight;
+        playerScores[playerIndex] += 3;   // ✅ 答對加 3 分
+		updateStatus();
+		if (checkScoreWin()) return;
+		onCorrect();
+		
+      } else {
+        alert("Wrong Answer！Next。");
+		//logAction(playerIndex, lastDiceRoll[playerIndex], pathIndices[playerSteps[playerIndex]]);
+		//log.innerText += `  玩家${playerIndex + 1} 答錯：「${quiz.question}」 `;
+		
+		log.innerText += `  Wrong Answer：「${quiz.question}」 `;
+		log.scrollTop = log.scrollHeight;
+		updateStatus();
+		onCorrect();
+        
+      }
+    };
+    
+	box.appendChild(btn);
+  });
+
+  modal.appendChild(box);
+
+  // 使用語音朗讀問題與選項
+  //const utterance = new SpeechSynthesisUtterance(`${quiz.question} 選項是：${quiz.options.join('、')}`);
+  //utterance.lang = 'zh-TW';
+  //synth.speak(utterance);
+
+  document.body.appendChild(modal);
+}
+
+function showQuizHistory() {
+  const historyEl = document.getElementById('quiz-list');
+  historyEl.innerHTML = quizHistory.map(h => 
+    `<div>player${h.player}：${h.question}<br> ➡️ You answer：${h.selected}，${h.result}<br> ✅ Right: ${h.correctAnswer}</div><hr>`
+  ).join('');
+  document.getElementById('quiz-history').classList.add('show');
+}
+
+function closeQuizHistory() {
+  document.getElementById('quiz-history').classList.remove('show');
+}
+
+
+
+function renderPlayers() {
+console.log("renderPlayers");
+  document.querySelectorAll(".player").forEach(p => p.remove());
+  for (let idx = 0; idx < nPlayers; idx++) {
+    const cellIndex = pathIndices[playerSteps[idx]];
+    const cell = gameBoard.children[cellIndex];
+    const token = document.createElement("div");
+    token.className = `player player${idx+1}`;
+    const carImgs = ["car_red.png", "car_blue.png", "car_green.png", "car_yellow.png"];
+    const car = new Image();
+    car.src = carImgs[idx] || "car_red.png";
+    token.appendChild(car);
+    cell.appendChild(token);
+    playerTokens[idx] = token;
+  }
+}
+function rollDice() {
+  if (gameEnded) return;
+  console.log("rollDice");
+if (skipTurn[currentPlayer]) {
+    console.log(`player ${currentPlayer + 1} skip turn`);
+	alert(`🛑 player ${currentPlayer + 1} skip turn`);
+	const log = document.getElementById("log");
+	log.innerText += `\n player ${currentPlayer + 1} skip turn`;
+    skipTurn[currentPlayer] = false;
+    currentPlayer = (currentPlayer + 1) % nPlayers;
+	document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+    updateStatus();
+    return;
+  }
+
+  const selected = document.querySelector('input[name="diceOverride"]:checked');
+  let dice = selected && selected.value !== "0" ? parseInt(selected.value) : Math.floor(Math.random() * 6) + 1;
+
+  playDiceAnimation(dice, () => {
+    finalizeRoll(dice);
+  });
+}
+
+function playDiceAnimation(finalDice, callback) {
+  const diceOverlay = document.createElement("div");
+  diceOverlay.id = "diceOverlay";
+  diceOverlay.style.position = "fixed";
+  diceOverlay.style.top = "50%";
+  diceOverlay.style.left = "50%";
+  diceOverlay.style.transform = "translate(-50%, -50%)";
+  diceOverlay.style.zIndex = "1000";
+  diceOverlay.style.backgroundColor = "rgba(255,255,255,0.8)";
+  diceOverlay.style.padding = "20px";
+  diceOverlay.style.borderRadius = "10px";
+
+  const diceImage = document.createElement("img");
+  diceImage.id = "diceImage";
+  diceImage.style.width = "100px";
+  diceImage.style.height = "100px";
+  diceOverlay.appendChild(diceImage);
+  document.body.appendChild(diceOverlay);
+
+  const diceSound = document.getElementById("diceSound");
+  if (diceSound) {
+    diceSound.currentTime = 0;
+    diceSound.play();
+  }
+
+  let rollCount = 12, currentRoll = 0;
+  const interval = setInterval(() => {
+    let tempFace = Math.floor(Math.random() * 6) + 1;
+    diceImage.src = `dice${tempFace}.png`;
+    currentRoll++;
+    if (currentRoll >= rollCount) {
+      clearInterval(interval);
+      diceImage.src = `dice${finalDice}.png`;
+      setTimeout(() => {
+        document.body.removeChild(diceOverlay);
+        if (callback) callback();
+      }, 500);
+    }
+  }, 80);
+}
+
+function finalizeRoll(dice) {
+  console.log("finalizeRoll dice:", dice);
+  const log = document.getElementById("log");
+
+  
+
+  log.innerText += `\n🎯 player${currentPlayer + 1} throw ${dice}`;
+  lastDiceRoll[currentPlayer] = dice;
+  document.getElementById("diceResult").textContent = dice;
+  document.getElementById("people").textContent = currentPlayer + 1;
+
+  continueMoveLogic(dice);
+}
+
+function continueMoveLogic(dice) {
+  const prevStep = playerSteps[currentPlayer];
+  let step = playerSteps[currentPlayer] + dice;
+  const pathLen = pathIndices.length;
+
+  if ((prevStep < pathLen) && (step >= pathLen)) {
+    passedStart = true;
+  }
+  step = step % pathLen;
+
+  const fromIndex = pathIndices[prevStep % pathLen];
+  const toIndex = pathIndices[step];
+  const cellImg = mapData[toIndex] || "";
+
+  if (fromIndex === undefined || toIndex === undefined) {
+    alert("⚠️ the map is not setup correctly, please from editor.html to setup game and start！");
+    return;
+  }
+
+  function proceed() {
+    const prev = playerSteps[currentPlayer];
+    if (passedStart) {
+      playerScores[currentPlayer] += 1;
+      alert("🎉 one lap，add 1 point！");
+      log.innerText += `\n🎯 player${currentPlayer + 1} one lap，add 1 point`;
+      checkScoreWin();
+      passedStart = false;
+    }
+
+    playerSteps[currentPlayer] = step;
+    animateMove(currentPlayer, fromIndex, toIndex, () => {
+      updateStatus();
+      if (checkScoreWin()) return;
+      logAction(currentPlayer, dice, toIndex);
+      nextTurn();
+    });
+  }
+
+  if (cellImg.includes("dice.png")) {
+    playerSteps[currentPlayer] = step;
+    animateMove(currentPlayer, fromIndex, toIndex, () => {
+      updateStatus();
+      alert("🎲 You can dice again！");
+      setTimeout(() => {
+        rollDice();
+      }, 300);
+    });
+    return;
+  }
+
+  if (cellImg.includes("underdesk.png")) {
+    alert("📢 back to start point ！");
+    log.innerText += ` back to start point `;
+    playerSteps[currentPlayer] = 0;
+    animateMove(currentPlayer, fromIndex, pathIndices[0], () => {
+      updateStatus();
+      nextTurn();
+    });
+    return;
+  }
+
+  if (cellImg.includes("quiz.png")) {
+    askQuiz(currentPlayer, proceed, nextTurn);
+    return;
+  }
+
+  if (cellImg.includes("event1.png") || cellImg.includes("event2.png")) {
+    const randomEvent = eventList[Math.floor(Math.random() * eventList.length)];
+    playerSteps[currentPlayer] = step;
+    animateMove(currentPlayer, fromIndex, toIndex, () => {
+      handleEventEffect(randomEvent, step);
+    });
+    return;
+  }
+
+  if (cellImg.includes("card2.png")) {
+    playerSkills[currentPlayer]++;
+    updateStatus();
+    alert(`🎴 Congratulations! player ${currentPlayer+1} got a skill card, current skill cards: ${playerSkills[currentPlayer]} cards`);
+    log.innerText += `\n🎴 player ${currentPlayer+1} got 1 skill card`;
+    log.scrollTop = log.scrollHeight;
+    proceed();
+    return;
+  }
+
+  proceed();
+}
+
+function nextTurn() {
+  currentPlayer = (currentPlayer + 1) % nPlayers;
+  document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+}
+
+
+
+  function animateMove(playerIdx, from, to, callback) {
+  console.log("rollDice_animateMove");
+  const token = playerTokens[playerIdx];
+  log.innerText += `ccc`;
+      if (!token) return;
+	  log.innerText += `eee`;
+      const rectFrom = gameBoard.children[from].getBoundingClientRect();
+      const rectTo = gameBoard.children[to].getBoundingClientRect();
+      const clone = token.cloneNode(true);
+      clone.style.position = 'fixed';
+      clone.style.zIndex = '9999';
+      clone.style.left = `${rectFrom.left}px`;
+      clone.style.top = `${rectFrom.top}px`;
+      clone.style.transition = 'all 0.4s ease';
+      document.body.appendChild(clone);
+      setTimeout(() => {
+        clone.style.left = `${rectTo.left}px`;
+        clone.style.top = `${rectTo.top}px`;
+      }, 10);
+      setTimeout(() => {
+        document.body.removeChild(clone);
+        gameBoard.children[to].appendChild(token);
+        if (callback) callback();
+      }, 450);
+    }
+
+function checkScoreWin() {
+  if (mode === "score") {
+    for (let i = 0; i < nPlayers; i++) {
+      if (playerScores[i] >= scoreTarget) {
+        gameEnded = true;
+        alert(`🎉 player ${i + 1} reached ${scoreTarget} points, won!`);
+		showGameOverScreen(`🎉 player ${i + 1} reached ${scoreTarget} points, won!`);
+        clearInterval(timer);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
+
+function updateStatus() {
+  let statusText = mode === "time"
+    ? `time： ${timeLeft} seconds remaining`
+    : `score`;
+	
+	  statusText ="";
+  for (let i = 0; i < nPlayers; i++) {
+    statusText += `player ${i+1}: <span style="color:red">${playerScores[i]}</span>points Skill Card：<span style="color:red">${playerSkills[i]}</span> `;
+  }
+  document.getElementById("status").innerHTML  = statusText;
+  //document.getElementById("configInfo").textContent += statusText;
+}
+
+function showGameOverScreen(winnerText) {
+  const over = document.getElementById('game-over');
+  document.getElementById('winner-text').textContent = winnerText;
+  over.classList.add('show');
+}
+
+function restartGame() {
+  location.reload();  // 直接重整頁面
+}
+
+
+function log(msg) {
+  logEl.innerText += msg + "\n";
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function logAction(player, dice, pos) {
+      const log = document.getElementById("log");
+      const stepNum = pathIndices.indexOf(pos) + 1;
+      const imgSrc = mapData[pos] || "";
+      const imgName = imgSrc.split('/').pop();
+      //log.innerText += `玩家${player + 1} 擲出 ${dice}，移動到第 ${stepNum} 格（${imgName}）`;
+	  log.innerText += ` Move to  ${stepNum} （${imgName}）`;
+      log.scrollTop = log.scrollHeight;
+	  //alert("📢📢📢 ！");
+    }
+
+function didCompleteLap(prevStep, newStep, pathLength) {
+  return prevStep > newStep; // 代表繞過頭回到起點
+}
+
+
+  
+
+function showEventCard(event, callback) {
+  const card = document.getElementById("event-card-display");
+  let skillBtnHtml = "";
+  if (playerSkills[currentPlayer] > 0) {
+    skillBtnHtml = `<button id="event-skill-btn">Use Skill Card</button>`;
+  }
+  card.innerHTML = `
+    <h3>🎴 player ${currentPlayer + 1} drew an event card</h3>
+    <p>${event.desc}</p>
+    <strong>➡ ${event.effect}</strong>
+    <button id="event-ok-btn">OK</button>
+    ${skillBtnHtml}
+  `;
+  card.classList.add("show");
+
+  // 原本確認
+  card.querySelector("#event-ok-btn").onclick = () => {
+    hideEventCard();
+    if (callback) callback();
+  };
+  // 有技能才有按鈕
+  if (playerSkills[currentPlayer] > 0) {
+    card.querySelector("#event-skill-btn").onclick = () => {
+      alert("🎮 You used a special skill, this event effect is invalid！");
+	  if (passedStart) {
+        playerScores[currentPlayer] += 1;
+		
+        alert("🎉 one lap，add 1 point！");
+
+        log.innerText += `\n🎯 player ${currentPlayer + 1} completed one lap, add 1 point`;
+        passedStart = false;
+        updateStatus();
+		alert("⚠event completed one lap");
+		checkScoreWin();
+      }
+      playerSkills[currentPlayer]--;
+      updateStatus();
+      hideEventCard();
+      // skip event, change player
+
+      logEl.innerText += ` Trigger event: 「${event.desc} ${event.effect}」, use skill card event invalid`;
+      logEl.scrollTop = logEl.scrollHeight;
+      currentPlayer = (currentPlayer + 1) % nPlayers;
+      document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+	
+      
+      updateStatus();
+    };
+  }
+}
+
+function hideEventCard() {
+  document.getElementById("event-card-display").classList.remove("show");
+}
+ 
+
+
+
+function handleEventEffect(event, fromStep) {
+console.log("handleEventEffect");
+  showEventCard(event, () => {
+    const moveEffects = ["Advance 1 space", "Advance 2 spaces", "Move back 1 space", "Move back 2 spaces", "Return to start"];
+    const log = document.getElementById("log");
+    const lastRoll = lastDiceRoll[currentPlayer];
+    log.innerText += `  Trigger Event：「${event.desc} ${event.effect}」`;
+    log.scrollTop = log.scrollHeight;
+	
+
+    let newStep = playerSteps[currentPlayer];
+
+    if (event.effect === "Advance 1 space") {
+      newStep = (newStep + 1) % pathIndices.length;
+    } else if (event.effect === "Advance 2 spaces") {
+      newStep = (newStep + 2) % pathIndices.length;
+    } else if (event.effect === "Move back 1 space") {
+      newStep = (newStep - 1 + pathIndices.length) % pathIndices.length;
+    } else if (event.effect === "Move back 2 spaces") {
+      newStep = (newStep - 2 + pathIndices.length) % pathIndices.length;
+    } else if (event.effect === "Return to start") {
+      newStep = 0;
+    }
+	//logAction(currentPlayer, dice, newStep);
+    if (event.effect === "Gain 2 points") {
+      playerScores[currentPlayer] += 2;
+      updateStatus();
+	  checkScoreWin();
+	  
+    } else if (event.effect === "Gain 1 point") {
+      playerScores[currentPlayer] += 1;
+      updateStatus();
+	   checkScoreWin();
+    } else if (event.effect === "Skip 1 turn") {
+      skipTurn[currentPlayer] = true;
+    }
+
+    const fromIndex = pathIndices[fromStep];
+    const toIndex = pathIndices[newStep];
+    playerSteps[currentPlayer] = newStep;
+
+    animateMove(currentPlayer, fromIndex, toIndex, () => {
+	console.log("handleEventEffect_animateMove");
+      updateStatus();
+      const img = mapData[toIndex] || "";
+
+      if (passedStart) {
+        playerScores[currentPlayer] += 1;
+		
+        alert("🎉 one lap , add 1 point");
+
+        log.innerText += `\n🎯 player ${currentPlayer + 1} completed one lap, add 1 point`;
+        passedStart = false;
+        updateStatus();
+		alert("⚠ completed one lap");
+		checkScoreWin();
+      }
+
+      if (img.includes("dice.png")) {
+        alert("🎲 Congratulations! You landed on a dice space and can roll again!");
+        log.innerText += `\n🎯 player ${currentPlayer + 1} landed on a dice space and can roll again! (after event)`;
+        setTimeout(() => {
+          rollDice();
+        }, 300);
+        return;
+      }
+//add
+if (img.includes("card2.png")) {
+  playerSkills[currentPlayer]++;
+  updateStatus();
+  // proceed();
+  alert(`🎴 Congratulations! Player ${currentPlayer + 1} drew a skill card, current skill cards: ${playerSkills[currentPlayer]} cards`);
+  logEl.innerText += ` Drew 1 skill card`;
+  logEl.scrollTop = logEl.scrollHeight;
+  currentPlayer = (currentPlayer + 1) % nPlayers;
+  document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+  return;
+}
+
+
+
+      if (img.includes("underdesk.png")) {
+        alert("📢 You landed on underdesk! Crushed by books, return to start!");
+		log.innerText += ` player ${currentPlayer + 1} was crushed by books! Return to start`;
+        const toStart = pathIndices[0];
+        playerSteps[currentPlayer] = 0;
+        animateMove(currentPlayer, toIndex, toStart, () => {
+          updateStatus();
+          currentPlayer = (currentPlayer + 1) % nPlayers;
+          document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+        });
+        return;
+      }
+//console.log(img, "quiz判斷");
+      if (img.includes("quiz_eng.png")) {
+        askQuiz(currentPlayer, () => {
+          currentPlayer = (currentPlayer + 1) % nPlayers;
+          document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+        }, () => {
+          currentPlayer = (currentPlayer + 1) % nPlayers;
+          document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+        });
+        return;
+      }
+
+ 
+
+
+
+      if ((img.includes("event1.png") || img.includes("event2.png")) && moveEffects.includes(event.effect)) {
+	  alert("handleEventEffect");
+        const nextEvent = eventList[Math.floor(Math.random() * eventList.length)];
+        setTimeout(() => {
+          handleEventEffect(nextEvent, newStep);
+        }, 200);
+      } else {
+        currentPlayer = (currentPlayer + 1) % nPlayers;
+        document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+		updateStatus();
+		//alert("~~~~~~ ");
+      }
+    });
+  });
+}
+document.addEventListener('keydown', function(e) {
+    if ((e.code === "Space" || e.key === " ") && !gameEnded) {
+      e.preventDefault();
+      rollDice();
+    }
+  });
+</script>
+</body>
+</html>

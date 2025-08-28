@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>編輯地圖</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 1rem; }
+    #map { display: grid; grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); gap: 2px; }
+    .cell { width: 60px; height: 60px; border: 1px solid #aaa; position: relative; overflow: hidden; background: white; position: relative;}
+    .cell img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; }
+	.item-wrapper {
+  position: relative;
+  display:  inline-block;;
+  margin: 3px;
+  width: 100%;
+  height: 100%;
+}
+
+.cell .item-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 140px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  z-index: 10;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
+
+
+.cell:hover .tooltip,
+.item-wrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+    .order-number { position: absolute; bottom: 2px; right: 4px; font-size: 10px; background: rgba(255,255,255,0.7); padding: 1px 3px; border-radius: 4px; }
+    #sidebar img { width: 60px; height: 60px; cursor: grab; border: 1px solid #aaa; border-radius: 6px; margin: 3px; background: white; }
+  </style>
+</head>
+<body>
+  <h2>🧩 編輯地圖與設定</h2>
+  <label><input type="radio" name="mode" value="time" checked onchange="updateMode()"> 限時制</label>
+  <select id="timeLimit">
+    <option value="20">20 秒</option>
+    <option value="50">50 秒</option>
+    <option value="120">2 分鐘</option>
+  </select>
+  <label style="margin-left: 10px"><input type="radio" name="mode" value="score" onchange="updateMode()"> 積分制</label>
+  <select id="scoreTarget" disabled>
+    <option value="25">25 分</option>
+    <option value="35">35 分</option>
+    <option value="45">45 分</option>
+  </select>
+
+  <div id="sidebar">
+  <div class="item-wrapper">
+    <img src="start.png" class="item" draggable="true" data-img="start.png">
+    <div class="tooltip">起點：玩家從這裡開始</div>
+  </div>
+  
+  
+        <img src="goal.png" class="item" draggable="true" data-img="goal.png">
+        <img src="bag1.png" class="item" draggable="true" data-img="bag1.png">
+		<img src="bag2.png" class="item" draggable="true" data-img="bag2.png">
+		
+		<img src="card1.png" class="item" draggable="true" data-img="card1.png">
+		<img src="card2.png" class="item" draggable="true" data-img="card2.png">
+		<div class="item-wrapper">
+    <img src="dice.png" class="item" draggable="true" data-img="dice.png">
+    <div class="tooltip">骰子格：可以再擲一次</div>
+  </div>
+		<img src="earthquake1.png" class="item" draggable="true" data-img="earthquake1.png">
+        <img src="earthquake2.png" class="item" draggable="true" data-img="earthquake2.png">
+		<img src="earthquake3.png" class="item" draggable="true" data-img="earthquake3.png">
+    <div class="item-wrapper">
+    <img src="event1.png" class="item" draggable="true" data-img="event1.png">
+    <div class="tooltip">事件卡1：隨機事件</div>
+  </div><div class="item-wrapper">
+    <img src="event2.png" class="item" draggable="true" data-img="event2.png">
+    <div class="tooltip">事件卡2：隨機事件</div>
+  </div>
+    <img src="fire1.png" class="item" draggable="true" data-img="fire1.png">
+    <img src="fire2.png" class="item" draggable="true" data-img="fire2.png">
+	<img src="firetruck.png" class="item" draggable="true" data-img="firetruck.png">
+    <img src="firstaid2.png" class="item" draggable="true" data-img="firstaid2.png">
+	<img src="light.png" class="item" draggable="true" data-img="light.png">
+	<img src="ok1.png" class="item" draggable="true" data-img="ok1.png">
+	<img src="ok2.png" class="item" draggable="true" data-img="ok2.png">
+	<img src="ok3.png" class="item" draggable="true" data-img="ok3.png">
+    <div class="item-wrapper">
+    <img src="quiz.png" class="item" draggable="true" data-img="quiz.png">
+    <div class="tooltip">答題格：答對可得分</div>
+  </div>
+    
+	<img src="rain1.png" class="item" draggable="true" data-img="rain1.png">
+	<img src="rain2.png" class="item" draggable="true" data-img="rain2.png">
+	<img src="rain3.png" class="item" draggable="true" data-img="rain3.png">
+	<img src="safe.png" class="item" draggable="true" data-img="safe.png">
+	<img src="safezone.png" class="item" draggable="true" data-img="safezone.png">
+	<img src="warning1.png" class="item" draggable="true" data-img="warning1.png">
+    <img src="warning2.png" class="item" draggable="true" data-img="warning2.png">
+	<img src="underdesk.png" class="item" draggable="true" data-img="underdesk.png">
+	
+      </div>
+	  <button onclick="loadMap1()">📌 地圖1</button><button onclick="saveAndStart()">▶ 開始遊戲</button>
+  <div id="map"></div>
+  
+
+<script>
+
+
+const mapEl = document.getElementById("map");
+let placedOrder = [];
+for (let i = 0; i < 64; i++) {
+  const cell = document.createElement("div");
+  cell.className = "cell";
+  cell.dataset.cell = i;
+  cell.ondragover = e => e.preventDefault();
+  cell.ondrop = drop;
+  mapEl.appendChild(cell);
+}
+
+
+function drop(e) {
+  e.preventDefault();
+  const filename = e.dataTransfer.getData('text/plain');
+  const cell = e.target.closest('.cell');
+  const index = parseInt(cell.dataset.cell);
+  cell.innerHTML = '';
+  const img = new Image();
+  img.src = filename;
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+  
+  // 建立 tooltip 元素
+  const tooltip = document.createElement("div");
+  tooltip.className = "tooltip";
+  tooltip.textContent = getTooltipText(filename);  // 取得說明文字
+  
+  const wrapper = document.createElement("div");
+  wrapper.className = "item-wrapper";
+  wrapper.appendChild(img);
+  wrapper.appendChild(tooltip);
+   cell.appendChild(wrapper);
+  if (!placedOrder.includes(index)) placedOrder.push(index);
+}
+function getTooltipText(filename) {
+  const name = filename.split("/").pop();
+  const map = {
+    "start.png": "起點：玩家從這裡開始",
+    "goal.png": "終點：遊戲的目標點",
+    "quiz.png": "答題格：答對可得分",
+    "event1.png": "事件卡1：隨機事件",
+    "event2.png": "事件卡2：更多事件",
+    "underdesk.png": "危險格：退回起點",
+    "dice.png": "骰子格：可以再擲一次",
+    "warning1.png": "警告標示",
+    "safe.png": "安全區域",
+    // ... 加其他圖片說明
+  };
+  return map[name] || `圖片：${name}`;
+}
+
+
+
+ function loadMap1() {
+    const map1 = [
+      { index: 0, img: 'start.png' },
+      { index: 1, img: 'event1.png' },
+      { index: 2, img: 'event1.png' },
+      { index: 3, img: 'event1.png' },
+      { index: 4, img: 'event1.png' },
+      { index: 5, img: 'event1.png' },
+      { index: 6, img: 'event2.png' },
+      { index: 7, img: 'event1.png' },
+      { index: 15, img: 'quiz.png' },
+	  { index: 23, img: 'underdesk.png' },
+      { index: 31, img: 'event1.png' },
+      { index: 30, img: 'event2.png' },
+      { index: 29, img: 'quiz.png' },
+      { index: 28, img: 'warning2.png' },
+	  { index: 27, img: 'event1.png' },
+      { index: 26, img: 'event2.png' },
+      { index: 25, img: 'event2.png' },
+      { index: 24, img: 'event1.png' },
+	  { index: 16, img: 'event2.png' },
+      { index: 8, img: 'underdesk.png' },
+    ];
+    placedOrder = [];
+    map1.forEach(({ index, img }) => {
+      const cell = mapEl.querySelector(`.cell[data-cell="${index}"]`);
+      cell.innerHTML = '';
+      const image = new Image();
+      image.src = img;
+	  image.style.width = "100%";
+    image.style.height = "100%";
+    image.style.objectFit = "contain";
+      //image.width = image.height = 60;
+      
+	  
+	  const tooltip = document.createElement("div");
+tooltip.className = "tooltip";
+tooltip.textContent = getTooltipText(img);
+
+const wrapper = document.createElement("div");
+wrapper.className = "item-wrapper";
+wrapper.appendChild(image);
+wrapper.appendChild(tooltip);
+cell.appendChild(wrapper);
+	 
+      placedOrder.push(index);
+	  
+    });
+  }
+
+
+function updateMode() {
+  const timeSel = document.getElementById("timeLimit");
+  const scoreSel = document.getElementById("scoreTarget");
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  timeSel.disabled = mode !== "time";
+  scoreSel.disabled = mode !== "score";
+}
+function saveAndStart() {
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  const timeLimit = parseInt(document.getElementById("timeLimit").value);
+  const scoreTarget = parseInt(document.getElementById("scoreTarget").value);
+  const cells = mapEl.querySelectorAll(".cell");
+  const mapData = [];
+  cells.forEach(cell => {
+    const img = cell.querySelector("img");
+    mapData.push(img ? img.src : null);
+  });
+  const config = {
+    mode,
+    timeLimit,
+    scoreTarget,
+    mapData,
+    pathIndices: placedOrder
+  };
+  localStorage.setItem("gameConfig", JSON.stringify(config));
+  window.location.href = "game9.html";
+}
+</script>
+</body>
+</html>

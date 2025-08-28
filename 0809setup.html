@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>遊戲設定頁</title>
+  <style>
+    body { font-family: sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(8, 60px); gap: 5px; margin-top: 10px; }
+    .cell { width: 60px; height: 60px; border: 1px solid #aaa; position: relative; }
+    .cell img { width: 100%; height: 100%; object-fit: cover; }
+    .toolbox img { width: 60px; height: 60px; margin: 5px; cursor: grab; }
+    .map-index { position: absolute; bottom: 2px; right: 2px; font-size: 10px; background: rgba(255,255,255,0.8); padding: 1px 3px; }
+  </style>
+</head>
+<body>
+
+  <script>
+    function changeToEnglish() {
+      document.querySelector('h1').textContent = 'Game Settings';
+      document.querySelector('label[for]')?.removeAttribute('for');
+      document.querySelector("label").childNodes[0].textContent = 'Mode: ';
+      document.getElementById('mode').options[0].text = 'Time';
+      document.getElementById('mode').options[1].text = 'Score';
+      document.getElementById('timeLimit').options[0].text = '20 sec';
+      document.getElementById('timeLimit').options[1].text = '50 sec';
+      document.getElementById('timeLimit').options[2].text = '90 sec';
+      document.getElementById('scoreLimit').options[0].text = '5 pts';
+      document.getElementById('scoreLimit').options[1].text = '10 pts';
+      document.getElementById('scoreLimit').options[2].text = '15 pts';
+      document.querySelectorAll('label')[1].childNodes[0].textContent = 'Players: ';
+      document.getElementById('playerCount').options[0].text = '2 players';
+      document.getElementById('playerCount').options[1].text = '3 players';
+      document.getElementById('playerCount').options[2].text = '4 players';
+      document.querySelector('h3').textContent = 'Tile Materials (Drag to Map)';
+      document.querySelectorAll('h3')[1].textContent = 'Map Editor (8x8)';
+      document.querySelector("button[onclick^='loadMap(1)']").textContent = 'Apply Map 1';
+      document.querySelector("button[onclick^='loadMap(2)']").textContent = 'Map 2';
+      document.querySelector("button[onclick^='loadMap(3)']").textContent = 'Map 3';
+      document.querySelector("button[onclick^='startGame()']").textContent = 'Start Game';
+    }
+
+    function changeToChinese() {
+      document.querySelector('h1').textContent = '遊戲設定';
+      document.querySelector('label[for]')?.removeAttribute('for');
+      document.querySelector("label").childNodes[0].textContent = '模式：';
+      document.getElementById('mode').options[0].text = '計時制';
+      document.getElementById('mode').options[1].text = '記分制';
+      document.getElementById('timeLimit').options[0].text = '20秒';
+      document.getElementById('timeLimit').options[1].text = '50秒';
+      document.getElementById('timeLimit').options[2].text = '1分半';
+      document.getElementById('scoreLimit').options[0].text = '5分';
+      document.getElementById('scoreLimit').options[1].text = '10分';
+      document.getElementById('scoreLimit').options[2].text = '15分';
+      document.querySelectorAll('label')[1].childNodes[0].textContent = '人數：';
+      document.getElementById('playerCount').options[0].text = '2人';
+      document.getElementById('playerCount').options[1].text = '3人';
+      document.getElementById('playerCount').options[2].text = '4人';
+      document.querySelector('h3').textContent = '格子素材（拖曳到地圖）';
+      document.querySelectorAll('h3')[1].textContent = '地圖編輯區（8x8）';
+      document.querySelector("button[onclick^='loadMap(1)']").textContent = '套用地圖1';
+      document.querySelector("button[onclick^='loadMap(2)']").textContent = '地圖2';
+      document.querySelector("button[onclick^='loadMap(3)']").textContent = '地圖3';
+      document.querySelector("button[onclick^='startGame()']").textContent = '開始遊戲';
+    }
+  </script>
+
+  <button id="langBtnEn" onclick="changeToEnglish()">Change language into English</button>
+  <button id="langBtnZh" onclick="changeToChinese()">切換成中文</button>
+  <h1>遊戲設定</h1>
+  <!-- 遊戲模式 -->
+  <label>模式：
+    <select id="mode" onchange="updateModeOptions()">
+      <option value="time">計時制</option>
+      <option value="score">記分制</option>
+    </select>
+  </label>
+  <div id="timeOptions">
+    <select id="timeLimit">
+      <option value="20">20秒</option>
+      <option value="50">50秒</option>
+      <option value="90">1分半</option>
+    </select>
+</div>
+  <div id="scoreOptions" style="display:none">
+    <select id="scoreLimit">
+      <option value="5">5分</option>
+      <option value="10">10分</option>
+      <option value="15">15分</option>
+    </select>
+  </div>
+
+  <!-- 人數 -->
+  <label>人數：
+    <select id="playerCount">
+      <option value="2">2人</option>
+      <option value="3">3人</option>
+      <option value="4">4人</option>
+    </select>
+  </label>
+
+  <!-- 工具箱 -->
+  <h3>格子素材（拖曳到地圖）</h3>
+  <div class="toolbox" id="toolbox">
+    <img src="start.png" draggable="true">
+    <img src="event1.png" draggable="true">
+    <img src="ok1.png" draggable="true">
+    <img src="card2.png" draggable="true">
+    <img src="event1.png" draggable="true">
+    <img src="earthquake2.png" draggable="true">
+    <img src="card2.png" draggable="true">
+    <img src="event1.png" draggable="true">
+    <img src="quiz.png" draggable="true">
+    <img src="card2.png" draggable="true">
+    <img src="event1.png" draggable="true">
+    <img src="fire2.png" draggable="true">
+    <img src="quiz.png" draggable="true">
+    <img src="dice.png" draggable="true">
+    <img src="event1.png" draggable="true">
+    <img src="card2.png" draggable="true">
+    <img src="event2.png" draggable="true">
+    <img src="card2.png" draggable="true">
+    <img src="event2.png" draggable="true">
+    <img src="underdesk.png" draggable="true">
+  </div>
+
+  <!-- 地圖區域 -->
+  <h3>地圖編輯區（8x8）</h3>
+  <div class="grid" id="mapGrid"></div>
+
+  <button onclick="loadMap(1)">套用地圖1</button>
+  <button onclick="loadMap(2)">地圖2</button>
+  <button onclick="loadMap(3)">地圖3</button>
+
+  <br><br>
+  <button onclick="startGame()">開始遊戲</button>
+
+  <script>
+    const mapGrid = document.getElementById("mapGrid");
+    let tileOrder = [];  // 用於儲存順序
+
+    // 初始化地圖格子
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.dataset.index = i;
+      cell.ondragover = e => e.preventDefault();
+      cell.ondrop = e => {
+        const src = e.dataTransfer.getData("text");
+        const img = document.createElement("img");
+        img.src = src;
+        cell.innerHTML = '';
+        cell.appendChild(img);
+        tileOrder.push({ index: parseInt(cell.dataset.index), img: src });
+        const label = document.createElement("div");
+        label.className = "map-index";
+        label.textContent = tileOrder.length;
+        cell.appendChild(label);
+      };
+      mapGrid.appendChild(cell);
+    }
+
+    // 工具箱拖曳
+    document.querySelectorAll("#toolbox img").forEach(img => {
+      img.ondragstart = e => {
+        e.dataTransfer.setData("text", e.target.src);
+      };
+    });
+
+    // 切換模式選項
+    function updateModeOptions() {
+      const mode = document.getElementById("mode").value;
+      document.getElementById("timeOptions").style.display = mode === "time" ? "block" : "none";
+      document.getElementById("scoreOptions").style.display = mode === "score" ? "block" : "none";
+    }
+
+    // 套用預設地圖
+    function loadMap(mapNum) {
+      tileOrder = [];
+      document.querySelectorAll(".cell").forEach(cell => cell.innerHTML = "");
+
+      let mapData = [];
+      if (mapNum === 1) {
+        mapData = [
+          { index: 0, img: 'start.png' }, { index: 1, img: 'event1.png' }, { index: 2, img: 'ok1.png' },
+          { index: 3, img: 'card2.png' }, { index: 4, img: 'event1.png' }, { index: 5, img: 'earthquake2.png' },
+          { index: 6, img: 'card2.png' }, { index: 7, img: 'event1.png' }, { index: 15, img: 'quiz.png' },
+          { index: 23, img: 'card2.png' }, { index: 31, img: 'event1.png' }, { index: 30, img: 'fire2.png' },
+          { index: 29, img: 'quiz.png' }, { index: 28, img: 'dice.png' }, { index: 27, img: 'event1.png' },
+          { index: 26, img: 'card2.png' }, { index: 25, img: 'event2.png' }, { index: 24, img: 'card2.png' },
+          { index: 16, img: 'event2.png' }, { index: 8, img: 'underdesk.png' },
+        ];
+      }
+      // 其他地圖可擴充 mapData2, mapData3
+      mapData.forEach((entry, i) => {
+        const cell = document.querySelector(`.cell[data-index='${entry.index}']`);
+        const img = document.createElement("img");
+        img.src = entry.img;
+        cell.appendChild(img);
+        tileOrder.push({ index: entry.index, img: entry.img });
+
+        const label = document.createElement("div");
+        label.className = "map-index";
+        label.textContent = tileOrder.length;
+        cell.appendChild(label);
+      });
+    }
+
+    // 開始遊戲
+    function startGame() {
+      const mode = document.getElementById("mode").value;
+      const time = document.getElementById("timeLimit").value;
+      const score = document.getElementById("scoreLimit").value;
+      const players = document.getElementById("playerCount").value;
+
+      const gameData = {
+        mode,
+        limit: mode === "time" ? time : score,
+        players,
+        map: tileOrder,
+      };
+
+      localStorage.setItem("gameData", JSON.stringify(gameData));
+      location.href = "0809game.html";
+    }
+  </script>
+</body>
+</html>

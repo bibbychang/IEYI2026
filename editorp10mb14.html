@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>編輯地圖</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 1rem; }
+    #map { display: grid; grid-template-columns: repeat(8, 90px); grid-template-rows: repeat(8, 90); gap: 2px; }
+    .cell { width: 90px; height: 90px; border: 1px solid #aaa; position: relative; overflow: hidden; background: white; }
+    .cell img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; }
+    .order-number { position: absolute; bottom: 2px; right: 4px; font-size: 10px; background: rgba(255,255,255,0.7); padding: 1px 3px; border-radius: 4px; }
+    #sidebar img { width: 90px; height: 90px; cursor: grab; border: 1px solid #aaa; border-radius: 6px; margin: 3px; background: white; }
+	#sidebar .item-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#sidebar .item-wrapper .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 150px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  z-index: 10;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
+#sidebar .item-wrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.drop-item-wrapper, .map-item-wrapper {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex;         /* 新增這行 */
+  justify-content: center;
+  align-items: center;
+}
+.drop-item-wrapper img, .map-item-wrapper img {
+  width: 100%; height: 100%; object-fit: contain;
+  /* 加一行確保 img 不會遮蔽 pointer 事件 */
+  pointer-events: none;
+}
+
+
+.drop-item-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: white;
+}
+.drop-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 140px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 2px 2px;
+  /*position: absolute;*/
+  z-index: 10;
+  bottom:auto;
+  top:-8px; 
+  
+  transition: opacity 0.3s;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: pre-line;
+}
+
+.drop-item-wrapper:hover .drop-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+	
+	
+
+.map-item-wrapper:hover .map-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.map-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  /*position: absolute;*/
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 2px 2px;
+  border-radius: 6px;
+  bottom: 105%;
+  left: 50%;
+  
+  font-size: 12px;
+  white-space: pre-line;
+  z-index: 10;
+  transition: opacity 0.3s;
+}
+	
+	
+  </style>
+</head>
+<body>
+  <h2 id="title-text">🧩 編輯地圖與設定</h2> <button id="lang-toggle" style="margin-left:8px">語系</button>
+  <label><input type="radio" name="mode" value="time"  onchange="updateMode()"> 限時制</label>
+  <select id="timeLimit" disabled>
+    <option value="20">20 秒</option>
+    <option value="50">50 秒</option>
+    <option value="120">2 分鐘</option>
+  </select>
+  <label style="margin-left: 10px"><input type="radio" name="mode" value="score" checked onchange="updateMode()"> 積分制</label>
+  <select id="scoreTarget" >
+    <option value="5">5 分</option>
+    <option value="10">10 分</option>
+    <option value="15">15 分</option>
+  </select>
+<label style="margin-left:10px">人數
+  <select id="playerCount">
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+</label>
+
+<!--fire1.png light.png bag1.png-->
+
+  <div id="sidebar">
+       <div class="item-wrapper">
+    <img src="start.png" class="item" draggable="true" data-img="start.png">
+    <div class="tooltip">起點：玩家從這裡開始</div>
+  </div>
+  <div class="item-wrapper">
+   <img src="dice.png" class="item" draggable="true" data-img="dice.png">
+    <div class="tooltip">骰子格：可以再擲一次</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="event1.png" class="item" draggable="true" data-img="event1.png">
+    <div class="tooltip">事件卡1：隨機事件</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="event2.png" class="item" draggable="true" data-img="event2.png">
+    <div class="tooltip">事件卡2：隨機事件</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="ok1.png" class="item" draggable="true" data-img="ok1.png">
+    <div class="tooltip">無特殊事件</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="ok2.png" class="item" draggable="true" data-img="ok2.png">
+    <div class="tooltip">無特殊事件</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="ok3.png" class="item" draggable="true" data-img="ok3.png">
+    <div class="tooltip">無特殊事件</div>
+  </div>
+  
+  <div class="item-wrapper">
+    <img src="quiz_fire.png" class="item" draggable="true" data-img="quiz_fire.png">
+    <div class="tooltip">答題格：答對可得分</div>
+  </div>
+
+  <div class="item-wrapper">
+    <img src="quiz_water.png" class="item" draggable="true" data-img="quiz_water.png">
+    <div class="tooltip">答題格：答對可得分</div>
+  </div>  
+  <div class="item-wrapper">
+    <img src="quiz_earthquake.png" class="item" draggable="true" data-img="quiz_earthquake.png">
+    <div class="tooltip">答題格：答對可得分</div>
+  </div>
+  
+  <br>
+<div class="item-wrapper">
+    <img src="underdesk.png" class="item" draggable="true" data-img="underdesk.png">
+    <div class="tooltip">地震來了躲到桌下，回到起點</div>
+  </div>
+  <div class="item-wrapper">
+    <img src="bag1.png" class="item" draggable="true" data-img="bag1.png">
+    <div class="tooltip">急救包</div>
+  </div>
+  
+  
+  <div class="item-wrapper">
+    <img src="card2.png" class="item" draggable="true" data-img="card2.png">
+    <div class="tooltip">特殊技能卡</div>
+  </div>
+<div class="item-wrapper">
+	<img src="fire2.png" class="item" draggable="true" data-img="fire2.png">
+      <div class="tooltip">火災</div>
+  </div> 
+  
+  <div class="item-wrapper">
+    <img src="rain1.png" class="item" draggable="true" data-img="rain1.png">	
+    <div class="tooltip">水災了</div>
+  </div>
+<div class="item-wrapper">
+    <img src="earthquake3.png" class="item" draggable="true" data-img="earthquake3.png">
+    <div class="tooltip">地震了</div>
+  </div>
+	 
+<div class="item-wrapper">
+    <img src="fire_station_0.png" class="item" draggable="true" data-img="fire_station_0.png">
+    <div class="tooltip">消防局</div>
+  </div>
+
+
+  	<div class="item-wrapper">
+    <img src="water_bureau_0.png" class="item" draggable="true" data-img="water_bureau_0.png">
+    <div class="tooltip">水利局</div>
+  </div>
+
+  
+	<div class="item-wrapper">
+    <img src="museum921_0.png" class="item" draggable="true" data-img="museum921_0.png">
+    <div class="tooltip">地震博物館</div>
+  </div>
+  
+	
+  </div>
+	  <button onclick="loadMap1()">📌 地圖1</button><button onclick="loadMap2()">📌 地圖2</button><button onclick="loadMap3()">📌 地圖3</button>
+	  <button onclick="clearMap()">🧹 清空</button><button onclick="saveAndStart()">▶ 開始遊戲</button>
+	  
+  <div id="map"></div>
+  
+
+<script>
+const LANG_KEY = 'gameLang';
+let lang = localStorage.getItem(LANG_KEY) || 'zh'; // 'zh' or 'en'
+if (!lang) {
+  lang = 'zh'; // 預設中文
+  localStorage.setItem(LANG_KEY, lang);
+}
+const uiText = {
+  zh: {
+    title: '🧩 編輯地圖與設定',
+    toggle_to: 'English version',
+    mode_time: '限時制',
+    mode_score: '積分制',
+    time_20: '20 秒',
+    time_50: '50 秒',
+    time_120: '2 分鐘',
+    score_5: '5 分',
+    score_10: '10 分',
+    score_15: '15 分',
+    people: '人數',    
+    map1: '📌 地圖1',
+	map2: '📌 地圖2',
+	map3: '📌 地圖3',
+	clear: '🧹 清空',
+    start: '▶ 開始遊戲'
+  },
+  en: {
+    title: '🧩 Map Editor & Settings',
+    toggle_to: '中文版',
+    mode_time: 'Timed Mode',
+    mode_score: 'Score Mode',
+    time_20: '20 sec',
+    time_50: '50 sec',
+    time_120: '2 min',
+    score_5: '5 pts',
+    score_10: '10 pts',
+    score_15: '15 pts',
+    people: 'Players',
+    map1: '📌 Map 1',
+	map2: '📌 Map 2',
+    map3: '📌 Map 3',
+    clear: '🧹 Clear',
+    start: '▶ Start Game'
+  }
+};
+
+function renderLangButton() {
+  document.documentElement.lang = (lang === 'en') ? 'en' : 'zh-Hant';
+
+  // 切換按鈕文字
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = uiText[lang].toggle_to;
+
+  // 標題
+  const title = document.getElementById('title-text');
+  if (title) title.textContent = uiText[lang].title;
+
+  // 單選標籤（限時制 / 積分制）
+  const timeLabel = document.querySelector('label input[value="time"]').parentNode;
+  const scoreLabel = document.querySelector('label input[value="score"]').parentNode;
+  timeLabel.lastChild.nodeValue = ' ' + uiText[lang].mode_time;
+  scoreLabel.lastChild.nodeValue = ' ' + uiText[lang].mode_score;
+
+  // 下拉選項（時間限制）
+  const timeSel = document.getElementById('timeLimit');
+  timeSel.options[0].text = uiText[lang].time_20;
+  timeSel.options[1].text = uiText[lang].time_50;
+  timeSel.options[2].text = uiText[lang].time_120;
+
+  // 下拉選項（目標分數）
+  const scoreSel = document.getElementById('scoreTarget');
+  scoreSel.options[0].text = uiText[lang].score_5;
+  scoreSel.options[1].text = uiText[lang].score_10;
+  scoreSel.options[2].text = uiText[lang].score_15;
+
+  // 人數標籤
+  const peopleLabel = document.querySelector('label[style*="margin-left:10px"]');
+  if (peopleLabel) peopleLabel.childNodes[0].nodeValue = uiText[lang].people + ' ';
+
+  // 地圖按鈕
+  const map1Btn = document.querySelector('button[onclick="loadMap1()"]');
+  if (map1Btn) map1Btn.textContent = uiText[lang].map1;
+  // 地圖按鈕
+ const map2Btn = document.querySelector('button[onclick="loadMap2()"]');
+  if (map2Btn) map2Btn.textContent = uiText[lang].map2;
+
+  const map3Btn = document.querySelector('button[onclick="loadMap3()"]');
+  if (map3Btn) map3Btn.textContent = uiText[lang].map3;
+
+  const clearBtn = document.querySelector('button[onclick="clearMap()"]');
+  if (clearBtn) clearBtn.textContent = uiText[lang].clear;
+
+
+  // 開始遊戲按鈕
+  const startBtn = document.querySelector('button[onclick="saveAndStart()"]');
+  if (startBtn) startBtn.textContent = uiText[lang].start;
+
+    refreshAllTooltips();  // 最後加這一行，讓所有 tooltip 也換語言
+
+}
+
+
+
+function toggleLang() {
+  lang = (lang === 'zh') ? 'en' : 'zh';
+  localStorage.setItem(LANG_KEY, lang);
+  renderLangButton();
+}
+
+// 初始化按鈕
+window.addEventListener('DOMContentLoaded', () => {
+  renderLangButton();
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.addEventListener('click', toggleLang);
+});
+
+function refreshAllTooltips() {
+  // 1) 側邊欄的 tooltip（依 sidebar 圖示的 data-img）
+  document.querySelectorAll('#sidebar .item-wrapper').forEach(w => {
+    const img = w.querySelector('img.item');
+    const tip = w.querySelector('.tooltip');
+    if (img && tip) {
+      const key = img.getAttribute('data-img') || img.src;
+      tip.textContent = getDescription(key);
+    }
+  });
+
+  // 2) 地圖上「拖進來」的格子（drop-item-wrapper）
+  document.querySelectorAll('#map .drop-item-wrapper').forEach(w => {
+    const img = w.querySelector('img');
+    const tip = w.querySelector('.drop-tooltip');
+    if (img && tip) {
+      const key = img.getAttribute('data-img') || img.src;
+      tip.textContent = getDescription(key);
+    }
+  });
+
+  // 3) 地圖上「loadMap1() 載入」的格子（map-item-wrapper）
+  document.querySelectorAll('#map .map-item-wrapper').forEach(w => {
+    const img = w.querySelector('img');
+    const tip = w.querySelector('.map-tooltip');
+    if (img && tip) {
+      const key = img.getAttribute('data-img') || img.src;
+      tip.textContent = getDescription(key);
+    }
+  });
+}
+
+
+const mapEl = document.getElementById("map");
+let placedOrder = [];
+for (let i = 0; i < 64; i++) {
+  const cell = document.createElement("div");
+  cell.className = "cell";
+  cell.dataset.cell = i;
+  cell.ondragover = e => e.preventDefault();
+  cell.ondrop = drop;
+  mapEl.appendChild(cell);
+}
+function getDescription(filename) {
+  const name = filename.split('/').pop().trim();
+  const dictZH = {
+    "start.png": "起點：玩家從這裡開始",
+    "quiz_fire.png": "火災相關問題答題格：答對可得分",
+    "quiz_water.png": "水災相關問題答題格：答對可得分",
+    "quiz_earthquake.png": "地震相關問題答題格：答對可得分",
+    "event1.png": "事件卡1：隨機事件",
+    "event2.png": "事件卡2：隨機事件",
+    "fire1.png": "發生火災", "fire2.png": "發生火災",
+    "light.png": "燈光",
+    "bag1.png": "急救包，可加分", "bag2.png": "急救包，可加分",
+    "card1.png": "空白卡片", "card2.png": "特殊技能卡",
+    "earthquake1.png": "發生地震了", "earthquake2.png": "發生地震了", "earthquake3.png": "發生地震了",
+    "ok1.png": "無特殊事件","ok2.png":"無特殊事件","ok3.png":"無特殊事件",
+    "rain1.png": "發生水災","rain2.png":"發生水災","rain3.png":"發生水災",
+    "safe.png": "安全區", "safezone.png": "安全區",
+    "warning1.png": "警告", "warning2.png": "警告",
+    "underdesk.png": "發生地震，躲到桌下，退回起點",
+    "dice.png": "骰子格：可以再擲一次",
+    "fire_station_0.png":"消防局",
+	  "water_bureau_0.png": "水利局",
+	  "museum921_0.png": "地震博物館",
+  };
+  const dictEN = {
+    "start.png": "Start: where all players begin",
+    "quiz_fire.png": "Quiz for fire: answer to earn points",
+    "quiz_water.png": "Quiz for water: answer to earn points",    
+    "quiz_earthquake.png": "Quiz for earthquake: answer to earn points",
+    "event1.png": "Event 1: random effect",
+    "event2.png": "Event 2: random effect",
+    "fire1.png": "Fire", "fire2.png": "Fire",
+    "light.png": "Light",
+    "bag1.png": "Aid kit", "bag2.png": "Aid kit",
+    "card1.png": "Blank card", "card2.png": "Skill card",
+    "earthquake1.png": "Earthquake", "earthquake2.png":"Earthquake", "earthquake3.png":"Earthquake",
+    "ok1.png": "Safe","ok2.png":"Safe","ok3.png":"Safe",
+    "rain1.png": "Rain","rain2.png":"Rain","rain3.png":"Rain",
+    "safe.png": "Safe zone", "safezone.png": "Safe zone",
+    "warning1.png": "Warning", "warning2.png": "Warning",
+    "underdesk.png": "Books fell — back to start",
+    "dice.png": "Dice tile: roll again",
+    "fire_station_0.png":"fire station",
+	  "water_bureau_0.png": "Water Bureau",
+	  "museum921_0.png": "921Earthquake Museum",
+  };
+  const dict = (lang === 'en') ? dictEN : dictZH;
+  return dict[name] || "";
+}
+   
+
+
+function drop(e) {
+  
+  
+
+  
+  e.preventDefault();
+  const filename = e.dataTransfer.getData('text/plain');
+  const cell = e.target.closest('.cell');
+  const index = parseInt(cell.dataset.cell);
+  cell.innerHTML = '';
+  
+  // 建立 wrapper + 圖片 + tooltip
+  
+  const wrapper = document.createElement("div");
+  wrapper.className = "drop-item-wrapper";
+
+
+  const img = new Image();
+  img.src = filename;
+  img.setAttribute('data-img', filename); // ★ 新增
+  //img.className = "item";
+  wrapper.appendChild(img);
+  
+   const tip = document.createElement("div");
+  tip.className = "drop-tooltip";
+  tip.textContent = getDescription(filename);  // 根據圖檔名稱給說明文字
+  wrapper.appendChild(tip);
+  
+   
+  cell.appendChild(wrapper);
+  
+  
+  if (!placedOrder.includes(index)) placedOrder.push(index);
+}
+
+ function loadMap1() {
+    const map1 = [
+      { index: 0, img: 'start.png' },
+      { index: 1, img: 'fire_station_0.png' },
+      { index: 2, img: 'event1.png' },
+      { index: 3, img: 'bag1.png' },
+      { index: 4, img: 'museum921_0.png' },
+      { index: 5, img: 'event1.png' },
+      { index: 6, img: 'dice.png' },
+      { index: 7, img: 'event1.png' },
+      { index: 15, img: 'underdesk.png' },
+	  { index: 23, img: 'water_bureau_0.png' },
+      { index: 31, img: 'event1.png' },
+      { index: 39, img: 'rain1.png' },
+      { index: 38, img: 'ok3.png' },
+      { index: 37, img: 'dice.png' },
+	  { index: 36, img: 'event1.png' },
+      { index: 28, img: 'earthquake3.png' },
+      { index: 20, img: 'ok2.png' },
+      { index: 12, img: 'rain1.png' },
+	  { index: 11, img: 'quiz_earthquake.png' },
+	  { index: 19, img: 'event1.png' },
+      { index: 27, img: 'fire2.png' },
+      { index: 35, img: 'event2.png' },
+      { index: 34, img: 'rain1.png' },
+	  { index: 33, img: 'ok1.png' },
+	  { index: 32, img: 'event1.png' },
+      { index: 24, img: 'earthquake3.png' },
+      { index: 16, img: 'event2.png' },
+      { index: 17, img: 'rain1.png' },
+	  { index: 9, img: 'quiz_water.png' },
+      { index: 8, img: 'quiz_fire.png' },
+    ];
+    placedOrder = [];
+    map1.forEach(({ index, img }) => {
+      const cell = mapEl.querySelector(`.cell[data-cell="${index}"]`);
+      cell.innerHTML = '';
+      const wrapper = document.createElement("div");
+    wrapper.className = "map-item-wrapper";
+	  
+	  const image = new Image();
+      image.src = img;
+      image.setAttribute('data-img', img); // ★ 新增
+      image.width = image.height = 90;
+      const tooltip = document.createElement("div");
+		tooltip.className = "map-tooltip";
+		
+		tooltip.textContent = getDescription(img);
+		
+		
+	  wrapper.appendChild(image);
+    wrapper.appendChild(tooltip);
+    cell.appendChild(wrapper);
+	  
+      placedOrder.push(index);
+    });
+  }
+
+
+function clearMap() {
+  const cells = mapEl.querySelectorAll(".cell");
+  cells.forEach(cell => cell.innerHTML = '');
+  placedOrder = [];
+}
+
+// 範例 Map 2（你可以再調整內容順序與圖示）
+function loadMap2() {
+  const map2 = [
+    { index: 0, img: 'start.png' },
+    { index: 1, img: 'quiz_fire.png' },
+    { index: 2, img: 'event2.png' },
+    { index: 3, img: 'dice.png' },
+    { index: 4, img: 'fire_station_0.png' },
+    { index: 5, img: 'ok2.png' },
+    { index: 6, img: 'quiz_water.png' },
+    { index: 7, img: 'event1.png' },
+    { index: 15, img: 'rain1.png' },
+    { index: 23, img: 'bag1.png' },
+    { index: 31, img: 'underdesk.png' },
+    { index: 39, img: 'quiz_earthquake.png' },
+    { index: 47, img: 'museum921_0.png' },
+    { index: 55, img: 'fire2.png' },
+    { index: 54, img: 'event2.png' },
+    { index: 53, img: 'earthquake2.png' },
+    { index: 61, img: 'event1.png' },
+    { index: 60, img: 'dice.png' },
+    { index: 59, img: 'ok3.png' },
+    { index: 58, img: 'rain3.png' },
+    { index: 57, img: 'event1.png' },
+	{ index: 56, img: 'event1.png' },
+	{ index: 49, img: 'ok3.png' },
+    { index: 42, img: 'rain3.png' },
+    { index: 35, img: 'event1.png' },
+	{ index: 28, img: 'event1.png' }
+  ];
+  placedOrder = [];
+  map2.forEach(({ index, img }) => {
+    const cell = mapEl.querySelector(`.cell[data-cell="${index}"]`);
+    cell.innerHTML = '';
+    const wrapper = document.createElement("div");
+    wrapper.className = "map-item-wrapper";
+    const image = new Image();
+    image.src = img;
+    image.setAttribute('data-img', img);
+    image.width = image.height = 90;
+    const tooltip = document.createElement("div");
+    tooltip.className = "map-tooltip";
+    tooltip.textContent = getDescription(img);
+    wrapper.appendChild(image);
+    wrapper.appendChild(tooltip);
+    cell.appendChild(wrapper);
+    placedOrder.push(index);
+  });
+}
+
+// 範例 Map 3（你可以再調整內容順序與圖示）
+function loadMap3() {
+  const map3 = [
+    { index: 0, img: 'start.png' },
+    { index: 1, img: 'event1.png' },
+    { index: 2, img: 'bag1.png' },
+    { index: 3, img: 'event2.png' },
+    { index: 4, img: 'rain2.png' },
+    { index: 5, img: 'quiz_fire.png' },
+    { index: 6, img: 'dice.png' },
+    { index: 7, img: 'ok1.png' },
+    { index: 8, img: 'quiz_water.png' },
+    { index: 9, img: 'fire2.png' },
+    { index: 10, img: 'event1.png' },
+    { index: 15, img: 'underdesk.png' },
+    { index: 16, img: 'quiz_earthquake.png' },
+    { index: 23, img: 'water_bureau_0.png' },
+    { index: 24, img: 'earthquake3.png' },
+    { index: 25, img: 'event2.png' },
+    { index: 26, img: 'ok3.png' },
+    { index: 27, img: 'event1.png' },
+    { index: 28, img: 'dice.png' },
+    { index: 29, img: 'rain1.png' },
+    { index: 30, img: 'ok2.png' },
+    { index: 31, img: 'event1.png' }
+  ];
+  placedOrder = [];
+  map3.forEach(({ index, img }) => {
+    const cell = mapEl.querySelector(`.cell[data-cell="${index}"]`);
+    cell.innerHTML = '';
+    const wrapper = document.createElement("div");
+    wrapper.className = "map-item-wrapper";
+    const image = new Image();
+    image.src = img;
+    image.setAttribute('data-img', img);
+    image.width = image.height = 90;
+    const tooltip = document.createElement("div");
+    tooltip.className = "map-tooltip";
+    tooltip.textContent = getDescription(img);
+    wrapper.appendChild(image);
+    wrapper.appendChild(tooltip);
+    cell.appendChild(wrapper);
+    placedOrder.push(index);
+  });
+}
+
+function updateMode() {
+  const timeSel = document.getElementById("timeLimit");
+  const scoreSel = document.getElementById("scoreTarget");
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  timeSel.disabled = mode !== "time";
+  scoreSel.disabled = mode !== "score";
+}
+function saveAndStart() {
+  const mode = document.querySelector('input[name="mode"]:checked').value;
+  const timeLimit = parseInt(document.getElementById("timeLimit").value);
+  const scoreTarget = parseInt(document.getElementById("scoreTarget").value);
+  const playerCount = parseInt(document.getElementById("playerCount").value); 
+  const cells = mapEl.querySelectorAll(".cell");
+  const mapData = [];
+  cells.forEach(cell => {
+    const img = cell.querySelector("img");
+    mapData.push(img ? img.src : null);
+  });
+  const config = {
+    mode,
+    timeLimit,
+    scoreTarget,
+	playerCount,
+    mapData,
+    pathIndices: placedOrder,
+    lang
+  };
+  localStorage.setItem("gameConfig", JSON.stringify(config));
+  console.log(config);
+  localStorage.setItem("gameLang", lang); // 記住語言選擇
+window.location.href = (lang === 'en') ? "gamep10mb14.html" : "gamep10mb14.html";
+}
+</script>
+</body>
+</html>

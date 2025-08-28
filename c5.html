@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>地圖編輯 + 大富翁遊戲</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #main {
+      display: flex;
+      flex: 1;
+    }
+    #editor, #game {
+      flex: 1;
+      overflow: auto;
+      padding: 10px;
+    }
+    #editor {
+      border-right: 2px solid #ccc;
+    }
+    #sidebar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    #sidebar img {
+      width: 60px;
+      height: 60px;
+      cursor: grab;
+      display: block;
+      border: 1px solid #aaa;
+      background: white;
+      border-radius: 6px;
+    }
+    #map {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      gap: 2px;
+      background-color: #888;
+      justify-content: start;
+      align-content: start;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: #fff;
+      border: 1px solid #aaa;
+      position: relative;
+      overflow: hidden;
+    }
+    .cell img {
+      width: 60px;
+      height: 60px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: contain;
+    }
+    #history-panel {
+      margin-top: 10px;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(8, 60px);
+      grid-template-rows: repeat(8, 60px);
+      gap: 2px;
+    }
+    #game-board .cell {
+      position: relative;
+      font-size: 10px;
+    }
+    .player {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 2;
+    }
+    .player1 { background-color: red; }
+    .player2 { background-color: blue; }
+  </style>
+</head>
+<body>
+  <h1>大富翁地圖編輯器 + 遊戲123</h1>
+  <div id="main">
+    <div id="editor">
+      <h3>拖曳圖片進格子</h3>
+      <div id="sidebar">
+        <img src="start.jpg" class="item" draggable="true" data-img="start.jpg">
+        <img src="goal.jpg" class="item" draggable="true" data-img="goal.jpg">
+          <img src="earthquake2.jpg" class="item" draggable="true" data-img="earthquake2.jpg">
+    <img src="earthquake3.png" class="item" draggable="true" data-img="earthquake3.png">
+    <img src="event1.png" class="item" draggable="true" data-img="event1.png">
+    <img src="event2.png" class="item" draggable="true" data-img="event2.png">
+    <img src="fire1.png" class="item" draggable="true" data-img="fire1.png">
+    <img src="fire2.png" class="item" draggable="true" data-img="fire2.png">
+    <img src="firstaid2.png" class="item" draggable="true" data-img="firstaid2.png">
+	<img src="warning2.png" class="item" draggable="true" data-img="warning2.png">
+    <img src="ok1.png" class="item" draggable="true" data-img="ok1.png">
+	<img src="ok2.png" class="item" draggable="true" data-img="ok1.png">
+	<img src="ok3.png" class="item" draggable="true" data-img="ok1.png">
+    <img src="underdesk.png" class="item" draggable="true" data-img="underdesk.png">
+	<img src="rain1.png" class="item" draggable="true" data-img="rain1.png">
+	<img src="rain2.png" class="item" draggable="true" data-img="rain2.png">
+	<img src="rain3.png" class="item" draggable="true" data-img="rain3.png">
+	
+      </div>
+      <div id="map"></div>
+      <button onclick="startGame()">▶ 開始遊戲</button>
+    </div>
+    <div id="game">
+      <h3>遊戲區</h3>
+      <div id="game-board"></div>
+      <p><button onclick="rollDice()">🎲 擲骰</button> 擲出 <span id="diceResult">-</span></p>
+    </div>
+  </div>
+  <script>
+    const mapEl = document.getElementById("map");
+    const gameBoard = document.getElementById("game-board");
+    let mapData = [], pathIndices = [], playerStep = 0;
+
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.dataset.cell = i;
+      cell.ondragover = e => e.preventDefault();
+      cell.ondrop = drop;
+      mapEl.appendChild(cell);
+    }
+
+    document.querySelectorAll('.item').forEach(item => {
+      item.ondragstart = e => {
+        e.dataTransfer.setData('text/plain', item.dataset.img);
+      };
+    });
+
+    function drop(e) {
+      e.preventDefault();
+      const filename = e.dataTransfer.getData('text/plain');
+      const cell = e.target.closest('.cell');
+      cell.innerHTML = '';
+      const img = new Image();
+      img.src = filename;
+      img.width = img.height = 60;
+      cell.appendChild(img);
+    }
+
+    function startGame() {
+      gameBoard.innerHTML = '';
+      mapData = [];
+      pathIndices = [];
+      const cells = mapEl.querySelectorAll('.cell');
+      cells.forEach((cell, index) => {
+        const img = cell.querySelector('img');
+        const imgSrc = img ? img.src : null;
+        mapData.push(imgSrc);
+        if (imgSrc && imgSrc.includes('start.jpg')) {
+          pathIndices.push(index);
+        }
+      });
+      mapData.forEach((src, index) => {
+        if (src && !pathIndices.includes(index) && src.includes('.')) {
+          pathIndices.push(index);
+        }
+      });
+      buildGame();
+    }
+
+    function buildGame() {
+      for (let i = 0; i < 64; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        if (mapData[i]) {
+          const img = new Image();
+          img.src = mapData[i];
+          cell.appendChild(img);
+        }
+        gameBoard.appendChild(cell);
+      }
+      playerStep = 0;
+      renderPlayer();
+    }
+
+    function rollDice() {
+      const dice = Math.floor(Math.random() * 6) + 1;
+      document.getElementById("diceResult").textContent = dice;
+      playerStep += dice;
+      if (playerStep >= pathIndices.length) {
+        playerStep = pathIndices.length - 1;
+      }
+      renderPlayer();
+      const cellIndex = pathIndices[playerStep];
+      if (mapData[cellIndex] && mapData[cellIndex].includes('goal.jpg')) {
+        setTimeout(() => alert('🎉 抵達終點，遊戲結束！'), 100);
+      }
+    }
+
+    function renderPlayer() {
+      document.querySelectorAll(".player").forEach(p => p.remove());
+      const cellIndex = pathIndices[playerStep];
+      const cell = gameBoard.children[cellIndex];
+      if (!cell) return;
+      const token = document.createElement("div");
+      token.className = "player player1";
+      cell.appendChild(token);
+    }
+  </script>
+</body>
+</html>

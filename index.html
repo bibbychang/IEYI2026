@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>防災大富翁｜操作說明</title>
+  <meta name="description" content="防災主題大富翁遊戲的操作說明、規則、格子與事件解釋，以及地圖編輯器使用步驟。">
+  <style>
+    :root{
+      --bg: #0b1020;
+      --bg-soft:#11162a;
+      --card:#121a31;
+      --border:#253255;
+      --text:#e6ecff;
+      --muted:#b6c0de;
+      --accent:#7aa2ff;
+      --accent-2:#8ee3c3;
+      --warn:#ffd166;
+      --danger:#ff6b6b;
+      --ok:#58d68d;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f5f7ff; --bg-soft:#f0f3ff; --card:#ffffff; --border:#d7def8;
+        --text:#1b2351; --muted:#41518f; --accent:#2653ff; --accent-2:#0cab83;
+        --shadow: 0 10px 20px rgba(24,48,96,.12);
+      }
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font:16px/1.6 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
+      "Segoe UI","Noto Sans TC","PingFang TC","Hiragino Sans","Helvetica Neue",Arial,"Apple Color Emoji"; 
+      color:var(--text); background:linear-gradient(180deg,var(--bg) 0%,var(--bg-soft) 100%)}
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1080px;margin:0 auto;padding:24px}
+    header.hero{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--bg) 0%,transparent 100%);backdrop-filter:saturate(1.2) blur(6px);}
+    .hero-inner{display:flex;gap:18px;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:12px;background: url('background.jpg') center / contain no-repeat;box-shadow:var(--shadow)}
+    .title{font-weight:800;font-size:20px;letter-spacing:.3px}
+    .actions{display:flex;gap:10px;align-items:center}
+    .btn{border:1px solid var(--border);background:var(--card);color:var(--text);padding:8px 12px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:linear-gradient(135deg,var(--accent) 0%, var(--accent-2) 100%);color:white;border:none}
+    .btn.ghost{background:transparent}
+    .toc{display:flex;gap:10px;flex-wrap:wrap;padding:12px 24px;border-bottom:1px dashed var(--border);}
+    .toc a{padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:rgba(0,0,0,.05)}
+    main{padding:18px 24px}
+    h2{margin:24px 0 10px;font-size:28px;letter-spacing:.5px}
+    h3{margin:18px 0 8px;font-size:20px}
+    .lead{font-size:18px;color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    .grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .grid.cols-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+    .card.inset{padding:0;overflow:hidden}
+    .badge{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.04);font-size:12px}
+    .muted{color:var(--muted)}
+    .list{margin:8px 0 0 18px}
+    .kbd{font-family:ui-monospace,Consolas,monospace;border:1px solid var(--border);padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.06)}
+    .tile{display:flex;gap:12px;align-items:center}
+    .tile img{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);object-fit:contain;background:#fff}
+    .pill{font-size:12px;padding:2px 6px;border-radius:6px;border:1px solid var(--border)}
+    .ok{color:var(--ok)} .warn{color:var(--warn)} .danger{color:var(--danger)}
+    details{border:1px solid var(--border);border-radius:14px;padding:12px;background:var(--card);box-shadow:var(--shadow)}
+    details>summary{cursor:pointer;font-weight:600;margin:-12px;padding:12px;border-radius:14px;list-style:none}
+    details[open]>summary{border-bottom:1px dashed var(--border)}
+    .footer{padding:40px 24px;color:var(--muted);text-align:center;border-top:1px dashed var(--border)}
+    .note{font-size:13px;color:var(--muted)}
+    .section{scroll-margin-top:88px}
+    .kbd-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+    /* print */
+    @media print{
+      header.hero, .toc, .actions .btn.primary{display:none}
+      body{background:#fff;color:#000}
+      .card{break-inside:avoid}
+    }
+  </style>
+  <style id="bg-override">
+    /* Subtle watermark background — very light, behind all content */
+    body{ background: inherit; }
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      background: url('background.jpg') top center / 100vmin repeat-x;
+      opacity: 0.08;            /* ← 調整淡度（0.08 ~ 0.18） */
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(0.85);
+    }
+    /* 保證主要內容蓋在背景上方 */
+    body > * { position: relative; z-index: 1; }
+  </style>
+  <style id="video-layout-override">
+    /* 兩支影片並排各 50% */
+    #videoGrid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    #videoGrid figure{ margin: 0; }
+    #videoGrid video, #videoGrid iframe{
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    
+    <div class="hero-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div class="title">防災大富翁</div>
+          <div class="muted">遊戲規則、格子與事件解釋、常見問題、地圖編輯器教學</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="./editorp10mb25.html">🗺️ 地圖編輯</a>
+        <a class="btn primary" href="./gamep10mb25m.html">▶ 開始遊戲</a><!--/gamep10mb12.html-->
+        <a class="btn primary" href="./start.html">🖍️ 歷程版本</a>        
+      </div>
+    </div>
+    <nav class="toc container">
+      <a href="#goal">教育目標</a>
+      <a href="#quickstart">快速上手</a>
+      <a href="#rules">基本規則</a>
+      <a href="#tiles">格子一覽</a>
+      <a href="#events">事件卡 & 問答</a>
+      <a href="#property">地產系統</a>
+      <a href="#scoring">計分與勝利</a>
+      <a href="#editor">地圖編輯器教學</a>
+      <a href="#faq">常見問題</a>
+    </nav>
+  </header>
+
+  <main class="container">
+   
+<section id="goal" class="section">
+      <h2>🎀 教育目標</h2>
+      <p class="lead">可自由設計路線與關卡，玩家在擲骰子與決策過程中，以遊戲化方式強化地震/水災/火災的防災意識，</div>
+      <div class="grid cols-3">
+        
+        <div class="card">
+          <h3>1) 特色</h3>
+          <ol class="list">
+            <li><strong>可設計路線</strong>的地圖編輯器，可依不同參與者設計不同難度的遊戲，難度可調整</li>
+			<li><strong>三大題庫分流</strong>：只出對應類題，可針對不同課程主題教學，知識點更聚焦。</li>
+			<li><strong>答題記錄</strong>可針對玩家答題情況進行統計與補救教學</li>
+          <li><strong>地產購買門檻</strong>：森林地／低窪地／高樓大廈等可擁有地產，結合答題與資源配置。</li>
+          <li><strong>雙模式</strong>：積分制（達標即勝）與限時制（時間到比高分），時間容易配合。</li>
+		  <li><strong>視覺化記分板</strong>：進度條＋避難卡圖示，提升學生學習動力。</li>		  
+		  <li><strong>低成本更新、可擴充</strong>：圖示/題庫/事件改了就即時生效，可持續擴展，免重新印製桌遊。</li>
+		  
+          </ol>
+          
+        </div>
+<div class="card">
+          <h3>2) 教育意義</h3>
+          <ol class="list">
+            
+        <li><strong>知識格</strong>：強化正確知識→答對加分。</li>
+          <li><strong>事件格</strong>：隨機情境與決策練習；退回、回起點、加分等。</li>
+          <li><strong>急救包格</strong>：平時準備換取災時優勢。</li>
+          <li><strong>地產格</strong>：低窪地／森林地／高樓大廈，有足夠分數可購買。</li>
+          <li><strong>躲避格</strong>：就地掩護，正確避震觀念</li>
+		  <span class="pill">主題：校園/家庭防災</span>
+          <span class="pill">學段：國小中年級</span>
+          <span class="pill">類型：教育型桌遊</span>
+          </ol>
+          
+        </div>
+
+<div class="card">
+        <h3>3) 進步性</h2>
+        <ol class="list">
+
+        <li><strong>模組化題庫</strong>：可依據課綱擴充題目，提升學生防災知識</li>
+        <li><strong>內建答題檢視</strong>：可輸出學習紀錄，可做為評量使用</li>
+        <li><strong>勝負制與視覺化記分板</strong>：透過比賽勝負機制提升學生學習動機。</li>  
+        </ol>
+        
+</div>
+
+<div class="card">
+        <h3>4) 新穎性</h2>
+        <ol class="list">
+
+        <li><strong>路徑不是固定的</strong>：可依不同情境設計不同路線</li>
+        <li><strong>學習即時回饋</strong>：答對加分</li>
+        <li><strong>模擬真實風險</strong>：事件卡的設計可模擬真實風險</li>  
+        </ol>
+        
+</div>
+
+
+
+
+      </div>
+    </section>
+
+    <section id="quickstart" class="section">
+      <h2>🚀 快速上手</h2>
+      <p class="lead">先用編輯器設定地圖，再開始遊戲。</p>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>1) 編輯地圖</h3>
+          <ol class="list">
+            <li>按下右上角編輯地圖按鈕 ， 可自行拖曳路徑圖或選擇 <span class="kbd">地圖1 / 地圖2 / 地圖3</span> </li>
+            <li>上方選項可調整遊戲模式（積分 / 限時），設定遊戲人數和語言選擇。</li>
+            <li>按下 <span class="kbd">開始遊戲</span>，開始進行遊戲</li>
+          </ol>
+          <p class="note">小提醒：<span class="kbd">拖曳路徑圖</span> 的順序就是行走的路徑。</p>
+        </div>
+        <div class="card">
+          <h3>2) 開始遊戲</h3>
+          <ol class="list">
+            
+            <li>玩家依序按 <span class="kbd">擲骰</span> 玩家移動。</li>
+            <li>棋子移動到格子後才會觸發效果（問答、事件、拿卡、購買地產等）。</li>
+          </ol>
+          <div class="kbd-row">
+            <span class="badge">🖱️ 透過滑鼠操作與進行遊戲</span>
+            <span class="badge">⌨️ <span class="kbd">空白鍵</span> 也可擲骰</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rules" class="section">
+      <h2>📐 基本規則</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>回合流程</h3>
+          <ol class="list">
+            <li>玩家按下 <strong>擲骰</strong>。</li>
+            
+            <li><strong>依骰子點數行進移動至新位置並</strong>觸發格子效果（問答 / 事件 / 技能卡 / 地產 / 道具）。</li>
+            <li>處理結算（加分、購買、移動、換人）。</li>
+            <li>完成一圈時可加分。</li>
+          </ol>
+          
+        </div>
+        <div class="card">
+          <h3>模式</h3>
+          <ul class="list">
+            <li><strong>積分制</strong>：先達到目標分數的玩家獲勝。</li>
+            <li><strong>限時制</strong>：時間到時分數最高者獲勝。</li>
+          </ul>
+          <p class="note">模式與參數可在 <span class="kbd">地圖編輯</span> 頁面設定。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tiles" class="section">
+      <h2>🧩 格子一覽</h2>
+      <div class="grid cols-2">
+        <div class="card tile">
+          <img src="start.png" alt="start" /><div><strong>起點</strong><div class="muted">起始點</div></div>
+        </div>
+        <div class="card tile">
+          <img src="dice.png" alt="dice" /><div><strong>骰子格</strong><div class="muted">再擲一次。</div></div>
+        </div>
+        <div class="card tile">
+          <img src="underdesk.png" alt="underdesk" /><div><strong>躲避</strong><div class="muted">發生地震，躲到桌下，正確躲避，加5分</div></div>
+        </div>
+        <div class="card tile">
+          <img src="card2.png" alt="skill card" /><div><strong>躲避卡</strong><div class="muted"> +1 張躲避卡。</div></div>
+        </div>
+		
+        <div class="card tile">
+          <img src="bag1.png" alt="bag" /><div><strong>防災包</strong><div class="muted">家中備妥防災包，正確防災觀念， +5 分。</div></div>
+        </div>
+        <div class="card tile">
+          <img src="event1.png" alt="event" /><div><strong>事件卡</strong><div class="muted">前進/後退/回到起點/得分/停一回合…</div></div>
+        </div>
+        <div class="card tile">
+          <img src="quiz_earthquake.png" alt="quiz earthquake" /><div><strong>地震問答</strong><div class="muted">彈出地震相關題目，答對加分。</div></div>
+        </div>
+        <div class="card tile">
+          <img src="quiz_fire.png" alt="quiz earthquake" /><div><strong>火災問答</strong><div class="muted">彈出火災相關題目，答對加分。</div></div>
+        </div>
+        <div class="card tile">
+          <img src="quiz_water.png" alt="quiz earthquake" /><div><strong>水災問答</strong><div class="muted">彈出水災相關題目，答對加分。</div></div>
+        </div>
+        <div class="card tile">
+          <img src="earthquake3.png" alt="museum 921" /><div><strong>地震啦</strong><div class="muted">彈出地震問題，答對的話，自己的<u>高樓大廈</u>保留，清空其他玩家的<u>高樓大廈</u>；答錯的話，清空自己的<u>高樓大廈</u>，保留別人的<u>高樓大廈</u></div></div>
+        </div>
+        <div class="card tile">
+          <img src="fire2.png" alt="fire station" /><div><strong>火災啦</strong><div class="muted">彈出火災問題，答對的話，自己的<u>森林地</u>保留，清空其他玩家的<u>森林地</u>；答錯的話，清空自己的<u>森林地</u>，保留別人的<u>森林地</u></div></div>
+        </div>
+        <div class="card tile">
+          <img src="rain1.png" alt="water bureau" /><div><strong>淹水啦</strong><div class="muted">彈出水災問題，答對的話，自己的<u>低窪地</u>保留，清空其他玩家的<u>低窪地</u>；答錯的話，清空自己的<u>低窪地</u>，保留別人的<u>低窪地</u></div></div>
+        </div>
+        <div class="card tile">
+          <img src="museum921_0.png" alt="museum 921" /><div><strong>高樓大廈</strong><div class="muted">可擁有的地產</div></div>
+        </div>
+        <div class="card tile">
+          <img src="fire_station_0.png" alt="fire station" /><div><strong>森林地</strong><div class="muted">可擁有的地產。</div></div>
+        </div>
+        <div class="card tile">
+          <img src="water_bureau_0.png" alt="water bureau" /><div><strong>低窪地</strong><div class="muted">可擁有的地產</div></div>
+        </div>
+        <div class="card tile">
+          <img src="back.png" alt="skill card" /><div><strong>退回起點</strong><div class="muted"> 退回起點</div></div>
+        </div>
+      </div>
+      
+    </section>
+
+    <section id="events" class="section">
+      <h2>🎴 事件卡 & 問答</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>事件卡（Event）</h3>
+          <ul class="list">
+            <li><strong>前進 1 / 2 格</strong>：往前行進。</li>
+            <li><strong>退回 1 / 2 格</strong>：<span class="badge">倒退</span></li>
+            <li><strong>回到起點</strong>：回到起點，直接換人。</li>
+            <li><strong>得 1 / 2 分</strong>：得分。</li>
+            <li><strong>停一回合</strong>：暫停一回合</li> 
+          </ul>
+          <p class="note">事件卡可以造成連鎖移動</p>
+        </div>
+        <div class="card">
+          <h3>知識問答（Quiz）</h3>
+          <ul class="list">
+            <li>包含：地震、火災、水災等分類。</li>
+            <li>玩家移動後才出題。</li>
+            <li>答對加分（預設 +3），答錯不扣分，結束回合。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="property" class="section">
+      <h2>🏢 地產系統</h2>
+      <div class="card">
+        <h3>購買與持有</h3>
+        <ul class="list">
+          <li>可購買的地點：<strong>高樓大廈 </strong>、<strong>森林地 </strong>、<strong>低窪地</strong>，可以擴充</li>
+          <li>擁有足夠分數才能購買。</li>
+          <li>購買後該格背景會換成該玩家的顏色，比如玩家1是紅色，玩家2是藍色</li>
+          <li>其他玩家踩到時，要給對應的分數，若分數不足夠，能給多少就給多少</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="scoring" class="section">
+      <h2>🏆 計分與勝利</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>加分來源</h3>
+          <ul class="list">
+            <li>答對問答（預設 +3）。</li>
+            <li>撿到防災包（預設 +5）。</li>
+			<li>躲避（預設 +5）。</li>
+            <li>完成一圈（預設 +1）。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>勝利條件</h3>
+          <ul class="list">
+            <li>積分制：先達 <span class="kbd">目標分數</span>（例如 20 分）。</li>
+            <li>限時制：時間結束，比較分數高低。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="editor" class="section">
+      <h2>🗺️ 地圖編輯</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>常用功能</h3>
+          <ul class="list">
+            <li>設定回合模式、分數/時間門檻，選擇玩家數與設定語言。</li>
+            <li>拖曳路徑圖可自行編輯路徑或載入預設地圖：地圖 1 / 2 / 3。</li>            
+            <li>儲存並開始。</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>注意事項</h3>
+          <ul class="list">
+            <li>拖曳路徑圖順序（<span class="kbd">placedOrder</span>）會變成遊戲的行走順序。</li>
+            <li>圖片檔名要與遊戲相同（如 <span class="kbd">card2.png</span>）。</li>            
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <h2>❓ 我們遇到的問題</h2>
+      <div class="grid cols-2">
+        <details class="card" open>
+          <summary>遊戲開始後空白一片？</summary>
+          <div>
+            地圖編輯沒有傳入遊戲開始頁面，必須要預設值。
+          </div>
+        </details>
+        
+        <details class="card">
+          <summary>退回 1 / 2 格會繞一圈？</summary>
+          <div>要加移動動畫的方向，+1表示向前走，-1表示後退</div>
+        </details>
+        <details class="card">
+          <summary>「回到起點」會繞一圈？</summary>
+          <div>如果是回到起點，直接把玩家位置設為0就好</div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© 2025 防災大富翁｜教學頁</div>
+    <h2>🎬 影片集</h2>
+    <p class="meta">AI工具產生的影片</p>
+    <div class="grid" id="videoGrid">
+      <figure>
+        <video controls preload="metadata" src="v1.mp4"></video>
+        <figcaption>版本 1 遊戲展示</figcaption>
+      </figure>
+      <figure>
+        <video controls preload="metadata" src="v2.mp4"></video>
+        <figcaption>版本 2 遊戲展示</figcaption>
+      </figure>
+    </div>
+  </footer>
+</body>
+</html>

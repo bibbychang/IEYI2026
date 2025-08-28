@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>地圖編輯器</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #map { display: grid; grid-template-columns: repeat(8, 60px); gap: 2px; }
+    .cell { width: 60px; height: 60px; border: 1px solid #aaa; position: relative; }
+    .cell img { width: 100%; height: 100%; position: absolute; object-fit: contain; }
+    #sidebar img { width: 60px; height: 60px; margin: 5px; border: 1px solid #aaa; cursor: grab; }
+  </style>
+</head>
+<body>
+  <h2>地圖編輯器</h2>
+  <div id="sidebar">
+    <img src="start.jpg">
+    <img src="event1.png">
+    <img src="fire1.png">
+    <img src="firstaid2.png">
+    <img src="quiz.png">
+    <img src="goal.jpg">
+  </div>
+  <div id="map"></div>
+  <br>
+  <label><input type="radio" name="mode" value="round" checked> 回合制</label>
+  <select id="roundCount"><option>1</option><option>2</option><option>3</option></select>
+  <br>
+  <label><input type="radio" name="mode" value="score"> 積分制</label>
+  <select id="scoreTarget"><option>25</option><option>35</option><option>45</option></select>
+  <br><br>
+  <button onclick="goToGamePage()">▶ 開始遊戲</button>
+
+  <script>
+    const map = document.getElementById("map");
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.ondragover = e => e.preventDefault();
+      cell.ondrop = e => {
+        e.preventDefault();
+        const src = e.dataTransfer.getData("img");
+        const img = document.createElement("img");
+        img.src = src;
+        cell.innerHTML = '';
+        cell.appendChild(img);
+      };
+      map.appendChild(cell);
+    }
+
+    document.querySelectorAll("#sidebar img").forEach(img => {
+      img.draggable = true;
+      img.ondragstart = e => e.dataTransfer.setData("img", img.src);
+    });
+
+    function goToGamePage() {
+      const mapData = [];
+      document.querySelectorAll('#map .cell').forEach(cell => {
+        const img = cell.querySelector('img');
+        mapData.push(img ? img.getAttribute('src') : null);
+      });
+
+      const placedOrder = [...document.querySelectorAll('#map .cell')]
+        .map((cell, i) => (cell.querySelector('img') ? i : null))
+        .filter(i => i !== null);
+
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const roundGoal = document.getElementById("roundCount").value;
+      const scoreGoal = document.getElementById("scoreTarget").value;
+
+      const gameConfig = {
+        mapData,
+        placedOrder,
+        mode,
+        roundGoal,
+        scoreGoal
+      };
+
+      localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
+      location.href = "game0630.html";
+    }
+  </script>
+</body>
+</html>
