@@ -9,7 +9,17 @@
     .cell { width: 90px; height: 90px; border: 1px solid #aaa; position: relative; overflow: hidden; background: white; }
     .cell img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; }
     .order-number { position: absolute; bottom: 2px; right: 4px; font-size: 10px; background: rgba(255,255,255,0.7); padding: 1px 3px; border-radius: 4px; }
-    #sidebar img { width: 90px; height: 90px; cursor: grab; border: 1px solid #aaa; border-radius: 6px; margin: 3px; background: white; }
+    #sidebar img { width: 100%;
+  aspect-ratio: 1 / 1;   
+  max-width: calc(100vw / 8 - 6px); 
+  cursor: grab;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  margin: 3px;
+  background: white;
+  height: auto; }
+	<!-- #sidebar img { width: 90px; height: 90px; cursor: grab; border: 1px solid #aaa; border-radius: 6px; margin: 3px; background: white; }-->
+
 	#sidebar .item-wrapper {
   position: relative;
   display: inline-block;
@@ -188,7 +198,7 @@
 <div class="item-wrapper">
     <img src="underdesk.png" class="item" draggable="true" data-img="underdesk.png">
     <div class="tooltip">發生地震，躲到桌下，正確躲避，可加分</div>
-  </div> <br>
+  </div> 
   <div class="item-wrapper">
     <img src="bag1.png" class="item" draggable="true" data-img="bag1.png">
     <div class="tooltip">急救包</div>

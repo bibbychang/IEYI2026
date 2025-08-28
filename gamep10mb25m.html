@@ -39,7 +39,7 @@
 	  
 	  white-space: pre-line; font-size: 14px;
       background: #f5f5f5; border: 1px solid #ccc; padding: 6px;
-      max-height: 600px; overflow-y: auto;  
+      max-height: 1000px; overflow-y: auto;  
 	  
     }
 	 #configInfo {
@@ -335,14 +335,17 @@
   
 </div>
 <div id="right-panel">
-    <h2>🎲紀錄</h2>
-  <div id="log"></div>
-  <div id="event-card-display"></div>
-  <h2 style="margin-top:400px;">🎥 展示影片</h2>
-<video id="demoVideo" controls width="360" style="border-radius:8px; ">
+    
+	<div id="event-card-display"></div>
+ 
+<!-- <h2 >🎥 展示影片</h2><video id="demoVideo" controls width="200" style="border-radius:8px; ">
   <source src="v1.mp4" type="video/mp4">
   您的瀏覽器不支援 HTML5 影片。
 </video>
+-->
+<h2>🎲紀錄</h2>
+  <div id="log"></div>
+  
   </div>
   <div id="game-over" class="hidden">
   <h1>🏆 遊戲結束 🏆</h1>
@@ -1111,9 +1114,9 @@ function continueMoveLogic(dice) {
   isAskingQuiz = true; // set guard
 
   let cat = null;
-  if (imgNow.includes("quiz_earthquake.png")) cat = "earthquake";
-  else if (imgNow.includes("quiz_fire.png")) cat = "fire";
-  else if (imgNow.includes("quiz_water.png")) cat = "water";
+  if (imgNow.includes("quiz_earthquake.png")) cat = "地震知識問答";
+  else if (imgNow.includes("quiz_fire.png")) cat = "火災知識問答";
+  else if (imgNow.includes("quiz_water.png")) cat = "水災知識問答";
 
   const q = getRandomQuiz(cat);
 
@@ -1153,7 +1156,7 @@ function continueMoveLogic(dice) {
 if (imgNow.includes("dice.png")) {
   alert("🎲 踩到骰子格，可以再擲一次！");
   playerSteps[currentPlayer] = step;
-  logEl.innerText += `\n🎯 玩家${currentPlayer + 1} 踩到骰子格，可以再擲一次！`;
+  logEl.innerText += ` 踩到骰子格，可以再擲一次！`;
   logEl.scrollTop = logEl.scrollHeight;
   setTimeout(() => rollDice(), 300);
   return;
@@ -1161,7 +1164,7 @@ if (imgNow.includes("dice.png")) {
    if (imgNow.includes("underdesk.png")) {
   playerScores[currentPlayer] += 5;
   updateStatus();
-  logEl.innerText += `\n🎒 玩家 ${currentPlayer + 1}  地震時躲在桌下，加 5 分`;
+  logEl.innerText += `  地震時躲在桌下，加 5 分`;
   logEl.scrollTop = logEl.scrollHeight;
   alert(`🎴 恭喜！玩家 ${currentPlayer + 1} 地震時躲在桌下，加 5 分`);  
   checkScoreWin();
@@ -1185,8 +1188,8 @@ if (imgNow.includes("dice.png")) {
   if (imgNow.includes("card2.png")) {
   playerSkills[currentPlayer]++;
   updateStatus();
-  alert(`🎴 恭喜！玩家${currentPlayer+1} 獲得一張技能卡，目前技能卡：${playerSkills[currentPlayer]} 張`);
-  logEl.innerText += ` 獲得1張技能卡`;
+  alert(`🎴 恭喜！玩家${currentPlayer+1} 獲得一張技能卡，目前避難卡：${playerSkills[currentPlayer]} 張`);
+  logEl.innerText += ` 獲得1張避難卡`;
   logEl.scrollTop = logEl.scrollHeight;
   nextTurn();   // 結束本回合
   return;       // 不要再往下做地產/拆地
@@ -1873,8 +1876,8 @@ if (img.includes("card2.png")) {
   playerSkills[currentPlayer]++;
   updateStatus();
   // proceed();
-  alert(`🎴 恭喜！玩家${currentPlayer+1} 獲得一張技能卡，目前技能卡：${playerSkills[currentPlayer]} 張`);
-  logEl.innerText += ` 獲得1張技能卡`;
+  alert(`🎴 恭喜！玩家${currentPlayer+1} 獲得一張避難卡，目前避難卡：${playerSkills[currentPlayer]} 張`);
+  logEl.innerText += ` 獲得1張避難卡`;
   logEl.scrollTop = logEl.scrollHeight;
   currentPlayer = (currentPlayer + 1) % nPlayers;
   document.getElementById("currentPlayer").textContent = currentPlayer + 1;
