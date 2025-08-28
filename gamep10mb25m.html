@@ -1124,8 +1124,7 @@ function continueMoveLogic(dice) {
     currentPlayer,
     () => { // ✅ 答對：+3 分，結束回合
       playerScores[currentPlayer] += 3;
-      logEl.innerText += `
-✅ 玩家${currentPlayer + 1} 在 ${cat || "general"} 題目答對，加 3 分`;
+      logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 在 ${cat || "general"} 題目答對 「${q.question}」 ，加 3 分`;
       logEl.scrollTop = logEl.scrollHeight;
       updateStatus();
       checkScoreWin();
@@ -1133,8 +1132,7 @@ function continueMoveLogic(dice) {
       nextTurn(); // 結束本回合
     },
     () => { // ❌ 答錯：不加分，直接換人
-      logEl.innerText += `
-❌ 玩家${currentPlayer + 1} 在 ${cat || "general"} 題目答錯`;
+      logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 在 ${cat || "general"} 題目答錯 「${q.question}」`;
       logEl.scrollTop = logEl.scrollHeight;
       isAskingQuiz = false; // release guard
       nextTurn();
@@ -1930,16 +1928,17 @@ if (isQuizTileName(img)) {
   isAskingQuiz = true; // set guard
 
   let cat = null;
-  if (img.includes("quiz_earthquake.png")) cat = "earthquake";
-  else if (img.includes("quiz_fire.png")) cat = "fire";
-  else if (img.includes("quiz_water.png")) cat = "water";
+  if (img.includes("quiz_earthquake.png")) cat = "地震知識問答";
+  else if (img.includes("quiz_fire.png")) cat = "火災知識問答";
+  else if (img.includes("quiz_water.png")) cat = "水災知識問答";
 
   const q = getRandomQuiz(cat);
   askQuiz(
     currentPlayer,
     () => { // 答對
       playerScores[currentPlayer] += 3;
-      logEl.innerText += `  答對題目：「${q.question}」 加 3 分`;
+      
+	  logEl.innerText += `  在 ${cat || "general"} 答對題目：「${q.question}」 加 3 分`;
       logEl.scrollTop = logEl.scrollHeight;
       updateStatus(); // 更新分數顯示
       checkScoreWin();
@@ -1949,6 +1948,8 @@ if (isQuizTileName(img)) {
     },
     () => { // 答錯
       isAskingQuiz = false; // release guard
+	  logEl.innerText += `  在 ${cat || "general"} 答對錯目：「${q.question}」 `;
+      logEl.scrollTop = logEl.scrollHeight;
       currentPlayer = (currentPlayer + 1) % nPlayers;
       document.getElementById("currentPlayer").textContent = currentPlayer + 1;
     },
