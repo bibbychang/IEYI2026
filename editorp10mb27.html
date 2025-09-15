@@ -202,70 +202,135 @@
   #map { user-select: none; }
   #map .cell.hover { outline: 2px solid rgba(51,136,255,.8); outline-offset:-2px; }
 </style>
-	
+
+  #sidebar img {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+</style>
   <script>
 (() => {
   const map = document.getElementById('map');
-  if (!map) return;
+  const sidebar = document.getElementById('sidebar');
+  if (!map || !sidebar) return;
 
-  // —— 手機/平板專用 Pointer 拖拉（桌機不啟動）——
-  let dragging = false, ghost = null, filename = null;
+  // 只做「觸控/手寫筆」；滑鼠一律交回你原本的 drag&drop
+  let dragging = false, ghost = null, payload = null, captureTarget = null;
 
-  const getCell = (x,y) => document.elementFromPoint(x,y)?.closest('#map .cell');
+  // 依你側欄結構抓素材：優先 data-img，退而求其次用 img 的 src
+  const pickPayloadFromImg = (img) => img?.dataset?.img || img?.getAttribute('src');
 
+  // 幫手：目前手指底下是否有地圖格
+  const cellFromPoint = (x, y) => document.elementFromPoint(x, y)?.closest('#map .cell');
+
+  // pointerdown：觸控開始拖拉
   document.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'mouse') return;         // 不干擾桌機
-    const img = e.target.closest('#sidebar img.item');
+    if (e.pointerType === 'mouse') return;               // 不干擾桌機
+    const img = e.target.closest('#sidebar img');
     if (!img) return;
 
-    e.preventDefault();                             // 只在觸控阻止預設
-    filename = img.dataset.img || img.getAttribute('src');
+    e.preventDefault();                                   // 只對觸控擋預設（避免頁面捲動/原生行為）
+    payload = pickPayloadFromImg(img);
+    if (!payload) return;
 
-    ghost = document.createElement('img');          // 跟手的小預覽
-    ghost.src = filename;
+    // 捕捉後續 move/up（避免手指離開元素就收不到事件）
+    try { img.setPointerCapture && img.setPointerCapture(e.pointerId); } catch(_) {}
+    captureTarget = img;
+
+    // 跟手預覽
+    ghost = document.createElement('img');
+    ghost.src = payload;
+    ghost.alt = "";
     ghost.style.cssText = `
-      position:fixed;left:${e.clientX+12}px;top:${e.clientY+12}px;
-      width:40px;height:40px;pointer-events:none;opacity:.9;transform:translate(-50%,-50%);
-      border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:2147483647;`;
+      position:fixed; left:${e.clientX+12}px; top:${e.clientY+12}px;
+      width:40px; height:40px; transform:translate(-50%,-50%);
+      pointer-events:none; opacity:.9; border-radius:4px;
+      box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:2147483647;`;
     document.body.appendChild(ghost);
 
     dragging = true;
-    const c = getCell(e.clientX,e.clientY);
-    map.querySelectorAll('.cell.hover').forEach(n=>n.classList.remove('hover'));
-    if (c) c.classList.add('hover');
+
+    // hover 樣式
+    map.querySelectorAll('.cell.__hover').forEach(n => n.classList.remove('__hover'));
+    const c = cellFromPoint(e.clientX, e.clientY);
+    if (c) c.classList.add('__hover');
   }, { passive: false });
 
+  // pointermove：更新 ghost 位置 + hover 樣式
   document.addEventListener('pointermove', (e) => {
     if (!dragging || e.pointerType === 'mouse') return;
-    ghost.style.left = (e.clientX+12)+'px';
-    ghost.style.top  = (e.clientY+12)+'px';
+    e.preventDefault();                                   // iOS 上保險，避免誤捲動
+    if (ghost) {
+      ghost.style.left = (e.clientX + 12) + 'px';
+      ghost.style.top  = (e.clientY + 12) + 'px';
+    }
+    map.querySelectorAll('.cell.__hover').forEach(n => n.classList.remove('__hover'));
+    const c = cellFromPoint(e.clientX, e.clientY);
+    if (c) c.classList.add('__hover');
+  }, { passive: false });
 
-    const c = getCell(e.clientX,e.clientY);
-    map.querySelectorAll('.cell.hover').forEach(n=>n.classList.remove('hover'));
-    if (c) c.classList.add('hover');
-  }, { passive: true });
-
+  // 真的把素材放進格子（你有自己的資料結構就改成呼叫你的更新函式）
   const placeIntoCell = (cell, file) => {
     if (!cell || !file) return;
+    // 若你的桌機 drop 有共用函式，改成呼叫它。例如：
+    // if (window.applyTileToCell) return window.applyTileToCell(cell, file);
+
     const img = document.createElement('img');
-    img.src = file; img.alt = ''; img.draggable = false;
-    cell.innerHTML = ''; cell.appendChild(img);
+    img.src = file; img.alt = ""; img.draggable = false;
+    cell.innerHTML = '';
+    cell.appendChild(img);
+    // 可選：對外丟訊號
+    cell.dispatchEvent(new CustomEvent('cellchange', { detail: { src: file } }));
   };
 
   const endDrag = (e) => {
     if (!dragging || e.pointerType === 'mouse') return;
     dragging = false;
-    if (ghost) ghost.remove(), (ghost=null);
 
-    const c = getCell(e.clientX,e.clientY);
-    placeIntoCell(c, filename);
+    if (ghost) ghost.remove(), (ghost = null);
+    if (captureTarget && captureTarget.releasePointerCapture) {
+      try { captureTarget.releasePointerCapture(e.pointerId); } catch(_) {}
+    }
+    captureTarget = null;
 
-    filename = null;
-    map.querySelectorAll('.cell.hover').forEach(n=>n.classList.remove('hover'));
+    const c = cellFromPoint(e.clientX, e.clientY);
+    placeIntoCell(c, payload);
+    payload = null;
+
+    map.querySelectorAll('.cell.__hover').forEach(n => n.classList.remove('__hover'));
   };
 
   document.addEventListener('pointerup', endDrag, { passive: true });
   document.addEventListener('pointercancel', endDrag, { passive: true });
+
+  // —— 小加分：觸控長按也能「抓取」已放到格子裡的圖片再搬家（可選）——
+  map.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') return;
+    const cell = e.target.closest('#map .cell');
+    const img = cell?.querySelector('img');
+    if (!cell || !img) return;
+
+    e.preventDefault();
+    try { cell.setPointerCapture && cell.setPointerCapture(e.pointerId); } catch(_) {}
+    captureTarget = cell;
+
+    payload = img.getAttribute('src');
+    ghost = img.cloneNode(true);
+    ghost.style.cssText = `
+      position:fixed; left:${e.clientX+12}px; top:${e.clientY+12}px;
+      width:40px; height:40px; transform:translate(-50%,-50%);
+      pointer-events:none; opacity:.9; border-radius:4px;
+      box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:2147483647;`;
+    document.body.appendChild(ghost);
+
+    dragging = true;
+
+    map.querySelectorAll('.cell.__hover').forEach(n => n.classList.remove('__hover'));
+    const c = cellFromPoint(e.clientX, e.clientY);
+    if (c) c.classList.add('__hover');
+  }, { passive: false });
 })();
 </script>
   
