@@ -760,10 +760,10 @@
     }
 
     const PROPERTY_DEFS = {
-      fire_station: { buyPrice: 5, toll: 3, display: '森林地' },
-      water_bureau: { buyPrice: 5, toll: 3, display: '低窪地' },
+      fire_station: { buyPrice: 5, toll: 3, display: 'Forest' },
+      water_bureau: { buyPrice: 5, toll: 3, display: 'Low Lying Land' },
       school: { buyPrice: 5, toll: 3, display: '學校' },
-      museum921: { buyPrice: 5, toll: 3, display: '高樓大廈' }
+      museum921: { buyPrice: 5, toll: 3, display: 'High Building' }
     };
     const propertyOwners = {};   // { [cellIndex]: 1|2|3|4|null }
     const propertyKeys = {};   // { [cellIndex]: 'fire_station'|'water_bureau'|... } 快取加速用
@@ -910,7 +910,7 @@
         "back.png": "back to home",
         "dice.png": "Dice : roll again",
         "fire_station_0.png": "Forest",
-        "water_bureau_0.png": "low lying land",
+        "water_bureau_0.png": "Low Lying Land",
         "museum921_0.png": "High Building",
         // ...可以加更多
       };
@@ -1371,7 +1371,7 @@
           }
           // rain1：低窪地（用 askWaterBureauQuestion）
           if (imgNow.includes("rain1.png")) {
-            handleOwnershipQuiz("rain1.png", "water_bureau", "low lying land", toIndex, askWaterBureauQuestion, () => {
+            handleOwnershipQuiz("rain1.png", "water_bureau", "Low Lying Land", toIndex, askWaterBureauQuestion, () => {
               handleProperty(toIndex, () => nextTurn());
             });
             return;
@@ -1918,8 +1918,8 @@
           updateStatus(); // 先刷新計分板
 
           setTimeout(() => {
-            alert(`Player${me} pay「${name}」 ${price} toll to player${owner}`);
-        logEl.innerText += `\n💰 Player${me} 「${name}」pay ${price} toll to player${owner}`;
+            alert(`Player${me} pay「${name}」 ${toll} toll to player${owner}`);
+        logEl.innerText += `\n💰 Player${me} 「${name}」pay ${toll} toll to player${owner}`;
             logEl.scrollTop = logEl.scrollHeight;
             checkScoreWin();
             afterDone && afterDone();
@@ -2127,7 +2127,7 @@
           // 5) 拆地：問答（不檢查地產）
           // fire2：森林地（用 askfireQuestion）
           if (imgNow.includes("fire2.png")) {
-            handleOwnershipQuiz("fire2.png", "fire_station", "forest", toIndex, askfireQuestion, () => {
+            handleOwnershipQuiz("fire2.png", "fire_station", "Forest", toIndex, askfireQuestion, () => {
               const pKeyAfterEvent = propertyKeys[toIndex] || getPropertyKey(getCellImageSrc(toIndex));
               if (pKeyAfterEvent) {
                 handleProperty(toIndex, () => {
@@ -2146,7 +2146,7 @@
 
           // rain1：低窪地（用 askWaterBureauQuestion）
           if (imgNow.includes("rain1.png")) {
-            handleOwnershipQuiz("rain1.png", "water_bureau", "low lying land", toIndex, askWaterBureauQuestion, () => {
+            handleOwnershipQuiz("rain1.png", "water_bureau", "Low Lying Land", toIndex, askWaterBureauQuestion, () => {
               const pKeyAfterEvent = propertyKeys[toIndex] || getPropertyKey(getCellImageSrc(toIndex));
               if (pKeyAfterEvent) {
                 handleProperty(toIndex, () => {
