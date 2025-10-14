@@ -3,34 +3,48 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Disaster Monopoly</title>
-  <style>
+
+    <style>
     body {
       font-family: sans-serif;
       margin: 0;
-      padding: 1rem;
+      padding: 0.5rem;
       display: flex;
     }
+:root{
+ 
+  --cell: min(90px, calc((100vw - 40px) / 8));
+}
 
     #left-panel {
       flex: 1;
     }
 
     #right-panel {
-      width: 750px;
+      
       margin-left: 10px;
     }
 
     #game-board {
       display: grid;
-      grid-template-columns: repeat(8, 90px);
-      grid-template-rows: repeat(8, 90px);
+      grid-template-columns: repeat(8, var(--cell));      
+      grid-template-rows: repeat(8, var(--cell));     
       gap: 2px;
+	  width:100%;
+  max-width: calc(var(--cell)*8 + 14px);
+  margin:0 auto;
     }
 
+
+
+
     .cell {
-      width: 90px;
-      height: 90px;
+	
+	 width:var(--cell) !important;
+  height:var(--cell) !important;      
+      
       border: 1px solid #aaa;
       position: relative;
       background: white;
@@ -106,8 +120,8 @@
       border-radius: 4px;
       margin-bottom: 10px;
       font-size: 14px;
-      width: 720px;
-      ;
+      
+      
     }
 
     #event-card-display {
@@ -480,12 +494,79 @@
       margin: 8px auto;
       box-sizing: border-box;
       text-align: left;
-    }
+    }/* 讓地圖可縮放（若你已加過可略過） */
+/* ==== 1) 柔性格寬（跟 editor 一樣）==== */
+:root{
+  --cell: min(90px, calc((100vw - 32px) / 8));
+}
+@media (max-width:480px){
+  :root{ --cell: min(72px, calc((100vw - 24px) / 8)); }
+}
+
+/* ==== 2) 外層允許換行（左右欄改上下堆）==== */
+body{ flex-wrap: wrap; gap: 20px; box-sizing: border-box; }
+
+/* ==== 3) 版面順序：左(頂部) → 棋盤 → 右(Record最底) ==== */
+@media (max-width: 768px){
+  #left-panel{ order:1; flex:1 1 100%; width:100%; min-width:0; }
+  
+  #game-board, #board-wrap, #center-panel, #game-frame{ order:2; width:100%; max-width:100%; margin:0 auto; }
+  #right-panel{ order:3; flex:1 1 100%; width:100%; min-width:0; }
+}
+
+/* ==== 4) 取消右欄死寬，桌機仍能佔位 ==== */
+#right-panel{
+  width: auto !important;           /* 覆蓋 750px */
+  flex: 1 1 360px;
+  margin-left: 10px;
+}
+
+/* ==== 5) 記分板/設定滿版（覆蓋 720px 舊值與 inline style）==== */
+#configInfo, fieldset, .scoreboard, .status-card, .player-card, .controls, .card, .panel{
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* ==== 6) 棋盤用變數格寬，而不是 90px ==== */
+#game-board{
+  display: grid;
+  grid-template-columns: repeat(8, var(--cell)) !important;
+  grid-template-rows:    repeat(8, var(--cell)) !important;
+  gap: 2px;
+  width: 100%;
+  max-width: calc(var(--cell) * 8 + 14px);
+  margin: 0 auto;
+}
+#game-board .cell{
+  width: var(--cell) !important;
+  height: var(--cell) !important;
+}
+#game-board .cell img{ max-width:100%; max-height:100%; object-fit:contain; }
+#configInfo, fieldset, .scoreboard, .status-card, .player-card, .controls, .card, .panel{
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+
+@media (max-width:768px){
+  #log{ max-height: 40vh; overflow:auto; }
+}
+@media (max-width: 768px){
+  body > div:first-of-type{
+    flex-wrap: wrap !important;    
+    width: 100%;
+  }
+}
   </style>
 </head>
 
 <body>
+
+<div style="display: flex; align-items: flex-start; gap: 20px; width: 100%; min-height: 100vh; box-sizing: border-box;">
   <div id="left-panel">
+  <div id="topbar">
     <div id="configInfo"></div>
     <div id="status" style="margin: 10px 0;"></div>
     <div>
@@ -498,7 +579,7 @@
 
 
     </div>
-    <fieldset style="margin-top: 10px; border: 1px solid #ccc; padding: 10px;width: 720px">
+    <fieldset style="margin-top: 10px; border: 1px solid #ccc; padding: 10px;">
 
       <legend>🎯 Set Dice (Cheat)</legend>
       <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="0" checked> random</label>
@@ -509,6 +590,7 @@
       <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="5"> 5</label>
       <label style="margin-right: 8px;"><input type="radio" name="diceOverride" value="6"> 6</label>
     </fieldset>
+	</div>
     <div id="game-board"></div>
 
 
@@ -1117,7 +1199,7 @@
       <tbody>
         ${stats.map(s => `
           <tr>
-            <td>玩家${s.player}</td>
+            <td>Player${s.player}</td>
             <td>${s.count}</td>
             <td>${s.acc}</td>
             <td>${s.avgSec}</td>
@@ -2223,6 +2305,7 @@
 
 
   </script>
+  </div>
 </body>
 
 </html>
