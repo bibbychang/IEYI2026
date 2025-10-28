@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Gemini 火災防災出題測試</title>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+button { margin-top: 10px; }
+pre { background: #eee; padding: 10px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h2>🔥 Google Gemini 火災防災出題測試</h2>
+<p>請貼上你的 <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio API Key</a>：</p>
+<input id="apikey" type="text" style="width: 80%;" placeholder="貼上你的 API Key">
+<button onclick="makeQuiz()">出五題火災防災題目</button>
+
+<h3>Gemini 回覆：</h3>
+<pre id="output">(尚未出題)</pre>
+
+<script>
+async function makeQuiz(){
+  const key = document.getElementById('apikey').value.trim();
+
+  const out = document.getElementById('output');
+  if(!key){ alert('請輸入 API Key'); return; }
+
+  out.textContent = "🔥 AI 出題中…";
+
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  const prompt = `請出五題關於「火災」的防災單選題，提供題目與四個選項（A~D），最後請標明正確答案（A~D）。
+請嚴格使用下列格式（不要多餘說明）：
+題目：......
+A) ......
+B) ......
+C) ......
+D) ......
+答案：A`;
+
+  const body = {
+    contents: [{ role: "user", parts: [{ text: prompt }] }]
+  };
+
+  try {
+    const resp = await fetch(endpoint + "?key=" + encodeURIComponent(key), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    const data = await resp.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (text) {
+      out.textContent = text;
+    } else {
+      out.textContent = "⚠️ 無法解析回覆，完整內容如下：\n" + JSON.stringify(data, null, 2);
+    }
+  } catch (e) {
+    out.textContent = "❌ 錯誤：" + e.message;
+  }
+}
+</script>
+</body>
+</html>
