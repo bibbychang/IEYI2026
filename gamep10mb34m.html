@@ -1519,7 +1519,7 @@ function hideQuizOverlay() {
             by[t].c += (h.correct === true || /正確/.test(h.result || '')) ? 1 : 0;
           }
         });
-        const pct = (c, n) => n ? (Math.round((c / n * 100) * 10) / 10) : 0;
+        const pct = (c, n) => n ? +(Math.round((c / n * 100) * 10) / 10) : 'x';
         stats.push({
           player: p,
           count: n,
@@ -1729,7 +1729,7 @@ if (!USE_AI_QUIZ) {
       currentPlayer,
       () => {
         playerScores[currentPlayer] += 3;
-        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${category} 題：「${q.question}」 +3 分`;
+        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${catNameTC(category)} 題：「${q.question}」 +3 分`;
         logEl.scrollTop = logEl.scrollHeight;
         updateStatus();
         checkScoreWin();
@@ -1737,7 +1737,7 @@ if (!USE_AI_QUIZ) {
         nextTurn();
       },
       () => {
-        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${category} 題：「${q.question}」`;
+        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${catNameTC(category)} 題：「${q.question}」`;
         logEl.scrollTop = logEl.scrollHeight;
         isAskingQuiz = false;
         nextTurn();
@@ -2668,7 +2668,7 @@ if (!USE_AI_QUIZ) {
       currentPlayer,
       () => {
         playerScores[currentPlayer] += 3;
-        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${category} 題：「${q.question}」 +3 分`;
+        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${catNameTC(category)} 題：「${q.question}」 +3 分`;
         logEl.scrollTop = logEl.scrollHeight;
         updateStatus();
         checkScoreWin();
@@ -2676,7 +2676,7 @@ if (!USE_AI_QUIZ) {
         nextTurn();
       },
       () => {
-        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${category} 題：「${q.question}」`;
+        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${catNameTC(category)} 題：「${q.question}」`;
         logEl.scrollTop = logEl.scrollHeight;
         isAskingQuiz = false;
         nextTurn();

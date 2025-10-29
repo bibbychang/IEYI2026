@@ -1499,7 +1499,7 @@ function parseGeminiQuizText(text) {
             by[t].c += (h.correct === true || /正確/.test(h.result || '')) ? 1 : 0;
           }
         });
-        const pct = (c, n) => n ? (Math.round((c / n * 100) * 10) / 10) : 0;
+        const pct = (c, n) => n ? +(Math.round((c / n * 100) * 10) / 10) : 'x';
         stats.push({
           player: p,
           count: n,
