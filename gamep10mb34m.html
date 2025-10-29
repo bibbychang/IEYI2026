@@ -867,6 +867,12 @@ transform: scale(0.95);
       }
       return { ring, map };
     }
+function catNameTC(cat){
+  return cat === "fire" ? "火災"
+       : cat === "water" ? "水災"
+       : cat === "earthquake" ? "地震"
+       : "一般";
+}
 
     function __isValidConfig(cfg) {
       const okPath = Array.isArray(cfg?.pathIndices)
@@ -1802,7 +1808,7 @@ category: category,
   pauseTimer();  // ★ 進入 AI 出題 → 先暫停倒數
     // 🧠 顯示遮罩
 	
-    showQuizOverlay(`⏳ 正在生成 ${category} 題目...`);
+    showQuizOverlay(`⏳ 正在生成「${catNameTC(category)}」相關問題…`);
 
     // ⚙️ 生成題目
     let q = await aiGenerateQuiz(category);
@@ -1821,7 +1827,7 @@ category: category,
       currentPlayer,
       () => {
         playerScores[currentPlayer] += 3;
-        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${category} 題：「${q.question}」 +3 分`;
+        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${catNameTC(category)} 題：「${q.question}」 +3 分`;
         logEl.scrollTop = logEl.scrollHeight;
         updateStatus();
         checkScoreWin();
@@ -1829,7 +1835,7 @@ category: category,
         nextTurn();
       },
       () => {
-        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${category} 題：「${q.question}」`;
+        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${catNameTC(category)} 題：「${q.question}」`;
         logEl.scrollTop = logEl.scrollHeight;
         isAskingQuiz = false;
         nextTurn();
@@ -2501,9 +2507,9 @@ category: category,
 
 
 
-    function handleEventEffect(event, fromStep) {
+    async function handleEventEffect(event, fromStep) {
       console.log("handleEventEffect");
-      showEventCard(event, () => {
+      showEventCard(event, async() => {
         const moveEffects = ["前進1格", "前進2格", "退回1格", "退回2格", "回到起點"];
         const log = document.getElementById("log");
         const lastRoll = lastDiceRoll[currentPlayer];
@@ -2561,7 +2567,7 @@ category: category,
         const imgNow = getCellImageSrc(toIndex);
         playerSteps[currentPlayer] = newStep;
 
-        animateMove(currentPlayer, fromIndex, toIndex, () => {
+        animateMove(currentPlayer, fromIndex, toIndex, async() => {
           console.log("handleEventEffect_animateMove");
           updateStatus();
           const img = mapData[toIndex] || "";
@@ -2642,40 +2648,156 @@ category: category,
           //console.log(img, "quiz判斷");
           // 4) quiz：問答（不檢查地產）
 
-          if (isQuizTileName(img)) {
-            if (isAskingQuiz) return; // already asking, avoid double
-            isAskingQuiz = true; // set guard
+          const imgNow = (typeof getCellImageSrc === 'function') ? getCellImageSrc(toIndex) : (mapData[toIndex] || "");
 
-            let cat = null;
-            if (img.includes("quiz_earthquake.png")) cat = "earthquake";
-            else if (img.includes("quiz_fire.png")) cat = "fire";
-            else if (img.includes("quiz_water.png")) cat = "water";
+          if (isQuizTileName(imgNow)) {
+  if (isAskingQuiz) return; // 避免重複出題
+  isAskingQuiz = true;
 
-            const q = getRandomQuiz(cat);
-            askQuiz(
-              currentPlayer,
-              () => { // 答對
-                playerScores[currentPlayer] += 3;
+  // 🔹辨識題目類型
+  let category = null;
+  if (imgNow.includes("quiz_earthquake.png")) category = "earthquake";
+  else if (imgNow.includes("quiz_fire.png")) category = "fire";
+  else if (imgNow.includes("quiz_water.png")) category = "water";
 
-                logEl.innerText += `  在 ${cat || "general"} 答對題目：「${q.question}」 加 3 分`;
-                logEl.scrollTop = logEl.scrollHeight;
-                updateStatus(); // 更新分數顯示
-                checkScoreWin();
-                isAskingQuiz = false; // release guard
-                currentPlayer = (currentPlayer + 1) % nPlayers;
-                document.getElementById("currentPlayer").textContent = currentPlayer + 1;
-              },
-              () => { // 答錯
-                isAskingQuiz = false; // release guard
-                logEl.innerText += `  在 ${cat || "general"} 答對錯目：「${q.question}」 `;
-                logEl.scrollTop = logEl.scrollHeight;
-                currentPlayer = (currentPlayer + 1) % nPlayers;
-                document.getElementById("currentPlayer").textContent = currentPlayer + 1;
-              },
-              q // 指定題目
-            );
-            return;
-          }
+
+if (!USE_AI_QUIZ) {
+    // 不使用 AI：直接出題庫
+    const q = getRandomQuiz(category);
+    askQuiz(
+      currentPlayer,
+      () => {
+        playerScores[currentPlayer] += 3;
+        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${category} 題：「${q.question}」 +3 分`;
+        logEl.scrollTop = logEl.scrollHeight;
+        updateStatus();
+        checkScoreWin();
+        isAskingQuiz = false;
+        nextTurn();
+      },
+      () => {
+        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${category} 題：「${q.question}」`;
+        logEl.scrollTop = logEl.scrollHeight;
+        isAskingQuiz = false;
+        nextTurn();
+      },
+      q
+    );
+    return;
+  }
+// 使用 AI：直接出題庫
+
+  // 🔹直接寫在程式裡的 API KEY
+  const  GEMINI_KEY = localStorage.getItem("gemini_api_key");
+if (! GEMINI_KEY) {
+  alert("⚠️ 無可用API Key 改用題庫！");  
+}	
+
+
+  
+
+
+
+  async function aiGenerateQuiz(category) {
+    const topicMap = { fire: "火災", water: "水災", earthquake: "地震" };
+    const topic = topicMap[category] || "防災";
+    const prompt = `請出一題與${topic}防災有關的單選題，題目難度為國中程度，
+提供題目與四個選項（A–D），最後請標明正確答案（A–D）。
+格式如下：
+題目：AI出題－......
+A) ......
+B) ......
+C) ......
+D) ......
+答案：A`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }]
+          })
+        }
+      );
+      const data = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const parsed = parseGeminiQuizText(text);
+if (!parsed) throw new Error("AI 格式錯誤");
+
+// ✅ 統一格式：轉成 answer（0~3）
+return {
+category: category,
+  question: parsed.question,
+  options: parsed.options,
+  answer: typeof parsed.answerIndex === "number"
+    ? parsed.answerIndex
+    : parsed.answer
+};
+    } catch (e) {
+      console.warn("AI 出題失敗:", e);
+      return null;
+    }
+  }
+
+  // 🔹開始 AI 出題（失敗再用題庫）
+ (async () => {
+  try {
+  pauseTimer();  // ★ 進入 AI 出題 → 先暫停倒數
+    // 🧠 顯示遮罩
+	
+    showQuizOverlay(`⏳ 正在生成「${catNameTC(category)}」相關問題…`);
+
+    // ⚙️ 生成題目
+    let q = await aiGenerateQuiz(category);
+
+    // 🔁 如果AI失敗 → fallback 題庫
+    if (!q) {
+      setQuizOverlayText(`📘 使用題庫出題中...`);
+      q = getRandomQuiz(category);
+    }
+
+    // ✅ 關閉遮罩（生成完成）
+    hideQuizOverlay();
+	resumeTimer();  // ★ 題目準備好（或失敗 fallback）→ 恢復倒數
+    // 🧩 出題
+    askQuiz(
+      currentPlayer,
+      () => {
+        playerScores[currentPlayer] += 3;
+        logEl.innerText += ` ✅ 玩家${currentPlayer + 1} 答對 ${catNameTC(category)} 題：「${q.question}」 +3 分`;
+        logEl.scrollTop = logEl.scrollHeight;
+        updateStatus();
+        checkScoreWin();
+        isAskingQuiz = false;
+        nextTurn();
+      },
+      () => {
+        logEl.innerText += ` ❌ 玩家${currentPlayer + 1} 答錯 ${catNameTC(category)} 題：「${q.question}」`;
+        logEl.scrollTop = logEl.scrollHeight;
+        isAskingQuiz = false;
+        nextTurn();
+      },
+      q
+    );
+  } catch (err) {
+    console.error("AI 出題錯誤，使用題庫：", err);
+    hideQuizOverlay(); // ⚠️ 確保出錯時也關掉遮罩
+	resumeTimer();
+    const q = getRandomQuiz(category);
+    askQuiz(currentPlayer, ()=>{}, ()=>{}, q);
+  }
+})();
+
+  return; // 出題完就結束
+}
+		  
+		  
+		  
+		  
+		  
           // 5) 拆地：問答（不檢查地產）
           // fire2：森林地（用 askfireQuestion）
           if (imgNow.includes("fire2.png")) {
