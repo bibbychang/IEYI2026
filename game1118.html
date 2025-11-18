@@ -1907,6 +1907,18 @@ category: category,
             nextTurn();
             return;
           }
+		  if (imgNow.includes("light.png")) {
+            playerScores[currentPlayer] += 5;
+            updateStatus();
+            logEl.innerText += ` 家中備有手電筒，加 5 分`;
+            logEl.scrollTop = logEl.scrollHeight;
+            await alert(`🎴 恭喜！玩家 ${currentPlayer + 1} 家中備有手電筒，加 5 分`);
+            checkScoreWin();
+
+            // 換下一位
+            nextTurn();
+            return;
+          }
           if (imgNow.includes("card2.png")) {
             playerSkills[currentPlayer]++;
             updateStatus();
@@ -2626,6 +2638,18 @@ category: category,
             updateStatus();
             // proceed();
             alert(`🎴 恭喜！家中備妥急救包，玩家${currentPlayer + 1} 加5分`);
+            logEl.innerText += ` 加5分`;
+            logEl.scrollTop = logEl.scrollHeight;
+            checkScoreWin();
+            currentPlayer = (currentPlayer + 1) % nPlayers;
+            document.getElementById("currentPlayer").textContent = currentPlayer + 1;
+            return;
+          }
+		  if (img.includes("light.png")) {
+            playerScores[currentPlayer] += 5;
+            updateStatus();
+            // proceed();
+            alert(`🎴 恭喜！家中備有手電筒，玩家${currentPlayer + 1} 加5分`);
             logEl.innerText += ` 加5分`;
             logEl.scrollTop = logEl.scrollHeight;
             checkScoreWin();
