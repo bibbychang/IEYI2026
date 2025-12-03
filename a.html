@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gemini Worker 測試</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; }
+    textarea { width: 100%; height: 100px; }
+    pre { background:#f4f4f4; padding:10px; white-space:pre-wrap; }
+    button { padding:8px 16px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h1>Gemini 2.5 Worker 測試</h1>
+
+  <label>
+    請輸入要問 Gemini 的文字：
+    <textarea id="prompt">請用一句話介紹你是誰。</textarea>
+  </label>
+  <br />
+  <button id="btn">送出測試</button>
+
+  <h2>結果</h2>
+  <pre id="output">尚未測試</pre>
+
+  <script>
+    // ✅ 換成你的 Worker URL
+    const WORKER_URL = "https://wispy-firefly-8762.yingli0923.workers.dev/api/gemini";
+
+    document.getElementById("btn").addEventListener("click", async () => {
+      const prompt = document.getElementById("prompt").value.trim();
+      const out = document.getElementById("output");
+
+      if (!prompt) {
+        out.textContent = "請先輸入內容";
+        return;
+      }
+
+      out.textContent = "呼叫中，請稍候...";
+
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              { role: "user", parts: [{ text: prompt }] }
+            ]
+          })
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          out.textContent = "HTTP 錯誤: " + res.status + "\n" + text;
+          return;
+        }
+
+        const data = await res.json();
+
+        // 嘗試從 Gemini 回應中抓文字
+        const text =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ??
+          JSON.stringify(data, null, 2);
+
+        out.textContent = text;
+      } catch (err) {
+        out.textContent = "發生錯誤：\n" + err;
+      }
+    });
+  </script>
+</body>
+</html>
