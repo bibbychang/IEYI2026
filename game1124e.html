@@ -3050,7 +3050,7 @@ function showConfirm(msg, { okText = "Ok", cancelText = "Cancel" } = {}) {
 }
 
 // ----- 自訂 ALERT（位置可控、外觀與 confirm 一致）-----
-function showAlert(message, { okText = "確認" } = {}) {
+function showAlert(message, { okText = "Ok" } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "dm-overlay";          // ← 用你已存在的樣式
