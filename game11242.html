@@ -2330,215 +2330,150 @@ category: category,
 
 
 
-    
-const WATER_QUIZ_POOL = [
-  {
-    question: "當氣象局發布豪大雨特報，為了防止雨水灌入家中，應預先做好什麼準備？",
-    options: ["把窗戶打開通風", "裝設防水閘門或堆置沙包", "把家具搬到門口擋住"],
-    answerIndex: 1   // 正確：1999
-  },
-  {
-    question: "如果發現家中開始淹水，為了避免觸電，第一時間應該做什麼？",
-    options: ["趕快用吹風機把地板吹乾", "切斷總電源開關", "站在水中拔插頭"],
-    answerIndex: 1   // 正確：警政服務 App
-  },
-  {
-    question: "逼不得已需要在淹水區域行走避難時，手持長棍或雨傘的主要目的是什麼？",
-    options: ["用來驅趕水中的魚", "當作拐杖支撐身體", "探測前方地面是否有坑洞或人孔蓋脫落"],
-    answerIndex: 2   // 正確：警政服務 App
-  },
-  {
-    question: "開車經過地下道或低窪地區發現有積水時，最安全的做法是？",
-    options: ["加速衝過去", "切勿強行通過，應繞道而行", "下車推車前進"],
-    answerIndex: 1   // 正確：警政服務 App
-  },
-  {
-    question: "水災過後，家中的自來水即使外觀看起來乾淨，飲用前應該怎麼處理？",
-    options: ["直接飲用即可", "加入冰塊殺菌", "務必煮沸後再飲用"],
-    answerIndex: 2   // 正確：警政服務 App
-  }
-];
-
-
     function askWaterBureauQuestion(onDone) {
-  // 隨機挑一題
-  const quiz = WATER_QUIZ_POOL[Math.floor(Math.random() * WATER_QUIZ_POOL.length)];
+      // onDone(true/false)
+      const modal = document.createElement("div");
+      Object.assign(modal.style, {
+        position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)",
+        display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
+      });
+      const box = document.createElement("div");
+      Object.assign(box.style, {
+        background: "#fff", padding: "20px", borderRadius: "10px",
+        width: "320px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
+      });
+      const h3 = document.createElement("h3");
+      h3.textContent = "豪雨特報時應該？";
+      const opts = [
+        { key: "1", text: "待在低窪處" },
+        { key: "2", text: "關注氣象並避免靠近河川" },// ✅ 正解
+        { key: "3", text: "直接去看海" }
+      ];
+      box.appendChild(h3);
+      opts.forEach(o => {
+        const btn = document.createElement("button");
+        btn.textContent = o.text;
+        btn.classList.add('quiz-opt');
+        Object.assign(btn.style, { display: "block", margin: "8px auto", padding: "8px 16px", cursor: "pointer" });
+        btn.onclick = () => {
+          const correct = (o.key === "2");
+          document.body.removeChild(modal);
+          onDone && onDone(correct);
+        };
+        box.appendChild(btn);
 
-  const modal = document.createElement("div");
-  Object.assign(modal.style, {
-    position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)",
-    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
-  });
-
-  const box = document.createElement("div");
-  Object.assign(box.style, {
-    background: "#fff", padding: "20px", borderRadius: "10px",
-    width: "320px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
-  });
-
-  const h3 = document.createElement("h3");
-  h3.textContent = quiz.question;
-  box.appendChild(h3);
-
-  quiz.options.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.classList.add('quiz-opt');
-    Object.assign(btn.style, { 
-      display: "block", margin: "8px auto", padding: "8px 16px", cursor: "pointer"
-    });
-
-    btn.onclick = () => {
-      const correct = (idx === quiz.answerIndex);
-      document.body.removeChild(modal);
-      onDone && onDone(correct);
-    };
-
-    box.appendChild(btn);
-  });
-
-  modal.appendChild(box);
-  document.body.appendChild(modal);
-}
+      });
 
 
-const MUSEUM_QUIZ_POOL = [
-  {
-    question: "台灣921大地震發生於哪一年？",
-    options: ["1998", "1999", "2000"],
-    answerIndex: 1   // 正確：1999
-  },
-  {
-    question: "依據全民國防指引，想查詢附近的「防空避難所」位置，建議下載哪一個 App？",
-    options: ["健保快易通", "警政服務 App", "台灣高鐵 App"],
-    answerIndex: 1   // 正確：警政服務 App
-  },
-  {
-    question: "正在開車時遇到地震，依據防災指引，下列哪項是正確的處置方式？",
-    options: ["立即緊急煞車，並停在路中間", "慢慢減速靠邊，停留在車內等待搖晃停止", "立刻棄車，衝出車外尋找掩護"],
-    answerIndex: 1   // 正確：警政服務 App
-  },
-  {
-    question: "半夜睡覺時發生地震，應該採取什麼行動最安全？",
-    options: ["留在床上，轉身臉朝下，用枕頭保護頭頸部", "立刻跳下床，躲到床鋪底下", "馬上開門衝到戶外"],
-    answerIndex: 0   // 正確：警政服務 App
-  },
-  {
-    question: "地震發生當下，下列哪一個行為是「錯誤」且容易受傷的？",
-    options: ["躲在堅固的桌子下（趴下、掩護、穩住）", "慌張地往戶外奔跑", "遠離玻璃窗與懸掛物"],
-    answerIndex: 1   // 正確：警政服務 App
-  }
-];
+      modal.appendChild(box);
+      document.body.appendChild(modal);
+    }
 
 
 
-function askMuseumQuestion(onDone) {
-  // 隨機挑一題
-  const quiz = MUSEUM_QUIZ_POOL[Math.floor(Math.random() * MUSEUM_QUIZ_POOL.length)];
+    function askMuseumQuestion(onDone) {
+      // onDone(true/false)
+      const modal = document.createElement("div");
+      Object.assign(modal.style, {
+        position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)",
+        display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
+      });
+      const box = document.createElement("div");
+      Object.assign(box.style, {
+        background: "#fff", padding: "20px", borderRadius: "10px",
+        width: "320px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
+      });
+      const h3 = document.createElement("h3");
+      h3.textContent = "台灣921大地震發生於哪一年？";
+      const opts = [
+        { key: "1", text: "1998" },
+        { key: "2", text: "1999" },// ✅ 正解
+        { key: "3", text: "2000" }
+      ];
+      box.appendChild(h3);
+      opts.forEach(o => {
+        const btn = document.createElement("button");
+        btn.textContent = o.text;
+        btn.classList.add('quiz-opt');
+        Object.assign(btn.style, { display: "block", margin: "8px auto", padding: "8px 16px", cursor: "pointer" });
+        btn.onclick = () => {
+          const correct = (o.key === "2");
+          document.body.removeChild(modal);
+          onDone && onDone(correct);
+        };
+        box.appendChild(btn);
 
-  const modal = document.createElement("div");
-  Object.assign(modal.style, {
-    position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)",
-    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
-  });
-
-  const box = document.createElement("div");
-  Object.assign(box.style, {
-    background: "#fff", padding: "20px", borderRadius: "10px",
-    width: "320px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
-  });
-
-  const h3 = document.createElement("h3");
-  h3.textContent = quiz.question;
-  box.appendChild(h3);
-
-  quiz.options.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.classList.add('quiz-opt');
-    Object.assign(btn.style, { 
-      display: "block", margin: "8px auto", padding: "8px 16px", cursor: "pointer"
-    });
-
-    btn.onclick = () => {
-      const correct = (idx === quiz.answerIndex);
-      document.body.removeChild(modal);
-      onDone && onDone(correct);
-    };
-
-    box.appendChild(btn);
-  });
-
-  modal.appendChild(box);
-  document.body.appendChild(modal);
-}
+      });
 
 
-const FIRE_QUIZ_POOL = [
-  {
-    question: "萬一身上衣服著火了，應該採取哪三個動作來滅火？",
-    options: ["跑、叫、跳（跑越快越好）", "停、躺、滾（停在原地、躺下、左右翻滾）", "沖、脫、泡（立刻找冷水沖）"],
-    answerIndex: 1   // 正解：停、躺、滾
-  },
-  {
-    question: "火災發生時，為了爭取逃生時間，可以搭乘電梯嗎？",
-    options: ["絕對不可以，電梯可能會斷電或將濃煙吸入", "可以，這是最快的下樓方式", "只有高樓層的人可以搭"],
-    answerIndex: 0   // 正解：絕對不可以
-  },
-  {
-    question: "逃離起火房間或家門時，隨手做出什麼動作可以有效延緩火勢與濃煙擴散？",
-    options: ["大聲尖叫", "把窗戶全部打破", "隨手關門"],
-    answerIndex: 2   // 正解：隨手關門
-  },
-  {
-    question: "遇到濃煙時應該怎麼做？",
-    options: ["低姿勢掩住口鼻前進", "抬頭快跑搭電梯離開", "搭電梯離開"],
-    answerIndex: 0   // 正解：低姿勢掩住口鼻前進
-  }
-];
-   
+      modal.appendChild(box);
+      document.body.appendChild(modal);
+    }
 
 
-    function askfireQuestion(onDone)  {
-  // 隨機挑一題
-  const quiz = FIRE_QUIZ_POOL[Math.floor(Math.random() * FIRE_QUIZ_POOL.length)];
+    function askfireQuestion(onDone) {
+      // onDone(true/false)
+      const modal = document.createElement("div");
+      Object.assign(modal.style, {
+        position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)",
+        display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
+      });
+      const box = document.createElement("div");
+      Object.assign(box.style, {
+        background: "#fff", padding: "20px", borderRadius: "10px",
+        width: "320px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
+      });
+      const h3 = document.createElement("h3");
+      h3.textContent = "遇到濃煙時應該怎麼做？";
+      const opts = [
+        { key: "1", text: "低姿勢掩住口鼻前進" },// ✅ 正解
+        { key: "2", text: "抬頭快跑搭電梯離開" },
+        { key: "3", text: "搭電梯離開" }
+      ];
+      box.appendChild(h3);
+      opts.forEach(o => {
+        const btn = document.createElement("button");
+        btn.textContent = o.text;
+        btn.classList.add('quiz-opt');
+        Object.assign(btn.style, { display: "block", margin: "8px auto", padding: "8px 16px", cursor: "pointer" });
+        btn.onclick = () => {
+          const correct = (o.key === "1");
+          document.body.removeChild(modal);
+          onDone && onDone(correct);
+        };
+        box.appendChild(btn);
 
-  const modal = document.createElement("div");
-  Object.assign(modal.style, {
-    position: "fixed", inset: "0", background: "rgba(0,0,0,0.6)",
-    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999
-  });
+      });
 
-  const box = document.createElement("div");
-  Object.assign(box.style, {
-    background: "#fff", padding: "20px", borderRadius: "10px",
-    width: "320px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
-  });
 
-  const h3 = document.createElement("h3");
-  h3.textContent = quiz.question;
-  box.appendChild(h3);
+      modal.appendChild(box);
+      document.body.appendChild(modal);
+    }
+    // 回傳所有森林地格的 index（可選擁有者過濾）
+    function getFireStationIndexes(ownerFilter /*(ownerId)=>bool*/ = null) {
+      const arr = [];
+      for (let i = 0; i < mapData.length; i++) {
+        const key = propertyKeys[i] || getPropertyKey(mapData[i] || "");
+        if (key === 'fire_station') {
+          if (!ownerFilter || ownerFilter(propertyOwners[i] ?? 0)) {
+            arr.push(i);
+          }
+        }
+      }
+      return arr;
+    }
 
-  quiz.options.forEach((opt, idx) => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.classList.add('quiz-opt');
-    Object.assign(btn.style, { 
-      display: "block", margin: "8px auto", padding: "8px 16px", cursor: "pointer"
-    });
-
-    btn.onclick = () => {
-      const correct = (idx === quiz.answerIndex);
-      document.body.removeChild(modal);
-      onDone && onDone(correct);
-    };
-
-    box.appendChild(btn);
-  });
-
-  modal.appendChild(box);
-  document.body.appendChild(modal);
-}
+    // 清空指定 owner 的森林地（ownerId: 1..4；若傳 null 代表不清空任何）
+    // 會把該 owner 擁有的所有森林地變回 fire_station_0.png
+    function clearFireStationsByOwner(ownerId) {
+      if (ownerId == null) return;
+      const targets = getFireStationIndexes(o => (o === ownerId));
+      targets.forEach(i => {
+        propertyOwners[i] = 0;
+        setTileImage(i, imageForOwner('fire_station', 0)); // fire_station_0.png
+      });
+      updateStatus();
+    }
 
     function getCellImageSrc(index) {
       const cell = gameBoard.children[index];
