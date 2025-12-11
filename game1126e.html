@@ -1996,6 +1996,7 @@ category: category,
     }
 
     function nextTurn() {
+	if (gameEnded) return;   // ★ 已經結束就不要再換人
       currentPlayer = (currentPlayer + 1) % nPlayers;
       document.getElementById("currentPlayer").textContent = currentPlayer + 1;
       updateStatus();
@@ -2081,8 +2082,8 @@ category: category,
 
       let cards = "";
       for (let i = 0; i < nPlayers; i++) {
-        const isActive = (i === currentPlayer);
-
+        // 遊戲結束後就不要再高亮任何人，只顯示皇冠
+		const isActive = !gameEnded && (i === currentPlayer);
         const isWinner = (winnerIndex === i);
         const cls = `score-card p${i + 1}${isActive ? " active" : ""}${isWinner ? " winner" : ""}`;
         const car = carImgs[i] || "car_red.png";
