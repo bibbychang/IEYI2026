@@ -1,0 +1,178 @@
+<div class="cc-tabs">
+	<!-- 4 個 radio：決定目前選哪一個 --> <input type="radio" name="cc-tab" id="cc-tab1" checked="checked" /> <input type="radio" name="cc-tab" id="cc-tab2" /> <input type="radio" name="cc-tab" id="cc-tab3" /> <input type="radio" name="cc-tab" id="cc-tab4" /> <!-- 上面藍色橫條：4 個選單文字 -->
+	<div class="cc-tab-labels">
+		<label for="cc-tab1">最新消息</label> <label for="cc-tab2">服務資訊</label> <label for="cc-tab3">相關服務</label> <label for="cc-tab4">業務專欄</label> 
+	</div>
+<!-- 下面白色內容框：這裡就讓你自己編文字 / 連結 -->
+	<div class="cc-tab-panels">
+		<!-- 最新消息 -->
+		<div class="cc-panel panel1">
+			<div class="cc-mega">
+				<!-- 上面藍色框框：兩個都同時出現、全部攤開 -->
+				<div class="cc-mega-pill-row">
+					<a class="cc-mega-pill" href="https://website.ncyu.edu.tw/cc/Subject?NodeId=56"> 校務行政 </a> <a class="cc-mega-pill" href="https://website.ncyu.edu.tw/cc/Subject?NodeId=57"> 學術研究 </a> 
+				</div>
+<!-- 下面白色區域內容：你自己編（要不要分兩欄都可以） -->
+				<div class="cc-mega-columns">
+					<!-- 左邊：校務行政 -->
+					<div class="cc-mega-col">
+						<h3>
+							校務行政
+						</h3>
+						<ul class="cc-mega-list">
+							<li>
+								<a href="#">這裡放校務行政相關連結 1</a> 
+							</li>
+							<li>
+								<a href="#">這裡放校務行政相關連結 2</a> 
+							</li>
+<!-- 之後你自己加 / 改 -->
+						</ul>
+					</div>
+<!-- 右邊：學術研究 -->
+					<div class="cc-mega-col">
+						<h3>
+							學術研究
+						</h3>
+						<ul class="cc-mega-list">
+							<li>
+								<a href="#">這裡放學術研究相關連結 1</a> 
+							</li>
+							<li>
+								<a href="#">這裡放學術研究相關連結 2</a> 
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- 服務資訊 -->
+		<div class="cc-panel panel2">
+			<div class="cc-mega">
+				<!-- 上面：服務資訊的藍色框框們（全部同時顯示） -->
+				<div class="cc-mega-pill-row">
+					<a class="cc-mega-pill" href="" title="校園IC卡諮詢">校園IC卡諮詢</a> <a class="cc-mega-pill" href="/cc/Contents?nodeId=213" title="自由軟體專區">自由軟體專區</a> <a class="cc-mega-pill" href="/cc/Contents?nodeId=115" title="校園授權軟體">校園授權軟體</a> <a class="cc-mega-pill" href="" title="電腦教室">電腦教室</a> <a class="cc-mega-pill" href="" title="網路資訊">網路資訊</a> <a class="cc-mega-pill" href="" title="學生資訊">學生資訊</a> <a class="cc-mega-pill" href="" title="教職員工資訊">教職員工資訊</a> <a class="cc-mega-pill" href="https://website.ncyu.edu.tw/distance/" title="遠距教學">遠距教學</a> <a class="cc-mega-pill" href="/cc/Contents?nodeId=341" title="各種證照考試">各種證照考試</a> <a class="cc-mega-pill" href="#" title="課程訓練／教育訓練">課程訓練／教育訓練</a> 
+				</div>
+<!-- 下面：課程訓練／教育訓練 等細項列表（全部攤開） -->
+				<div class="cc-mega-columns">
+					<div class="cc-mega-col">
+						<h3>
+							課程訓練／教育訓練
+						</h3>
+						<ul class="cc-mega-list">
+							<li>
+								<a href="/cc/Contents?nodeId=715" title="106年3月8日「微軟Office365體驗營」"> 106年3月8日「微軟Office365體驗營」 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=705" title="105年6月15日「校園資訊安全講座」研討會講義"> 105年6月15日「校園資訊安全講座」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=685" title="103年3月13日「Adobe Acrobat 11 應用操作--個資安全好幫手」研討會講義"> 103年3月13日「Adobe Acrobat 11 應用操作--個資安全好幫手」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=684" title="103年2月26日「Windows 8.1 體驗營」研討會"> 103年2月26日「Windows 8.1 體驗營」研討會 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=680" title="102年9月12日「Adobe Photoshop CS6數位影像處理密技」研討會講義"> 102年9月12日「Adobe Photoshop CS6數位影像處理密技」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=676" title="102年9月4日「活用辦公小幫手 Office 2010」研討會講義"> 102年9月4日「活用辦公小幫手 Office 2010」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=670" title="102年度「拓展新視野-Windows 8」研討會講義"> 102年度「拓展新視野-Windows 8」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=671" title="102年度「活用辦公小幫手-Office」研討會講義"> 102年度「活用辦公小幫手-Office」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=648" title="101年度「自動化軟體開發輔助工具」研討會講義"> 101年度「自動化軟體開發輔助工具」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=646" title="101年度「軟體單元測試與自動化」研討會講義"> 101年度「軟體單元測試與自動化」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=645" title="101年度「程式設計風格」研討會講義"> 101年度「程式設計風格」研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Subject?nodeId=619" title="100年度微軟站在雲端看世界研討會講義"> 100年度微軟站在雲端看世界研討會講義 </a> 
+							</li>
+							<li>
+								<a href="/cc/Subject?nodeId=605" title="99年度微軟Windows7及Office2010使用說明會講義"> 99年度微軟Windows7及Office2010使用說明會講義 </a> 
+							</li>
+							<li>
+								<a href="https://webhd.ncyu.edu.tw:443/share.cgi?ssid=0MWTQXg" title="108年6月20日利用G Suite for Education快速建立教師個人網頁實機操作課程"> 108年6月20日利用 G Suite for Education 快速建立教師個人網頁實機操作課程 </a> 
+							</li>
+							<li>
+								<a href="https://webhd.ncyu.edu.tw/share.cgi?ssid=0xqEgbO" title="108年8月22日本校全球資訊網後臺管理系統實機操作課程"> 108年8月22日本校全球資訊網後臺管理系統實機操作課程 </a> 
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- 相關服務 -->
+		<div class="cc-panel panel3">
+			<div class="cc-mega">
+				<!-- 上面：相關服務的藍色框框們（全部同時出現） -->
+				<div class="cc-mega-pill-row">
+					<a class="cc-mega-pill" href="https://website.ncyu.edu.tw/cc/Subject?nodeId=66" title="法規彙編">法規彙編</a> <a class="cc-mega-pill" href="https://website.ncyu.edu.tw/cc/Subject?nodeId=68" title="常見問答">常見問答</a> <a class="cc-mega-pill" href="/cc/Subject?nodeId=193" title="SOP手冊">SOP手冊</a> <a class="cc-mega-pill" href="#" title="統計資料">統計資料</a> 
+				</div>
+<!-- 下面：內容全部攤開，沒有小標題字 -->
+				<div class="cc-mega-columns">
+					<!-- 左邊：法規彙編 / 常見問答 / SOP手冊（對齊第1顆膠囊） -->
+					<div class="cc-mega-col col-law">
+						<ul class="cc-mega-list">
+							<li>
+								<a href="https://website.ncyu.edu.tw/cc/Subject?nodeId=66" title="法規彙編">法規彙編</a> 
+							</li>
+							<li>
+								<a href="https://website.ncyu.edu.tw/cc/Subject?nodeId=68" title="常見問答">常見問答</a> 
+							</li>
+							<li>
+								<a href="/cc/Subject?nodeId=193" title="SOP手冊">SOP手冊</a> 
+							</li>
+						</ul>
+					</div>
+<!-- 右邊：統計資料兩個連結（對齊第4顆「統計資料」膠囊） -->
+					<div class="cc-mega-col col-stat">
+						<ul class="cc-mega-list">
+							<li>
+								<a href="http://sflow.ncyu.edu.tw/" title="網路流量統計">網路流量統計</a> 
+							</li>
+							<li>
+								<a href="/cc/Contents?nodeId=62303" title="經費運用重點成果">經費運用重點成果</a> 
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="cc-panel panel4">
+			<div class="cc-mega">
+				<!-- 上面：業務專欄的藍色框框們（全部同時顯示） -->
+				<div class="cc-mega-pill-row">
+					<a class="cc-mega-pill" href="https://website.ncyu.edu.tw/pims" title="資訊安全專區(另開分頁)" target="_blank">資訊安全專區</a> <a class="cc-mega-pill" href="https://avp.ncyu.edu.tw:8888/" title="防毒專區">防毒專區</a> <a class="cc-mega-pill" href="https://web085004.adm.ncyu.edu.tw/eJournal.pub/eJournal.aspx" title="期刊資料查詢">期刊資料查詢</a> 
+				</div>
+<!-- 下面：內容全部攤開（之後你要多寫說明或分類都可以加） -->
+				<div class="cc-mega-columns">
+					<div class="cc-mega-col">
+						<h3>
+							業務專欄
+						</h3>
+						<ul class="cc-mega-list">
+							<li>
+								<a href="https://website.ncyu.edu.tw/pims" title="資訊安全專區(另開分頁)" target="_blank">資訊安全專區</a> 
+							</li>
+							<li>
+								<a href="https://avp.ncyu.edu.tw:8888/" title="防毒專區">防毒專區</a> 
+							</li>
+							<li>
+								<a href="https://web085004.adm.ncyu.edu.tw/eJournal.pub/eJournal.aspx" title="期刊資料查詢">期刊資料查詢</a> 
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
