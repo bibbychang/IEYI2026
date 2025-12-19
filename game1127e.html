@@ -100,13 +100,23 @@
       height: 100%;
     }
 @media (max-width: 768px) {
+ 
   .player {
-    width: 34px;
-    height: 34px;
+    width: calc(var(--cell) * 0.55);   /* 一格寬度的 35% 左右 */
+    height: calc(var(--cell) * 0.55);
   }
+
+  /* 角落邊距也縮小一點 */
+  .player1 { top: 2px; left: 2px; }
+  .player2 { top: 2px; right: 2px; }
+  .player3 { bottom: 2px; left: 2px; }
+  .player4 { bottom: 2px; right: 2px; }
+  
+  
+  
+  
+  
 }
-
-
 
     #log {
 
