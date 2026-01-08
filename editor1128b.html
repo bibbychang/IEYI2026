@@ -732,8 +732,8 @@ function getInstructionsHTML(currentLang) {
       // 最後：tooltip 文案也依語系更新
       refreshAllTooltips();
 	  // 語系切換後，文字高度可能變化，重新計算 cell
-      updateResponsiveCell();
-      updateScreenInfo();
+      //updateResponsiveCell();
+      //updateScreenInfo();
 
     }
 
@@ -835,10 +835,10 @@ function updateScreenInfo() {
     });
 
     // 等資源載入完成後再算一次（避免字體/圖片造成高度差）
-    window.addEventListener('load', () => {
-      updateResponsiveCell();
-      updateScreenInfo();
-    });
+   // window.addEventListener('load', () => {
+    //  updateResponsiveCell();
+    //  updateScreenInfo();
+   // });
 
     function refreshAllTooltips() {
       // 1) 側邊欄的 tooltip（依 sidebar 圖示的 data-img）
