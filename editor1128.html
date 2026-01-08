@@ -12,7 +12,11 @@
     }
 
     :root {
-      --cell: min(90px, calc((100vw - 32px) / 8));      
+      --cell: min(
+  90px,
+  calc((100vw - 32px) / 8),
+  calc((100vh - 170px) / 16)
+);
     }
 
     #map {
@@ -188,7 +192,20 @@
   outline: 3px solid red;
   outline-offset: 2px;
 }
+@media (max-width: 797px) {
+  #layout { 
+    flex-direction: column;
+  }
+  #instructions {
+    max-width: none !important;
+    border-left: none !important;
+    padding-left: 0 !important;
 
+    border-top: none;
+    padding-top: 15px !important;
+    margin-top: 12px;
+  }
+}
 
   </style>
 
@@ -263,7 +280,7 @@
 </head>
 
 <body>
-<div style="display: flex; align-items: flex-start; gap: 20px; width: 100%; min-height: 100vh; box-sizing: border-box;">
+<div id="layout" style="display: flex; align-items: flex-start; gap: 20px; width: 100%; min-height: 100vh; box-sizing: border-box;">
     <!-- 左邊：原本的控制與地圖 -->
     <div style="flex: 1;">
 	
@@ -465,7 +482,7 @@ function getInstructionsHTML(currentLang) {
     <div class="card">
       <h3>1) 編輯地圖</h3>
       <ol class="list">
-        <li>上方選項可調整遊戲模式（積分 / 限時），設定遊戲人數和語言選擇。</li>
+        <li>上方選項可選擇語言、調整遊戲模式（積分 / 限時），設定遊戲人數與選擇出題方式</li>
         <li>可自行拖曳路徑圖或選擇 <span class="kbd">地圖1 / 地圖2 / 地圖3</span></li>
         <li>按下 <span class="kbd">開始遊戲</span>，開始進行遊戲</li>
       </ol>
@@ -485,7 +502,7 @@ function getInstructionsHTML(currentLang) {
       <h3>回合流程</h3>
       <ol class="list">
         <li>玩家按下 <strong>擲骰</strong>。</li>
-        <li><strong>依骰子點數行進移動至新位置並</strong>觸發格子效果（問答 / 事件 / 技能卡 / 地產 / 道具）。</li>
+        <li><strong>依骰子點數行進移動至新位置並</strong>觸發格子效果（問答 / 事件 / 避難卡 / 地產 / 道具）。</li>
         <li>處理結算（加分、購買、移動、換人）。</li>
       </ol>
     </div>
@@ -547,7 +564,7 @@ function getInstructionsHTML(currentLang) {
     <div class="card">
       <h3>1) Edit Map</h3>
       <ol class="list">
-        <li>Use the top options to adjust game mode (Score / Timed), set number of players and language.</li>
+        <li>Use the top options to select language,adjust game mode (Score / Timed), set number of players and question type.</li>
         <li>You can drag tiles manually or select <span class="kbd">Map 1 / Map 2 / Map 3</span>.</li>
         <li>Press <span class="kbd">Start Game</span> to begin playing.</li>
       </ol>
