@@ -194,6 +194,13 @@
   outline-offset: 2px;
 }
 @media (max-width: 797px) {
+ #sidebar {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+      width: calc(var(--cell) * 8 + 14px);      
+      margin-bottom: 10px;
+    }
   #layout { 
     flex-direction: column;
   }
