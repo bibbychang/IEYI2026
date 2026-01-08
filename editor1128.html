@@ -282,7 +282,7 @@
 <body>
 <div id="layout" style="display: flex; align-items: flex-start; gap: 20px; width: 100%; min-height: 100vh; box-sizing: border-box;">
     <!-- 左邊：原本的控制與地圖 -->
-    <div style="flex: 1;">
+    <div style="flex: 0 0 auto; width: fit-content;">
 	
 
   <h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 5px;">🧩 編輯地圖與設定</h2> <button id="lang-toggle" style="margin-left:8px">語系</button>
@@ -424,8 +424,10 @@
   <div id="map"></div>
 </div>
 
-    <!-- 右邊：操作說明（由 JS 依語系注入內容） -->
-    <div id="instructions" style="max-width:500px; border-left: 2px solid #ccc; padding-left: 15px;"></div>
+    <!-- 右邊：操作說明（由 JS 依語系注入內容） 
+    <div id="instructions" style="max-width:500px; border-left: 2px solid #ccc; padding-left: 15px;"></div>-->
+	<div id="instructions" style="flex:1;  border-left: 2px solid #ccc; padding-left: 15px;"></div>
+
   </div>
 
   <script>
