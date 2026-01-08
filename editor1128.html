@@ -15,7 +15,7 @@
       --cell: min(
   90px,
   calc((100vw - 32px) / 8),
-  calc((100vh - 170px) / 11)
+  calc((100vh - 170px) / 12)
 );
     }
 
@@ -57,13 +57,13 @@
       border-radius: 4px;
     }
 
-    #sidebar{
-  display: flex;
-  flex-wrap: wrap;      /* ✅ 放滿才換行 */
-  gap: 6px;
-  width: 100%;          /* ✅ 用滿左側可用寬度 */
-  margin-bottom: 10px;
-}
+   #sidebar {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 2px;
+      width: calc(var(--cell) * 10 + 14px);      
+      margin-bottom: 10px;
+    }
 
     #sidebar img {
       width: 100%;
@@ -78,11 +78,10 @@
 
     
 	#sidebar .item-wrapper {
-      flex: 0 0 var(--cell); /* ✅ 每個圖示固定寬度=cell */
-  aspect-ratio: 1 / 1;   /* ✅ 正方形 */
-  position: relative;
-	  
-	  
+      width: 90%;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      display: inline-block;
     }
 
     #sidebar .item-wrapper .tooltip {
@@ -323,8 +322,10 @@
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
 	<button onclick="saveAPIKey()">儲存 Key</button>-->
 </div>
-
-  <div id="sidebar">
+<button onclick="loadMap1()">📌 地圖1</button><button onclick="loadMap2()">📌 地圖2</button><button
+    onclick="loadMap3()">📌 地圖3</button>
+  <button onclick="clearMap()">🧹 清空</button><button onclick="saveAndStart()">▶ 開始遊戲</button>
+  <div id="sidebar" >
     <div class="item-wrapper">
       <img src="start.png" class="item" draggable="true" data-img="start.png">
       <div class="tooltip">起點：玩家從這裡開始</div>
@@ -418,9 +419,7 @@
     
 
   </div>
-  <button onclick="loadMap1()">📌 地圖1</button><button onclick="loadMap2()">📌 地圖2</button><button
-    onclick="loadMap3()">📌 地圖3</button>
-  <button onclick="clearMap()">🧹 清空</button><button onclick="saveAndStart()">▶ 開始遊戲</button>
+  
 
   <div id="map"></div>
 </div>
