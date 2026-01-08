@@ -334,14 +334,17 @@
   </label>
 <div id="screen-info" style="font-size:12px;color:#666;margin:6px 0 10px 0;"></div>
   <div id="ai-quiz-setting" style="margin:8px 0 12px 0;">
-	  <label style="display:inline-block; margin-right:8px;">AI 出題：</label>
+  
+  
+  
+  
+  
+	  <label id="ai-quiz-label" style="display:inline-block; margin-right:8px;">AI 出題：</label>
 	  <label style="margin-right:12px;">
-		<input type="radio" name="aiQuiz" value="yes" checked> 是
-	  </label>
+		<input type="radio" name="aiQuiz" value="yes" checked> <span id="ai-quiz-yes">是</span>	  </label>
 	  <label>
-		<input type="radio" name="aiQuiz" value="no"> 否
-	  </label>
-	  <span style="font-size:12px;color:#666;margin-top:4px;padding-left:20px;">
+		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no">否</span>	  </label>
+	  <span id="ai-quiz-hint" style="font-size:12px;color:#666;margin-top:4px;padding-left:20px;">
 		選「否」時，遊戲僅使用題庫出題（不呼叫 API、速度較快）。
 	  </span><!--
 	  <label>Gemini API Key：</label>
@@ -475,11 +478,16 @@
         score_30: '30 分',
         score_40: '40 分',
         people: '人數',
+		aiQuizLabel: 'AI 出題',
+aiQuizYes: '是',
+aiQuizNo: '否',
+aiQuizHint: '選「否」時，遊戲僅使用題庫出題（不呼叫 API、速度較快）。',
         map1: '📌 地圖1',
         map2: '📌 地圖2',
         map3: '📌 地圖3',
         clear: '🧹 清空',
         start: '▶ 開始遊戲'
+		
       },
       en: {
         title: '🧩 Map Editor & Settings',
@@ -493,6 +501,11 @@
         score_30: '30 pts',
         score_40: '40 pts',
         people: 'Players',
+		aiQuizLabel: 'AI Questions',
+aiQuizYes: 'Yes',
+aiQuizNo: 'No',
+aiQuizHint: 'If "No", the game will use the built-in question bank only (no API calls; faster).',
+
         map1: '📌 Map 1',
         map2: '📌 Map 2',
         map3: '📌 Map 3',
@@ -707,6 +720,18 @@ function getInstructionsHTML(currentLang) {
       // 人數標籤
       const peopleLabel = document.querySelector('label[style*="margin-left:10px"]');
       if (peopleLabel) peopleLabel.childNodes[0].nodeValue = uiText[lang].people + ' ';
+
+const aiLabel = document.getElementById('ai-quiz-label');
+const aiYes = document.getElementById('ai-quiz-yes');
+const aiNo = document.getElementById('ai-quiz-no');
+const aiHint = document.getElementById('ai-quiz-hint');
+
+if (aiLabel) aiLabel.textContent = uiText[lang].aiQuizLabel + '：';
+if (aiYes) aiYes.textContent = uiText[lang].aiQuizYes;
+if (aiNo) aiNo.textContent = uiText[lang].aiQuizNo;
+if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
+
+
 
       // 地圖按鈕
       const map1Btn = document.querySelector('button[onclick="loadMap1()"]');
