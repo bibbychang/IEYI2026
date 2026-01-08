@@ -15,7 +15,7 @@
       --cell: min(
   90px,
   calc((100vw - 32px) / 8),
-  calc((100vh - 170px) / 16)
+  calc((100vh - 170px) / 11)
 );
     }
 
@@ -57,13 +57,13 @@
       border-radius: 4px;
     }
 
-    #sidebar {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 2px;
-      width: calc(var(--cell) * 8 + 14px);      
-      margin-bottom: 10px;
-    }
+    #sidebar{
+  display: flex;
+  flex-wrap: wrap;      /* ✅ 放滿才換行 */
+  gap: 6px;
+  width: 100%;          /* ✅ 用滿左側可用寬度 */
+  margin-bottom: 10px;
+}
 
     #sidebar img {
       width: 100%;
@@ -78,10 +78,11 @@
 
     
 	#sidebar .item-wrapper {
-      width: 90%;
-      aspect-ratio: 1 / 1;
-      position: relative;
-      display: inline-block;
+      flex: 0 0 var(--cell); /* ✅ 每個圖示固定寬度=cell */
+  aspect-ratio: 1 / 1;   /* ✅ 正方形 */
+  position: relative;
+	  
+	  
     }
 
     #sidebar .item-wrapper .tooltip {
@@ -285,7 +286,7 @@
     <div style="flex: 1;">
 	
 
-  <h2 id="title-text">🧩 編輯地圖與設定</h2> <button id="lang-toggle" style="margin-left:8px">語系</button>
+  <h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 5px;">🧩 編輯地圖與設定</h2> <button id="lang-toggle" style="margin-left:8px">語系</button>
   <label><input type="radio" name="mode" value="time" onchange="updateMode()"> 限時制</label>
   <select id="timeLimit" disabled>
     <option value="20">20 秒</option>
@@ -725,8 +726,7 @@ function updateScreenInfo() {
 
   el.textContent =
     `screen: ${sw}×${sh} (≈ ${physicalW}×${physicalH} px, DPR=${dpr}) | ` +
-    `viewport: ${vw}×${vh}` +
-    (ori ? ` | orientation: ${ori}` : '');
+    `viewport: ${vw}×${vh}` ;
 }
 
     function toggleLang() {
