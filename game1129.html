@@ -1407,7 +1407,7 @@ function fitCellToFirstScreen(force = false) {
 
   // 計算最佳格寬
   let cell = Math.floor(Math.min(90, byW, byH));
-  cell = Math.max(36, cell);
+  cell = Math.max(18, cell);
 
   root.style.setProperty("--cell", `${cell}px`);
   __cellFitDone = true;
