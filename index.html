@@ -129,7 +129,7 @@
         </div>
       </div>
       <div class="actions">
-        <a class="btn primary" href="./editor1127.html">🗺️ 地圖編輯</a>
+        <a class="btn primary" href="./editor1129.html">🗺️ 地圖編輯</a>
         <a class="btn primary" href="./game1127.html">▶ 開始遊戲</a><!--/gamep10mb12.html-->
         <a class="btn primary" href="./start.html">🖍️ 歷程版本</a>        
       </div>
@@ -179,6 +179,7 @@
           <li><strong>急救包格</strong>：平時準備換取災時優勢。</li>
           <li><strong>地產格</strong>：低窪地／森林地／高樓大廈，有足夠分數可購買。</li>
           <li><strong>躲避格</strong>：就地掩護，正確避震觀念</li>
+		  <li><strong>災難格</strong>：災難來臨</li>
 		  <span class="pill">主題：校園/家庭防災</span>
           <span class="pill">學段：國小中年級</span>
           <span class="pill">類型：教育型桌遊</span>
@@ -190,7 +191,7 @@
         <h3>3) 進步性</h2>
         <ol class="list">
 
-        <li><strong>模組化題庫</strong>：可依據課綱擴充題目，提升學生防災知識</li>
+        <li><strong>模組化題庫/ai 出題</strong>：可依據課綱擴充題目，提升學生防災知識</li>
         <li><strong>內建答題檢視</strong>：可輸出學習紀錄，可做為評量使用</li>
         <li><strong>勝負制與視覺化記分板</strong>：透過比賽勝負機制提升學生學習動機。</li>  
         </ol>
@@ -204,6 +205,7 @@
         <li><strong>路徑不是固定的</strong>：可依不同情境設計不同路線</li>
         <li><strong>學習即時回饋</strong>：答對加分</li>
         <li><strong>模擬真實風險</strong>：事件卡的設計可模擬真實風險</li>  
+		<li><strong>ai出題</strong>：題目多變化</li> 
         </ol>
         
 </div>
@@ -223,6 +225,7 @@
           <ol class="list">
             <li>按下右上角編輯地圖按鈕 ， 可自行拖曳路徑圖或選擇 <span class="kbd">地圖1 / 地圖2 / 地圖3</span> </li>
             <li>上方選項可調整遊戲模式（積分 / 限時），設定遊戲人數和語言選擇。</li>
+			<li>可選擇題庫出題或ai 出題。</li>
             <li>按下 <span class="kbd">開始遊戲</span>，開始進行遊戲</li>
           </ol>
           <p class="note">小提醒：<span class="kbd">拖曳路徑圖</span> 的順序就是行走的路徑。</p>
@@ -250,7 +253,7 @@
           <ol class="list">
             <li>玩家按下 <strong>擲骰</strong>。</li>
             
-            <li><strong>依骰子點數行進移動至新位置並</strong>觸發格子效果（問答 / 事件 / 技能卡 / 地產 / 道具）。</li>
+            <li><strong>依骰子點數行進移動至新位置並</strong>觸發格子效果（問答 / 事件 / 技能卡 / 地產 / 道具 / 災難）。</li>
             <li>處理結算（加分、購買、移動、換人）。</li>
             <li>完成一圈時可加分。</li>
           </ol>
@@ -383,26 +386,7 @@
       </div>
     </section>
 
-    <section id="editor" class="section">
-      <h2>🗺️ 地圖編輯</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>常用功能</h3>
-          <ul class="list">
-            <li>設定回合模式、分數/時間門檻，選擇玩家數與設定語言。</li>
-            <li>拖曳路徑圖可自行編輯路徑或載入預設地圖：地圖 1 / 2 / 3。</li>            
-            <li>儲存並開始。</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>注意事項</h3>
-          <ul class="list">
-            <li>拖曳路徑圖順序（<span class="kbd">placedOrder</span>）會變成遊戲的行走順序。</li>
-            <li>圖片檔名要與遊戲相同（如 <span class="kbd">card2.png</span>）。</li>            
-          </ul>
-        </div>
-      </div>
-    </section>
+    
 
     <section id="faq" class="section">
       <h2>❓ 我們遇到的問題</h2>
@@ -414,13 +398,17 @@
           </div>
         </details>
         
-        <details class="card">
+        <details class="card" open>
           <summary>退回 1 / 2 格會繞一圈？</summary>
           <div>要加移動動畫的方向，+1表示向前走，-1表示後退</div>
         </details>
-        <details class="card">
+        <details class="card" open>
           <summary>「回到起點」會繞一圈？</summary>
           <div>如果是回到起點，直接把玩家位置設為0就好</div>
+        </details>
+		<details class="card" open>
+          <summary>不同螢幕寬度解析度?</summary>
+          <div>根據螢幕寬度和高度，自動計算cell大小</div>
         </details>
       </div>
     </section>
