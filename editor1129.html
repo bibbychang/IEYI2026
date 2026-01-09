@@ -678,7 +678,7 @@ body > *{
     const uiText = {
       zh: {
         title: '🧩 編輯地圖與設定',
-        toggle_to: 'English version',
+        toggle_to: 'English Version',
         mode_time: '限時制',
         mode_score: '積分制',
         time_600: '10分鐘',
@@ -755,19 +755,15 @@ function getInstructionsHTML(currentLang) {
         <li><strong>依骰子點數行進移動至新位置並</strong>觸發格子效果（問答 / 事件 / 避難卡 / 地產 / 道具）。</li>
         <li>處理結算（加分、購買、移動、換人）。</li>
       </ol>
+	  <h3>視覺化記分板</h3>
+      <ol class="list">
+        <li>顯示玩家分數與進度條，增加臨場感</li>
+        
+      </ol>
     </div>
     <div class="card">
-      <h3>模式</h3>
-      <ul class="list">
-        <li><strong>積分制</strong>：先達到目標分數的玩家獲勝。</li>
-        <li><strong>限時制</strong>：時間到時分數最高者獲勝。</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="grid cols-2">
-    <div class="card">
-      <h3>事件卡</h3>
+      
+	  <h3>事件卡</h3>
       <ul class="list">
         <li><strong>前進 1 / 2 格</strong>：往前行進。</li>
         <li><strong>退回 1 / 2 格</strong>：倒退行進。</li>
@@ -776,20 +772,22 @@ function getInstructionsHTML(currentLang) {
         <li><strong>停一回合</strong>：暫停一回合。</li>
       </ul>
     </div>
-
-    <div class="card">
-      <h3>地產系統 購買與持有</h3>
-      <ul class="list">
-        <li>可購買的地點：<strong>高樓大廈</strong>、<strong>森林地</strong>、<strong>低窪地</strong>，可以擴充。</li>
-        <li>擁有足夠分數才能購買。</li>
-        <li>購買後該格背景會換成該玩家的顏色，比如玩家1是紅色，玩家2是藍色。</li>
-        <li>其他玩家踩到時，要給對應的分數，若分數不足夠，能給多少就給多少。</li>
-      </ul>
-    </div>
   </div>
 
   <div class="grid cols-2">
+    
+
     <div class="card">
+      <h3>地產系統 購買持有與災損 </h3>
+      <ul class="list">
+        <li>可購買的地產：<strong>高樓大廈</strong>、<strong>森林地</strong>、<strong>低窪地</strong>，可以擴充。</li>
+        <li>擁有足夠分數才能購買。</li>
+        <li>購買後該格背景會換成該玩家的顏色，比如玩家1是紅色，玩家2是藍色。</li>
+        <li>其他玩家踩到時，要給對應的分數，若分數不足夠，能給多少就給多少。</li>
+		<li>走到災難格時，會出對應類型的題目，如果答對保留自己對應的地產，拆除別人對應的地產，如果答錯拆除自己對應的地產，保留別人對應的地產，若無對應地產則無作用</li>		
+      </ul>
+    </div>
+	<div class="card">
       <h3>計分加分來源</h3>
       <ul class="list">
         <li>答對問答（預設 +3）包含：地震、火災、水災等分類。</li>
@@ -798,6 +796,10 @@ function getInstructionsHTML(currentLang) {
         <li>其他玩家走到你的地（預設 +3）。</li>
       </ul>
     </div>
+  </div>
+
+  <div class="grid cols-2">
+    
     <div class="card">
       <h3>勝利條件</h3>
       <ul class="list">
@@ -805,25 +807,32 @@ function getInstructionsHTML(currentLang) {
         <li>限時制：時間結束，比較分數高低。</li>
       </ul>
     </div>
-  </div>
+	<div class="card">
+      <h3>作答統計</h3>
+      <ul class="list">
+        <li>遊戲結束後可列出全部答題狀態</li>
+        <li>可以顯示每位玩家答對的比例</li>       
+      </ul>
+    </div>
+  </div>  
       `;
 
-      const en = `
-  <h2>🚀 Game Instructions </h2>
+     const en = `
+  <h2>🚀 Game Instructions</h2>
   <div class="grid cols-2">
     <div class="card">
-      <h3>1) Edit Map</h3>
+      <h3>1) Edit the Map</h3>
       <ol class="list">
-        <li>Use the top options to select language,adjust game mode (Score / Timed), set number of players and question type.</li>
-        <li>You can drag tiles manually or select <span class="kbd">Map 1 / Map 2 / Map 3</span>.</li>
-        <li>Press <span class="kbd">Start Game</span> to begin playing.</li>
+        <li>Use the options at the top to choose a language, adjust the game mode (Score / Timed), set the number of players, and choose the question method.</li>
+        <li>You can drag and edit the path yourself, or select <span class="kbd">Map 1 / Map 2 / Map 3</span>.</li>
+        <li>Click <span class="kbd">Start Game</span> to begin playing.</li>
       </ol>
     </div>
     <div class="card">
-      <h3>2) Start Game</h3>
+      <h3>2) Start Playing</h3>
       <ol class="list">
         <li>Players take turns pressing <span class="kbd">Roll Dice</span> to move.</li>
-        <li>The tile effect triggers only after the piece lands (Quiz, Event, Card, Property, etc.).</li>
+        <li>Tile effects trigger only after the token lands on a tile (quiz, events, drawing cards, buying property, etc.).</li>
       </ol>
     </div>
   </div>
@@ -833,62 +842,67 @@ function getInstructionsHTML(currentLang) {
     <div class="card">
       <h3>Turn Flow</h3>
       <ol class="list">
-        <li>The player presses <strong>Roll Dice</strong>.</li>
-        <li><strong>Move according to dice result</strong> and trigger the tile effect (Quiz / Event / Skill Card / Property / Item).</li>
-        <li>Handle settlement (score, purchase, movement, next player).</li>
+        <li>The player clicks <strong>Roll Dice</strong>.</li>
+        <li><strong>Move forward based on the dice result</strong> to a new position and trigger the tile effect (Quiz / Event / Shelter Card / Property / Item).</li>
+        <li>Resolve results (score changes, purchases, movement, switch turns).</li>
+      </ol>
+      <h3>Visual Scoreboard</h3>
+      <ol class="list">
+        <li>Shows player scores and progress bars to enhance immersion.</li>
       </ol>
     </div>
     <div class="card">
-      <h3>Modes</h3>
-      <ul class="list">
-        <li><strong>Score Mode</strong>: The first player to reach target score wins.</li>
-        <li><strong>Timed Mode</strong>: The player with the highest score when time ends wins.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="grid cols-2">
-    <div class="card">
       <h3>Event Cards</h3>
       <ul class="list">
-        <li><strong>Move forward 1 / 2 steps</strong>: Move ahead.</li>
-        <li><strong>Move back 1 / 2 steps</strong>: Move backward.</li>
-        <li><strong>Return to Start</strong>: Go back to start, turn ends.</li>
+        <li><strong>Move forward 1 / 2 tiles</strong>: Advance.</li>
+        <li><strong>Move back 1 / 2 tiles</strong>: Go backward.</li>
+        <li><strong>Return to Start</strong>: Go back to the start and immediately switch turns.</li>
         <li><strong>Gain 1 / 2 points</strong>: Earn points.</li>
-        <li><strong>Skip one turn</strong>: Lose a turn.</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h3>Property System: Purchase & Ownership</h3>
-      <ul class="list">
-        <li>Purchasable locations: <strong>Skyscraper</strong>, <strong>Forest Land</strong>, <strong>Lowland</strong> (expandable).</li>
-        <li>Players must have enough points to buy.</li>
-        <li>After purchase, the tile background changes to the player’s color (e.g., Player 1 = Red, Player 2 = Blue).</li>
-        <li>Other players landing on it must pay the corresponding points; if insufficient, pay as much as possible.</li>
+        <li><strong>Skip one turn</strong>: Miss your next turn.</li>
       </ul>
     </div>
   </div>
 
   <div class="grid cols-2">
     <div class="card">
-      <h3>Sources of Points</h3>
+      <h3>Property System: Buy, Own, and Disaster Damage</h3>
       <ul class="list">
-        <li>Correct quiz answers (+3 by default), including earthquake, fire, flood categories.</li>
-        <li>Picking up emergency kits or correct shelter (+5 by default).</li>
-        <li>Completing one lap (+1 by default).</li>
-        <li>Other players land on your property (+3 by default).</li>
+        <li>Buyable properties include: <strong>High-rise Building</strong>, <strong>Forest Land</strong>, and <strong>Low-lying Area</strong> (expandable).</li>
+        <li>You must have enough points to purchase.</li>
+        <li>After purchase, the tile background changes to the player’s color (e.g., Player 1 = red, Player 2 = blue).</li>
+        <li>When other players land on it, they must pay the corresponding points; if they don’t have enough, they pay as much as they can.</li>
+        <li>On a disaster tile, a question of the corresponding type appears. If answered correctly, you keep your own matching properties and remove others’ matching properties; if answered incorrectly, your matching properties are removed and others’ matching properties remain. If no matching properties exist, nothing happens.</li>
       </ul>
     </div>
     <div class="card">
-      <h3>Winning Conditions</h3>
+      <h3>Score Sources</h3>
       <ul class="list">
-        <li>Score Mode: Reach the <span class="kbd">target score</span> (e.g., 20 points) first.</li>
-        <li>Timed Mode: When time ends, compare scores to decide winner.</li>
+        <li>Correct quiz answers (default +3), including categories such as earthquakes, fires, floods, etc.</li>
+        <li>Picking up an emergency kit / correct avoidance action (default +5).</li>
+        <li>Completing one full lap (default +1).</li>
+        <li>Other players landing on your property (default +3).</li>
       </ul>
     </div>
   </div>
-      `;
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>Win Conditions</h3>
+      <ul class="list">
+        <li>Score Mode: Reach the <span class="kbd">target score</span> first (e.g., 20 points).</li>
+        <li>Timed Mode: When time is up, the higher score wins.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Answer Statistics</h3>
+      <ul class="list">
+        <li>After the game ends, you can list the full answer status.</li>
+        <li>You can show each player’s correct-answer rate.</li>
+      </ul>
+    </div>
+  </div>
+`;
+
       return (currentLang === 'en') ? en : zh;
     }
 

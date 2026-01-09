@@ -13,8 +13,8 @@
       display: flex;
     }
 :root{
- 
-  --cell: min(90px, calc((100vw - 40px) / 8));
+  --gap: 2px;
+  --cell: 70px; /* 先當保底，之後 JS 會覆蓋 */
 }
 
     #left-panel {
@@ -26,15 +26,11 @@
       margin-left: 10px;
     }
 
-    #game-board {
-      display: grid;
-      grid-template-columns: repeat(8, var(--cell));      
-      grid-template-rows: repeat(8, var(--cell));     
-      gap: 2px;
-	  width:100%;
-  max-width: calc(var(--cell)*8 + 14px);
-  margin:0 auto;
-    }
+    #game-board{
+  gap: var(--gap);
+  grid-template-columns: repeat(8, var(--cell));
+  grid-template-rows: repeat(8, var(--cell));
+}
 
 
 
@@ -68,12 +64,11 @@
       border-radius: 4px;
     }
 
-    .player {
-      width: 50px;
-      height: 50px;
-      position: absolute;
-      z-index: 5;
-    }
+    .player{
+  width: clamp(18px, calc(var(--cell) * 0.55), 52px);
+  height: clamp(18px, calc(var(--cell) * 0.55), 52px);
+  font-size: clamp(10px, calc(var(--cell) * 0.28), 18px);
+}
 
     .player1 {
       top: 4px;
@@ -1289,6 +1284,7 @@ function parseGeminiQuizText(text) {
     ];
 
     buildBoard();
+	fitBoardOnce();
     updateStatus();
 	const nextFrame = () =>  new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
@@ -1375,6 +1371,39 @@ function parseGeminiQuizText(text) {
       };
       return descriptions[name] || "";
     }
+function fitBoardOnce(){
+  const root = document.documentElement;
+  const board = document.getElementById('game-board');
+  const left = document.getElementById('left-panel') || document.body;
+  if (!board) return;
+
+  const vv = window.visualViewport;
+  const vw = vv ? vv.width : window.innerWidth;
+  const vh = vv ? vv.height : window.innerHeight;
+
+  // 取 left-panel 寬度（桌機/平板橫向更準）
+  const leftRect = left.getBoundingClientRect();
+  const leftStyle = getComputedStyle(left);
+  const padL = parseFloat(leftStyle.paddingLeft) || 0;
+  const padR = parseFloat(leftStyle.paddingRight) || 0;
+  const maxMapW = leftRect.width - padL - padR;
+
+  const gap = parseFloat(getComputedStyle(board).gap) || 2;
+  const gapsTotal = gap * 7;
+
+  const maxCell = 90;
+  const minCell = 18;
+  const bottomPad = 16;
+
+  const boardTop = board.getBoundingClientRect().top;
+  const maxMapH = vh - boardTop - bottomPad;
+
+  const cellByH = (maxMapH - gapsTotal) / 8;
+  const cellByW = (maxMapW - gapsTotal) / 8;
+
+  const next = Math.max(minCell, Math.min(maxCell, cellByH, cellByW));
+  root.style.setProperty('--cell', `${Math.floor(next)}px`);
+}
 
 
     function buildBoard() {
