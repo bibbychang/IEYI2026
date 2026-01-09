@@ -420,7 +420,18 @@ body > *{
   border-color: rgba(0,0,0,.10);
   background: rgba(245,245,245,.92);
 }
-
+.header-row{
+  display:flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap; /* 小螢幕可換行 */
+}
+#screen-info{
+  width: auto;
+  margin: 0;
+  align:left
+}
 </style>
 	
   <script>
@@ -497,15 +508,20 @@ body > *{
     <!-- 左邊：原本的控制與地圖 -->
     <div id="left-panel">
 	
-	
+	<div class="header-row">
+	<h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 5px;">🧩 編輯地圖與設定</h2> 
+  <div id="screen-info" style="font-size:12px;color:#666;margin:6px 0 10px 0;"></div>
+	</div>
 
-  <h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 5px;">🧩 編輯地圖與設定</h2> 
-  <button class="btn" id="lang-toggle" style="margin-left:8px">語系</button>
+  
+  <div class="topbar">
+  <!-- 原本的語系/模式/人數/AI出題/ screen-info 全部放這裡 -->
+  <button class="btn" id="lang-toggle">語系</button>
   <label><input type="radio" name="mode" value="time" onchange="updateMode()"> 限時制</label>
   <select id="timeLimit" disabled>
-    <option value="20">20 秒</option>
-    <option value="50">50 秒</option>
-    <option value="120">2 分鐘</option>
+    <option value="600">10分鐘</option>
+    <option value="1800">30分鐘</option>
+    <option value="3600">60分鐘</option>
   </select>
   <label style="margin-left: 10px"><input type="radio" name="mode" value="score" checked onchange="updateMode()">
     積分制</label>
@@ -521,7 +537,7 @@ body > *{
       <option value="4">4</option>
     </select>
   </label>
-<div id="screen-info" style="font-size:12px;color:#666;margin:6px 0 10px 0;"></div>
+
   <div id="ai-quiz-setting" style="margin:8px 0 12px 0;">
   
   
@@ -534,7 +550,7 @@ body > *{
 	  <label>
 		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no">否</span>	  </label>
 	  <span id="ai-quiz-hint" style="font-size:12px;color:#666;margin-top:4px;padding-left:20px;">
-		選「否」時，遊戲僅使用題庫出題（不呼叫 API、速度較快）。
+		選「否」使用題庫出題（不呼叫 API、快）。
 	  </span><!--
 	  <label>Gemini API Key：</label>
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
@@ -543,6 +559,11 @@ body > *{
 <button class="btn" onclick="loadMap1()">📌 地圖1</button><button class="btn" onclick="loadMap2()">📌 地圖2</button>
 <button class="btn" onclick="loadMap3()">📌 地圖3</button><button class="btn btn-danger" onclick="clearMap()">🧹 清空</button>
 <button class="btn btn-primary" onclick="saveAndStart()">▶ 開始遊戲</button>
+  
+  
+</div>
+  
+  
   <div id="sidebar" style="padding-top:10px">
     <div class="item-wrapper">
       <img src="start.png" class="item" draggable="true" data-img="start.png">
@@ -670,7 +691,7 @@ body > *{
 		aiQuizLabel: 'AI 出題',
 aiQuizYes: '是',
 aiQuizNo: '否',
-aiQuizHint: '選「否」時，遊戲僅使用題庫出題（不呼叫 API、速度較快）。',
+aiQuizHint: '選「否」使用題庫出題（不呼叫 API、較快）',
         map1: '📌 地圖1',
         map2: '📌 地圖2',
         map3: '📌 地圖3',
@@ -896,9 +917,9 @@ function getInstructionsHTML(currentLang) {
 
       // 下拉選項（時間限制）
       const timeSel = document.getElementById('timeLimit');
-      timeSel.options[0].text = uiText[lang].time_20;
-      timeSel.options[1].text = uiText[lang].time_50;
-      timeSel.options[2].text = uiText[lang].time_120;
+      timeSel.options[0].text = uiText[lang].time_600;
+      timeSel.options[1].text = uiText[lang].time_1800;
+      timeSel.options[2].text = uiText[lang].time_3600;
 
       // 下拉選項（目標分數）
       const scoreSel = document.getElementById('scoreTarget');
@@ -1014,7 +1035,7 @@ function updateScreenInfo() {
  const cell = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 0;
 
   el.textContent =
-    `screen: ${sw}×${sh} (≈ ${physicalW}×${physicalH} px, DPR=${dpr}) | ` +
+    `screen: ${sw}×${sh} (≈ ${physicalW}×${physicalH} px) ` +
     `viewport: ${vw}×${vh}` ;
 
 
@@ -1407,8 +1428,8 @@ function drop(e) {
       const mode = document.querySelector('input[name="mode"]:checked').value;
       timeSel.disabled = mode !== "time";
       scoreSel.disabled = mode !== "score";
-	  updateResponsiveCell();
-      updateScreenInfo();
+	  //updateResponsiveCell();
+      //updateScreenInfo();
     }
 	
 	function saveAPIKey() {
