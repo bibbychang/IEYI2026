@@ -234,6 +234,12 @@
     }
 
 
+
+
+
+
+
+
 html, body { height: 100%; }
 
 body{
@@ -353,6 +359,69 @@ body > *{
 
   </style>
 
+
+
+<style>
+/* ===== 通用漂亮按鈕（可套用到所有 button） ===== */
+.btn{
+  appearance: none;
+    border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 0.5;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+  white-space: nowrap;
+  background: #EBF3FF;
+  border: 1px solid #BACCFF;
+  color: #1f2a44;
+}
+
+.btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  background: rgba(255,255,255,.95);
+}
+
+.btn:active{
+  transform: translateY(0px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.10);
+}
+
+.btn:focus-visible{
+  outline: 3px solid rgba(60,140,255,.45);
+  outline-offset: 2px;
+}
+
+/* 主按鈕（開始遊戲、儲存、送出等） */
+.btn-primary{
+  border-color: rgba(40,120,255,.35);
+  background: linear-gradient(180deg, rgba(80,160,255,.95), rgba(35,110,255,.95));
+  color: #fff;
+}
+.btn-primary:hover{
+  background: linear-gradient(180deg, rgba(95,175,255,.98), rgba(35,110,255,.98));
+}
+
+/* 危險/清空 */
+.btn-danger{
+  border-color: rgba(220,60,60,.25);
+  background: rgba(255,235,235,.92);
+}
+.btn-danger:hover{
+  background: rgba(255,225,225,.96);
+}
+
+/* 次要（灰） */
+.btn-secondary{
+  border-color: rgba(0,0,0,.10);
+  background: rgba(245,245,245,.92);
+}
+
+</style>
 	
   <script>
 (() => {
@@ -430,7 +499,8 @@ body > *{
 	
 	
 
-  <h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 5px;">🧩 編輯地圖與設定</h2> <button id="lang-toggle" style="margin-left:8px">語系</button>
+  <h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 5px;">🧩 編輯地圖與設定</h2> 
+  <button class="btn" id="lang-toggle" style="margin-left:8px">語系</button>
   <label><input type="radio" name="mode" value="time" onchange="updateMode()"> 限時制</label>
   <select id="timeLimit" disabled>
     <option value="20">20 秒</option>
@@ -470,10 +540,10 @@ body > *{
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
 	<button onclick="saveAPIKey()">儲存 Key</button>-->
 </div>
-<button onclick="loadMap1()">📌 地圖1</button><button onclick="loadMap2()">📌 地圖2</button><button
-    onclick="loadMap3()">📌 地圖3</button>
-  <button onclick="clearMap()">🧹 清空</button><button onclick="saveAndStart()">▶ 開始遊戲</button>
-  <div id="sidebar" >
+<button class="btn" onclick="loadMap1()">📌 地圖1</button><button class="btn" onclick="loadMap2()">📌 地圖2</button>
+<button class="btn" onclick="loadMap3()">📌 地圖3</button><button class="btn btn-danger" onclick="clearMap()">🧹 清空</button>
+<button class="btn btn-primary" onclick="saveAndStart()">▶ 開始遊戲</button>
+  <div id="sidebar" style="padding-top:10px">
     <div class="item-wrapper">
       <img src="start.png" class="item" draggable="true" data-img="start.png">
       <div class="tooltip">起點：玩家從這裡開始</div>
