@@ -36,10 +36,14 @@
 
 
     .cell {
-	
+	position: relative !important;
+  
+ 
+  
+  
 	 width:var(--cell) !important;
-  height:var(--cell) !important;      
-      
+		height:var(--cell) !important;      
+       box-sizing: border-box;
       border: 1px solid #aaa;
       position: relative;
       background: white;
@@ -65,9 +69,12 @@
     }
 
     .player{
-  width: clamp(18px, calc(var(--cell) * 0.55), 52px);
-  height: clamp(18px, calc(var(--cell) * 0.55), 52px);
-  font-size: clamp(10px, calc(var(--cell) * 0.28), 18px);
+  position: absolute;
+  /* 設定為格子的 35% ~ 40% 大小 */
+  width: calc(var(--cell) * 0.58); 
+  height: calc(var(--cell) * 0.58);
+  z-index: 10;
+  transition: all 0.3s ease-in-out; /* 讓移動更滑順 */
 }
 
     .player1 {
@@ -92,17 +99,10 @@
 
     .player img {
       width: 100%;
-      height: 100%;
+      height: 100%;object-fit: contain;
     }
 
-@media (max-width: 768px) {
- /*
-  .player {
-    width: calc(var(--cell) * 0.55);    一格寬度的 35% 左右 
-    height: calc(var(--cell) * 0.55);
-  }*/
 
-  /* 角落邊距也縮小一點 */
   .player1 { top: 2px; left: 2px; }
   .player2 { top: 2px; right: 2px; }
   .player3 { bottom: 2px; left: 2px; }
@@ -112,7 +112,7 @@
   
   
   
-}
+
 
 
 
@@ -307,7 +307,8 @@
 
  .score-card {
       --accent: #e0e0e0;
-      height: 80px;
+      height: auto;          /* ✅ 不固定高度 */
+  min-height: 64px;      /* ✅ 你要的「最小可行高度」 */
       --bg: rgba(0, 0, 0, .03);
       background: #fff;
       border: 2px solid var(--accent);
@@ -318,7 +319,7 @@
       justify-content: flex-start;
       /* 不再把左右拉到兩端 */
       position: relative;
-      gap: 12px;
+      gap: 10px;
       box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
     }
 
@@ -344,7 +345,7 @@
   /* 讓卡片高度可以稍微彈性一點，避免文字被擠爆 */
   .score-card {
     height: auto;
-    min-height: 80px;
+    min-height: 64px;
   }
 }
 
@@ -357,7 +358,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     .player-avatar .token {
@@ -367,7 +368,7 @@
     }
 
     .player-avatar .name {
-      font-weight: 800;
+      font-size: 14px;
       letter-spacing: .4px;
       line-height: 1.1
     }
@@ -382,19 +383,33 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 6px;
+      gap: 4px;
       flex: 1;
     }
 
-    .score {
-      font-size: 22px;
-      font-weight: 800
-    }
+    
 
-    .badges {
-      display: flex;
-      gap: 6px
-    }
+    .score-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 分數在左、徽章在右 */
+  gap: 10px;
+}
+
+.score{
+  white-space: nowrap; 
+  line-height: 1;
+  font-size: 20px;
+      
+}
+
+/* badges 本身也用 flex 排一排 */
+.badges{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
 
     .badge.pause {
       border-style: dashed;
@@ -466,29 +481,12 @@
     }
 
     .goal {
-      width: 60px;
-      /* ← 進度條底長度固定 */
-      height: 8px;
+      width: 72px;
+      
+      height: 7px;
       border-radius: 999px;
       background: #eef1f6;
-      /* 底色 */
-      overflow: hidden;
-      position: relative;
-    }
-
-    .goal .bar {
-      height: 100%;
-      width: 0%;
-      /* 由 JS 以百分比設定 */
-      background: linear-gradient(90deg, var(--accent, #888), rgba(0, 0, 0, .15));
-      transition: width .35s ease;
-    }
-
-    .goal {
-      width: 80px;
-      height: 8px;
-      border-radius: 999px;
-      background: #eef1f6;
+     
       overflow: hidden;
       position: relative;
     }
@@ -499,6 +497,10 @@
       background: linear-gradient(90deg, var(--accent, #888), rgba(0, 0, 0, .15));
       transition: width .35s ease;
     }
+
+    
+
+    
 
     /* 目標達成時用實色，右緣看起來才會「真的滿」 */
     .goal .bar.full {
@@ -833,8 +835,8 @@ transform: scale(0.95);
       <label><input type="radio" name="diceOverride" value="5"> 5</label>
       <label><input type="radio" name="diceOverride" value="6"> 6</label>
 </fieldset>
-<div id="screen-info" style="margin-top: 6px;  font-size: 12px;  color: rgba(0,0,0,.65);  line-height: 1.35;  user-select: none;"></div>
 
+<div id="screen-info" style="margin-top: 6px;  font-size: 12px;  color: rgba(0,0,0,.65);  line-height: 1.35;  user-select: none;"></div>
     <div id="log"></div>
 
   </div>
@@ -859,7 +861,9 @@ transform: scale(0.95);
     let config = {};
     try { config = JSON.parse(localStorage.getItem("gameConfig") || '{}'); } catch (e) { config = {}; }
 	const USE_AI_QUIZ = !!(config.settings && config.settings.useAIQuiz);
-
+// 啟動監測
+	initDimensionMonitor();
+	updateScreenInfo();
 
     // ---- 預設地圖（當未載入任何地圖設定時啟用）----
 
@@ -1003,6 +1007,7 @@ function catNameTC(cat){
     }
   }
 }
+
 
 function startTimer() {
   if (mode !== 'time' || gameEnded) return;
@@ -1280,8 +1285,10 @@ function parseGeminiQuizText(text) {
     ];
 
     buildBoard();
-	scheduleFitCell(true);
-    updateStatus();
+	updateScreenInfo();
+	updateStatus();
+	
+    
 	const nextFrame = () =>  new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     if (mode === "score") {
@@ -1375,59 +1382,37 @@ function fitCellToFirstScreen(force = false) {
   if (__cellFitDone && !force) return;
 
   const root = document.documentElement;
-  const board = document.getElementById("game-board");
+  const board = document.getElementById("game-board"); 
   if (!board) return;
 
   const leftPanel = document.getElementById("left-panel") || board.parentElement;
-
   const vv = window.visualViewport;
-  const vh = vv ? vv.height : window.innerHeight;
+  const vH = vv ? vv.height : window.innerHeight;
 
-  // ✅ 這個 top 就是「上方記分板/狀態列」實際吃掉的高度
-  const top = board.getBoundingClientRect().top;
+  // ✅ 修正：將 gameboard 改為正確的變數名 board
+  const rect = board.getBoundingClientRect();
+  const mapTop = rect.top; 
 
-  // ✅ 寬度要用 left-panel 實際寬度（右側記錄欄存在時才準）
   const leftW = leftPanel.getBoundingClientRect().width;
-
   const gap = 2;
   const gapsTotal = gap * 7;
-
-  const maxCell = 90;
-  const minCell = 36;
-
-  const sidePad = 16;   // 安全邊界：避免剛好貼齊出現捲動條
-  const bottomPad = 16;
+  const sidePad = 16;
+  const bottomPad = 24;
 
   const availW = Math.max(0, leftW - sidePad);
-  const availH = Math.max(0, vh - top - bottomPad);
+  const availH = Math.max(0, vH - mapTop - bottomPad);
 
   const byW = (availW - gapsTotal) / 8;
   const byH = (availH - gapsTotal) / 8;
 
-  let cell = Math.floor(Math.min(maxCell, byW, byH));
-  cell = Math.max(minCell, cell);
+  // 計算最佳格寬
+  let cell = Math.floor(Math.min(90, byW, byH));
+  cell = Math.max(36, cell);
 
   root.style.setProperty("--cell", `${cell}px`);
-
   __cellFitDone = true;
-  if (typeof updateScreenInfo === "function") updateScreenInfo();
+  updateScreenInfo();
 }
-
-function scheduleFitCell(force = false) {
-  if (__cellFitRaf) cancelAnimationFrame(__cellFitRaf);
-  __cellFitRaf = requestAnimationFrame(() => {
-    __cellFitRaf = requestAnimationFrame(() => {
-      __cellFitRaf = 0;
-      fitCellToFirstScreen(force);
-    });
-  });
-}
-
-// ✅ 不綁 visualViewport scroll（避免你之前說的「跳動」）
-// 只在：進入頁面 + 旋轉/調整視窗 時重算
-window.addEventListener("load", () => scheduleFitCell(true));
-window.addEventListener("orientationchange", () => { __cellFitDone = false; scheduleFitCell(true); });
-window.addEventListener("resize", () => { __cellFitDone = false; scheduleFitCell(true); });
 
 
 
@@ -1709,22 +1694,25 @@ ${stats.map(s => {
 
 
 
-    function renderPlayers() {
-      console.log("renderPlayers");
-      document.querySelectorAll(".player").forEach(p => p.remove());
-      for (let idx = 0; idx < nPlayers; idx++) {
-        const cellIndex = pathIndices[playerSteps[idx]];
-        const cell = gameBoard.children[cellIndex];
-        const token = document.createElement("div");
-        token.className = `player player${idx + 1}`;
-        const carImgs = ["car_red.png", "car_blue.png", "car_green.png", "car_yellow.png"];
-        const car = new Image();
-        car.src = carImgs[idx] || "car_red.png";
-        token.appendChild(car);
-        cell.appendChild(token);
-        playerTokens[idx] = token;
-      }
-    }
+   function renderPlayers() {
+  document.querySelectorAll(".player").forEach(p => p.remove());
+  for (let idx = 0; idx < nPlayers; idx++) {
+    const cellIndex = pathIndices[playerSteps[idx]];
+    const cell = gameBoard.children[cellIndex];
+    
+    const token = document.createElement("div");
+    // 同時加入通用 class 和 編號 class (player1, player2...)
+    token.className = `player player${idx + 1}`; 
+    
+    const carImgs = ["car_red.png", "car_blue.png", "car_green.png", "car_yellow.png"];
+    const car = new Image();
+    car.src = carImgs[idx] || "car_red.png";
+    
+    token.appendChild(car);
+    cell.appendChild(token);
+    playerTokens[idx] = token;
+  }
+}
     function rollDice() {
 
       if (gameEnded) return;
@@ -2244,13 +2232,16 @@ category: category,
           </div>
         </div>
         <div class="right">
-          <div class="score">${score}分</div>
+          <div class="score-row"">
+			  <div class="score">${score}分</div>
+			   <div class="badges">            
+				<div class="skill-cards" aria-label="技能卡 ${skills} 張">${skillIcons}</div>${pausedBadge}
+				</div> 
+		  </div>  
 		  <div   class="goal"   title="目標 ${goalScore} 分"   role="progressbar"   aria-valuemin="0"   aria-valuemax="${goalScore}"   aria-valuenow="${score}" >
 			<div class="bar${isFull ? ' full' : ''}" style="width:${pctStr}"></div>
 		</div>
-          <div class="badges">            
-            <div class="skill-cards" aria-label="技能卡 ${skills} 張">${skillIcons}</div>${pausedBadge}
-          </div>  
+          
         </div>
       </div>`;
       }
@@ -3129,42 +3120,65 @@ category: category,
       }
     });
 // ===== 顯示螢幕/視窗尺寸（除錯用）=====
+// ===== 修正版：顯示螢幕/視窗尺寸（包含捲動偵測）=====
 function updateScreenInfo() {
   const el = document.getElementById("screen-info");
   if (!el) return;
 
   const vv = window.visualViewport;
-  const viewportW = Math.round(vv ? vv.width : window.innerWidth);
-  const viewportH = Math.round(vv ? vv.height : window.innerHeight);
-  const screenW = window.screen ? window.screen.width : 0;
-  const screenH = window.screen ? window.screen.height : 0;
-  const dpr = window.devicePixelRatio || 1;
+  
+  // 1. Screen: 物理螢幕總大小
+  const sW = window.screen.width;
+  const sH = window.screen.height;
 
-  const cell = getComputedStyle(document.documentElement)
-    .getPropertyValue("--cell")
-    .trim();
+  // 2. Window Inner: 瀏覽器內部可用大小 (不含工具列)
+  const iW = window.innerWidth;
+  const iH = window.innerHeight;
 
-  el.textContent = `screen: ${screenW}×${screenH} | viewport: ${viewportW}×${viewportH} | cell: ${cell || "-"} | DPR: ${dpr}`;
+  // 3. Visual Viewport: 實際可見區域 (隨手機網址列伸縮變動)
+  const vW = Math.round(vv ? vv.width : iW);
+  const vH = Math.round(vv ? vv.height : iH);
+
+  const sY = Math.round(window.scrollY);
+  const cell = getComputedStyle(document.documentElement).getPropertyValue("--cell").trim();
+
+  el.innerHTML = `
+    <div style="background: rgba(0,0,0,0.05); padding: 8px; border: 1px solid #111; border-radius: 8px; line-height: 1.4;">
+      <b style="color:#d32f2f;">DEBUG MONITOR:</b><br>
+      🖥️ <b>Screen:</b> ${sW} × ${sH}<br>
+      🖼️ <b>Window Inner:</b> ${iW} × ${iH}<br>
+      🔍 <b>Visual Viewport:</b> ${vW} × ${vH}<br>
+      📜 <b>Scroll Y:</b> ${sY}px | 🧱 <b>Cell Size:</b> ${cell}<br>
+      ⏰ <b>Last Update:</b> ${new Date().toLocaleTimeString()}
+    </div>
+  `;
 }
-
-// 用 RAF 節流，避免手機 visualViewport 滾動時狂刷
-let __screenInfoRaf = 0;
-function scheduleUpdateScreenInfo() {
-  if (__screenInfoRaf) return;
-  __screenInfoRaf = requestAnimationFrame(() => {
-    __screenInfoRaf = 0;
+// 監聽所有可能的變動事件
+// ===== 強製監聽所有變動事件 =====
+function initDimensionMonitor() {
+  const refresher = () => {
+    fitCellToFirstScreen(true);
     updateScreenInfo();
-  });
+  };
+
+  window.addEventListener("resize", refresher);
+  window.addEventListener("scroll", updateScreenInfo);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", refresher);
+    window.visualViewport.addEventListener("scroll", updateScreenInfo);
+  }
+
+  // 每秒更新一次，確保時間和狀態正常
+  setInterval(updateScreenInfo, 1000);
 }
 
-// 初始化一次，之後只更新顯示（不會重算 cell）
-scheduleUpdateScreenInfo();
-window.addEventListener("resize", scheduleUpdateScreenInfo);
-window.addEventListener("orientationchange", scheduleUpdateScreenInfo);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", scheduleUpdateScreenInfo);
-  window.visualViewport.addEventListener("scroll", scheduleUpdateScreenInfo);
-}
+
+
+
+
+
+
 
 function showConfirm(msg, { okText = "好", cancelText = "取消" } = {}) {
   return new Promise((resolve) => {
