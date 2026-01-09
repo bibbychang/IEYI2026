@@ -10,6 +10,7 @@
       font-family: sans-serif;
       margin: 0;
       padding: 1rem;
+	 background: url('background.jpg') center / cover no-repeat fixed;
     }
 
     :root {
@@ -231,6 +232,124 @@
         margin-top: 12px;
       }
     }
+
+
+html, body { height: 100%; }
+
+body{
+  margin: 0;
+  min-height: 100vh;
+  position: relative;
+  background: url('background.jpg') center / cover no-repeat fixed;
+}
+
+/* 全頁淡淡的背景圖（請放 background.jpg 在同層） */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  background: url('background.jpg') center / contain no-repeat;
+  opacity: 0.04;          /* 越小越淡，例如 0.04 更淡 */
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 讓背景圖變很淡很淡（調整透明度就好） */
+body::after{
+  content:"";
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.95); /* 越接近 1 越淡：0.85~0.95 自己調 */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 確保頁面內容在遮罩上面 */
+body > *{
+  position: relative;
+  z-index: 1;
+}
+:root{
+  --shadow: 0 10px 24px rgba(0,0,0,.10);
+  --card-bg: rgba(255,255,255,.88);
+  --card-border: rgba(120,150,255,.35);
+  --radius: 18px;
+}
+/* ===== Instruction（右側說明）卡片排版：自動依寬度換欄 ===== */
+#instructions{
+  flex: 1 1 360px;
+  max-width: 860px;
+  min-width: 320px;
+  border-left: 2px solid #ccc;
+  padding-left: 15px;
+  box-sizing: border-box;
+}
+
+#instructions h2{
+  margin: 14px 0 10px;
+  font-size: 26px;
+  letter-spacing: .5px;
+}
+#instructions h3{
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.grid{
+  display: grid;
+  gap: 18px;
+  margin: 12px 0 18px;
+}
+
+/* 寬的時候可 2 欄；窄的時候自動 1 欄 */
+.grid.cols-2{
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.card{
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.list{
+  margin: 0;
+  padding-left: 1.2rem;
+  line-height: 1.65;
+}
+.list li{ margin: 8px 0; }
+
+.kbd{
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(235,243,255,.95);
+  border: 1px solid rgba(120,150,255,.45);
+  font-size: .92em;
+  white-space: nowrap;
+}
+@media (max-width: 798px){
+  #layout{ flex-direction: column; }
+  #left-panel{ width: 100%; }
+
+  #instructions{
+    max-width: none;
+    min-width: 0;
+    border-left: none;
+    padding-left: 0;
+    border-top: 2px solid #ccc;
+    padding-top: 15px;
+    margin-top: 12px;
+  }
+
+  /* 手機更窄：卡片最小寬度縮小，避免水平捲軸 */
+  .grid.cols-2{
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
 
   </style>
 
@@ -504,7 +623,7 @@ aiQuizHint: '選「否」時，遊戲僅使用題庫出題（不呼叫 API、速
 		aiQuizLabel: 'AI Questions',
 aiQuizYes: 'Yes',
 aiQuizNo: 'No',
-aiQuizHint: 'If "No", the game will use the built-in question bank only (no API calls; faster).',
+aiQuizHint: 'If "No", use built-in question bank (no API calls; faster).',
 
         map1: '📌 Map 1',
         map2: '📌 Map 2',
@@ -837,33 +956,29 @@ function updateScreenInfo() {
       lang = (lang === 'zh') ? 'en' : 'zh';
       localStorage.setItem(LANG_KEY, lang);
       renderLangButton();
+	  renderInstructions();
+	  updateScreenInfo();
+	  
     }
+	window.addEventListener('DOMContentLoaded', () => {
+  renderLangButton();
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.addEventListener('click', toggleLang);
 
-    // 初始化按鈕
-    window.addEventListener('DOMContentLoaded', () => {
-      renderLangButton();
-      const btn = document.getElementById('lang-toggle');
-      if (btn) btn.addEventListener('click', toggleLang);
+  // ✅ 只算一次 cell，避免手機/平板 visualViewport 變動造成閃爍
+  updateResponsiveCell();
+  updateScreenInfo();
 
-      const sync = () => {
-        updateResponsiveCell();
-        updateScreenInfo();
-      };
+  // （可選）之後只更新顯示資訊，不再重算 cell
+  const updateInfoOnly = () => updateScreenInfo();
 
-      sync();
-      window.addEventListener('resize', sync);
-      window.addEventListener('orientationchange', sync);
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', sync);
-        window.visualViewport.addEventListener('scroll', sync);
-      }
-    });
-
-    // 等資源載入完成後再算一次（避免字體/圖片造成高度差）
-   // window.addEventListener('load', () => {
-    //  updateResponsiveCell();
-    //  updateScreenInfo();
-   // });
+  window.addEventListener('resize', updateInfoOnly);
+  window.addEventListener('orientationchange', updateInfoOnly);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateInfoOnly);
+    window.visualViewport.addEventListener('scroll', updateInfoOnly);
+  }
+});
 
     function refreshAllTooltips() {
       // 1) 側邊欄的 tooltip（依 sidebar 圖示的 data-img）
