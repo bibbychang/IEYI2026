@@ -306,6 +306,7 @@
     }
 
  .score-card {
+ flex: 1 1 calc(25% - 8px);       /* 每張佔 25% */
  --accent: #e0e0e0;
  --bg: rgba(0, 0, 0, .03);
    background: #fff;
@@ -319,6 +320,7 @@
   gap: 4px !important;
   border-radius: 10px !important;
   font-size: 12px;                /* 調小基礎字體 */
+  box-sizing: border-box;
     }
  
  
@@ -328,19 +330,18 @@
     .score-grid {
 	/* 記分板容器：強制一行，不換行 */
       display: flex !important;
-	  flex-direction: row !important;
+	 flex-wrap: wrap !important;      /* 允許換行 */
 	  gap: 4px !important;            /* 縮小間距 */
 	  width: 100%;
 	  padding: 4px 0;
-	  overflow: hidden;
+	  
       
     }
 	@media (max-width: 468px) {
   .score-grid {
-    grid-auto-flow: row;                      /* 由上到下一張一張排 */
-    grid-auto-columns: unset;                 /* 不再強制 1fr */
-    grid-template-columns: repeat(2, 1fr);    /* 每列 2 張卡片 */
-    overflow: visible;                        /* 不要把右邊的切掉 */
+    flex: 1 1 calc(50% - 8px);     /* 每張佔 50%，達成 2x2 佈局 */
+    padding: 6px !important;
+    font-size: 13px;
   }
 
   /* 讓卡片高度可以稍微彈性一點，避免文字被擠爆 */
@@ -348,6 +349,12 @@
     height: auto;
     min-height: 64px;
   }
+  
+  .score-card .player-avatar .token {
+    width: 32px !important;        /* 手機版頭像稍微放大一點點 */
+    height: 32px !important;
+  }
+  
 }
 
    
