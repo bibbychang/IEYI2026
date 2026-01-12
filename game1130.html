@@ -5,6 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>大富翁遊戲</title>
+<style>
+  /* 先隱藏，避免閃爍 */
+  body { opacity: 0; transition: opacity 0.5s; }
+</style>
+
   <style>
     body {
       font-family: sans-serif;
@@ -12,6 +17,8 @@
       padding: 0.5rem;
       display: flex;
     }
+
+
 :root{
   --gap: 2px;
   --cell: 70px; /* 先當保底，之後 JS 會覆蓋 */
