@@ -782,7 +782,7 @@ transform: scale(0.95);
 
 .dice-override-group {
     /* 移除邊框和內距，讓它融入背景 */
-	display: flex !important;
+	display: flex ;
   flex-wrap: nowrap !important; /* 強制不換行 */
   align-items: center; 
     border: none !important; 
@@ -1467,7 +1467,7 @@ window.addEventListener("load", () => {
   __cellFitDone = false; 
   const diceGroup = document.querySelector(".dice-override-group"); //
   if (diceGroup) {
-    diceGroup.style.display = CHEAT_ENABLED ? "block" : "none";
+    diceGroup.style.display = CHEAT_ENABLED ? "flex" : "none";
   }
 
   // 控制 Debug 資訊框顯示
