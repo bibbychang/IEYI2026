@@ -307,8 +307,8 @@
 
  .score-card {
  flex: 1 1 calc(25% - 8px);       /* 每張佔 25% */
- min-width:220px;
- height:80px;
+ /*min-width:220px; */
+ 
  --accent: #e0e0e0;
  --bg: rgba(0, 0, 0, .03);
    background: #fff;
@@ -782,24 +782,31 @@ transform: scale(0.95);
 
 .dice-override-group {
     /* 移除邊框和內距，讓它融入背景 */
+	display: flex !important;
+  flex-wrap: nowrap !important; /* 強制不換行 */
+  align-items: center; 
     border: none !important; 
     padding: 0 !important;
     margin-top: 10px; /* 保持與上方元素的間距 */
+	overflow-x: auto;              /* 若寬度真的不夠，允許水平滑動而不破版 */
+  white-space: nowrap;
 }
 
 /* 標題文字 (Legend) */
 .dice-override-group legend {
-    color: #888; /* 將標題文字顏色調暗 */
+    display: inline-flex;
+  align-items: center;
+  color: #888; /* 將標題文字顏色調暗 */
     font-size: 0.9em;
-    padding: 0;
+    padding: 0;cursor: pointer;
     margin-bottom: 5px;
 }
 
 /* 每個選項的文字 */
 .dice-override-group label {
-    color: #FFF0AC; /* 保持可讀性 */
+    color: #888; /* 保持可讀性 */
     display: inline-block;
-    margin-right: 12px !important; /* 修正間距 */
+    margin-right: 1px !important; /* 修正間距 */
     font-size: 0.95em;
 }
 
@@ -831,7 +838,17 @@ transform: scale(0.95);
       <button id="roll-dice-btn" onclick="rollDice()">🎲 玩家 <span id="currentPlayer">1</span></button>
 
       剛剛玩家<span id="people">-</span> 擲出 <span id="diceResult">-</span>
-
+<fieldset class="dice-override-group">
+     
+<!--<legend>🎯 指定骰子點數（作弊用）</legend>!-->
+      <label><input type="radio" name="diceOverride" value="0" checked>不指定</label>
+      <label><input type="radio" name="diceOverride" value="1">1</label>
+      <label><input type="radio" name="diceOverride" value="2">2</label>
+      <label><input type="radio" name="diceOverride" value="3">3</label>
+      <label><input type="radio" name="diceOverride" value="4">4</label>
+      <label><input type="radio" name="diceOverride" value="5">5</label>
+      <label><input type="radio" name="diceOverride" value="6">6</label>
+</fieldset>
 
 
 
@@ -854,17 +871,7 @@ transform: scale(0.95);
 </video>
 -->
     <h2>🎲紀錄</h2>
-	<fieldset class="dice-override-group">
-     
-<!--<legend>🎯 指定骰子點數（作弊用）</legend>!-->
-      <label><input type="radio" name="diceOverride" value="0" checked> 不指定</label>
-      <label><input type="radio" name="diceOverride" value="1"> 1</label>
-      <label><input type="radio" name="diceOverride" value="2"> 2</label>
-      <label><input type="radio" name="diceOverride" value="3"> 3</label>
-      <label><input type="radio" name="diceOverride" value="4"> 4</label>
-      <label><input type="radio" name="diceOverride" value="5"> 5</label>
-      <label><input type="radio" name="diceOverride" value="6"> 6</label>
-</fieldset>
+	
 
 <div id="screen-info" style="margin-top: 6px;  font-size: 12px;  color: rgba(0,0,0,.65);  line-height: 1.35;  user-select: none;"></div>
     <div id="log"></div>
@@ -887,10 +894,13 @@ transform: scale(0.95);
   <audio id="diceSound" src="dice-sound.mp3" preload="auto"></audio>
   <script>
 
-
+let debugMath = {};
     let config = {};
     try { config = JSON.parse(localStorage.getItem("gameConfig") || '{}'); } catch (e) { config = {}; }
 	const USE_AI_QUIZ = !!(config.settings && config.settings.useAIQuiz);
+	// ✅ 新增：判斷作弊與 Debug 模式 default false
+const CHEAT_ENABLED = !!(config.settings && config.settings.cheatMode);
+const DEBUG_ENABLED = !!(config.settings && config.settings.debugMode);
 // 啟動監測
 	initDimensionMonitor();
 	updateScreenInfo();
@@ -977,7 +987,7 @@ function catNameTC(cat){
         config.mode = config.mode || "score";
         config.scoreTarget = config.scoreTarget || 20;
         config.timeLimit = config.timeLimit || 120;
-        config.playerCount = config.playerCount || 4;
+        config.playerCount = config.playerCount || 2;
       }
     })();
 
@@ -1407,43 +1417,73 @@ function parseGeminiQuizText(text) {
 // ==== Fit 8x8 board into the first screen (扣掉上方記分板高度) ====
 let __cellFitDone = false;
 let __cellFitRaf = 0;
-
+// ===== 修正版：鎖定骰子區(Topbar)底部，且不隨捲動變動 =====
 function fitCellToFirstScreen(force = false) {
   if (__cellFitDone && !force) return;
 
   const root = document.documentElement;
-  const board = document.getElementById("game-board"); 
-  if (!board) return;
+  const board = document.getElementById("game-board");
+  const topBar = document.getElementById("topbar"); // ✅ 抓取上方整塊區域
+  if (!board || !topBar) return;
 
-  const leftPanel = document.getElementById("left-panel") || board.parentElement;
   const vv = window.visualViewport;
   const vH = vv ? vv.height : window.innerHeight;
+  const vW = vv ? vv.width : window.innerWidth;
 
-  // ✅ 修正：將 gameboard 改為正確的變數名 board
-  const rect = board.getBoundingClientRect();
-  const mapTop = rect.top; 
+  // ✅ 修正點 1：取得「絕對座標」。
+  // 使用 getBoundingClientRect().bottom 加上目前的 window.scrollY
+  // 這樣算出來的數值代表：從網頁「最頂端」算起，骰子區到底部有多少像素。
+  // 它不會因為你重新整理後捲動位置在哪而改變。
+  const rect = topBar.getBoundingClientRect();
+  const absoluteTop = rect.bottom + window.scrollY; 
 
-  const leftW = leftPanel.getBoundingClientRect().width;
+  const leftPanel = document.getElementById("left-panel");
+  const leftW = leftPanel ? leftPanel.getBoundingClientRect().width : vW;
+
   const gap = 2;
   const gapsTotal = gap * 7;
   const sidePad = 16;
-  const bottomPad = 24;
+  const bottomPad = 25; // 預留底部空間確保最後一行不被切掉
 
   const availW = Math.max(0, leftW - sidePad);
-  const availH = Math.max(0, vH - mapTop - bottomPad);
+  const availH = Math.max(0, vH - absoluteTop - bottomPad);
 
-  const byW = (availW - gapsTotal) / 8;
-  const byH = (availH - gapsTotal) / 8;
+  // ✅ 修正點 2：將詳細數值存入 Debug 物件供顯示
+  debugMath = {
+    topSource: "Topbar Bottom",
+    vH: vH,
+    mapTop: Math.round(absoluteTop), // 絕對高度
+    currentScroll: Math.round(window.scrollY),
+    availH: Math.round(availH),
+    byH: Math.round(((availH - gapsTotal) / 8) * 100) / 100,
+    byW: Math.round(((availW - gapsTotal) / 8) * 100) / 100
+  };
 
-  // 計算最佳格寬
-  let cell = Math.floor(Math.min(90, byW, byH));
-  cell = Math.max(18, cell);
+  // 取寬與高中較小者
+  let cell = Math.floor(Math.min(90, debugMath.byW, debugMath.byH));
+  cell = Math.max(28, cell); 
 
   root.style.setProperty("--cell", `${cell}px`);
   __cellFitDone = true;
   updateScreenInfo();
 }
 
+// ✅ 修正點 3：解決重新整理「圖片還沒載入」的問題
+// 確保在所有圖片載入完畢後再執行一次計算，這樣 Topbar 的高度才是準確的。
+window.addEventListener("load", () => {
+  __cellFitDone = false; 
+  const diceGroup = document.querySelector(".dice-override-group"); //
+  if (diceGroup) {
+    diceGroup.style.display = CHEAT_ENABLED ? "block" : "none";
+  }
+
+  // 控制 Debug 資訊框顯示
+  const screenInfo = document.getElementById("screen-info"); //
+  if (screenInfo) {
+    screenInfo.style.display = DEBUG_ENABLED ? "block" : "none";
+  }
+  fitCellToFirstScreen(true);
+});
 
 
     function buildBoard() {
@@ -3167,20 +3207,53 @@ function updateScreenInfo() {
 
   // 3. Visual Viewport: 實際可見區域 (隨手機網址列伸縮變動)
   const vW = Math.round(vv ? vv.width : iW);
-  const vH = Math.round(vv ? vv.height : iH);
+  const vH = Math.round(vv ? vv.height : window.innerHeight);
 
   const sY = Math.round(window.scrollY);
   const cell = getComputedStyle(document.documentElement).getPropertyValue("--cell").trim();
+  
+  const configEl = document.getElementById("configInfo");
+  const statusEl = document.getElementById("status"); // 包含計分板
+  const controlsEl = statusEl ? statusEl.nextElementSibling : null; // 骰子與提示區
+
+  const hConfig = configEl ? configEl.offsetHeight : 0;
+  const hStatus = statusEl ? statusEl.offsetHeight : 0;
+  const hControls = controlsEl ? controlsEl.offsetHeight : 0;
+
+ 
+  
+  
+  
 
   el.innerHTML = `
-    <div style="background: rgba(0,0,0,0.05); padding: 8px; border: 1px solid #111; border-radius: 8px; line-height: 1.4;">
+    
+	
+	<div style="background: rgba(255,255,255,0.95); padding: 12px; border: 3px solid black; border-radius: 8px; font-family: monospace; font-size: 13px; color: #000; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index:9999;">
+      
       <b style="color:#d32f2f;">DEBUG MONITOR:</b><br>
-      🖥️ <b>Screen:</b> ${sW} × ${sH}<br>
-      🖼️ <b>Window Inner:</b> ${iW} × ${iH}<br>
-      🔍 <b>Visual Viewport:</b> ${vW} × ${vH}<br>
-      📜 <b>Scroll Y:</b> ${sY}px | 🧱 <b>Cell Size:</b> ${cell}<br>
-      ⏰ <b>Last Update:</b> ${new Date().toLocaleTimeString()}
+      🖥️ <b>Screen:</b> ${sW} × ${sH}      🔍 <b>Visual Viewport:</b> ${vW} × ${vH}
+      <hr style="margin:5px 0; border:0; border-top:1px solid #ccc;">
+      <hr style="margin:5px 0; border:0; border-top:1px solid #ccc;">
+      <b>🏗️ 上方空間組成：</b><br>
+      - 遊戲標題 (#configInfo): ${hConfig}px  
+      - 計分板區 (#status): ${hStatus}px (換行會增加此值)  
+      - 骰子控制區: ${hControls}px  
+      - <b>計算出的 Top (rect.top):</b> <span style="font-weight:bold;">${debugMath.mapTop || 0}px</span> 
+	  <b>📏 高度扣除明細：</b><br>
+      - 棋盤上方佔用 (Top): ${debugMath.mapTop || 0}px   
+      - 底部安全邊距 (Pad): ${debugMath.bottomPad || 0}px       - <b>剩餘可用高度 (availH):</b> <span style="color:blue;">${debugMath.availH || 0}px</span>
+      <hr style="margin:5px 0; border:0; border-top:1px solid #ccc;">
+      <b>🧱 換算格寬：</b><br>
+      - 扣除間隔後高度: ${(debugMath.availH - 14) || 0}px   
+      - <b>每格高度 (byH = 總高/8):</b> <span style="color:green;">${debugMath.byH || 0}px</span>
+      - <b>每格寬度 (byW):</b> ${debugMath.byW || 0}px<br>
+      <hr style="margin:5px 0; border:0; border-top:1px solid #ccc;">
+      🎯 <b>最終採用 Cell:</b> <span style="font-size:16px; font-weight:bold;">${cell}</span>
+      ⏰ <b>更新時間:</b> ${new Date().toLocaleTimeString()}
     </div>
+	
+	
+	
   `;
 }
 // 監聽所有可能的變動事件
