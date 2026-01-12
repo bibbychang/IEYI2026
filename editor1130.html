@@ -1006,67 +1006,45 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
 function updateResponsiveCell() {
   const root = document.documentElement;
   const map = document.getElementById('map');
-  const sidebar = document.getElementById('sidebar'); // 取得地圖上方的區塊
-  if (!map || !sidebar) return;
+  if (!map) return;
 
+  // 使用 visualViewport 讓手機瀏覽器地址列/工具列變化時也比較準
   const vv = window.visualViewport;
-  const vh = vv ? vv.height : window.innerHeight;
   const vw = vv ? vv.width : window.innerWidth;
+  const vh = vv ? vv.height : window.innerHeight;
 
-  // ✅ 修正關鍵：計算絕對 Top
-  // 使用 .bottom 加上目前的 window.scrollY，這會得到一個不隨捲動改變的固定數值
-  const sidebarRect = sidebar.getBoundingClientRect();
-  const absoluteTop = sidebarRect.bottom + window.scrollY; 
+  const bodyStyle = getComputedStyle(document.body);
+  const padL = parseFloat(bodyStyle.paddingLeft) || 0;
+  const padR = parseFloat(bodyStyle.paddingRight) || 0;
 
-  const gap = 2;
-  const gapsTotal = gap * 7;
+  const gap = parseFloat(getComputedStyle(map).gap) || 2; // px
+  const gapsTotal = gap * 7; // 8 格 → 7 個 gap
+
   const maxCell = 90;
   const minCell = 18;
-  const bottomPad = 25; // 增加底部安全空間，確保不被切掉
+  const bottomPad = 16;
 
-  // ✅ 計算可用高度：永遠以「視窗總高」減去「上方佔用空間」
-  const availH = vh - absoluteTop - bottomPad;
-
-  // 小螢幕寬度判斷
+  // 只在小螢幕時用「viewport 寬」做限制（桌機寬螢幕通常不需要）
   const isNarrow = window.matchMedia('(max-width: 798px)').matches;
-  const maxMapW = isNarrow ? (vw - 32) : Infinity;
+  const maxMapW = isNarrow ? (vw - padL - padR) : Infinity;
 
-  const cellByH = (availH - gapsTotal) / 8;
-  const cellByW = (maxMapW === Infinity) ? maxCell : (maxMapW - gapsTotal) / 8;
+  // 迭代 3~5 次：因為 cell 會影響 sidebar 高度，進而影響 map 的 top
+  let cell = parseFloat(getComputedStyle(root).getPropertyValue('--cell')) || 70;
 
-  let next = Math.max(minCell, Math.min(maxCell, cellByH, cellByW));
-  root.style.setProperty('--cell', `${next}px`);
-  
-  updateScreenInfo();
-}
+  for (let i = 0; i < 5; i++) {
+    const mapTop = map.getBoundingClientRect().top;
+    const maxMapH = vh - mapTop - bottomPad;
 
+    const cellByH = (maxMapH - gapsTotal) / 8;
+    const cellByW = (maxMapW === Infinity) ? maxCell : (maxMapW - gapsTotal) / 8;
 
-function checkOrientation() {
-  const vv = window.visualViewport;
-  const h = vv ? vv.height : window.innerHeight;
-  const w = vv ? vv.width : window.innerWidth;
+    const next = Math.max(minCell, Math.min(maxCell, cellByH, cellByW));
+    root.style.setProperty('--cell', `${next}px`);
 
-  if (w > h && h < 500) {
-    if (!document.getElementById("rotate-overlay")) {
-      const overlay = document.createElement("div");
-      overlay.id = "rotate-overlay";
-      overlay.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);color:white;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:sans-serif;";
-      overlay.innerHTML = `
-        <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
-        <h2 style="margin: 0;">請將手機轉回「直向」</h2>
-        <p style="opacity: 0.8; margin-top: 10px;">手機橫放空間不足，建議使用直向模式以獲得最佳編輯體驗。</p>
-        <button onclick="this.parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold; cursor:pointer;">
-          我知道了，繼續編輯
-        </button>
-      `;
-      document.body.appendChild(overlay);
-    }
-  } else {
-    const overlay = document.getElementById("rotate-overlay");
-    if (overlay) overlay.remove();
+    if (Math.abs(next - cell) < 0.5) break;
+    cell = next;
   }
 }
-
 
 function updateScreenInfo() {
   const el = document.getElementById('screen-info');
@@ -1108,31 +1086,22 @@ function updateScreenInfo() {
   renderLangButton();
   const btn = document.getElementById('lang-toggle');
   if (btn) btn.addEventListener('click', toggleLang);
-});
 
-// ✅ 使用 load 事件確保所有圖片資源與佈局已穩定
-window.addEventListener('load', () => {
+  // ✅ 只算一次 cell，避免手機/平板 visualViewport 變動造成閃爍
   updateResponsiveCell();
-  checkOrientation();
+  updateScreenInfo();
 
-  // 給予微小延遲進行二次校正（處理瀏覽器自動捲動回復的問題）
-  setTimeout(() => {
-    updateResponsiveCell();
-    checkOrientation();
-  }, 150);
+  // （可選）之後只更新顯示資訊，不再重算 cell
+  const updateInfoOnly = () => updateScreenInfo();
+
+  window.addEventListener('resize', updateInfoOnly);
+  window.addEventListener('orientationchange', updateInfoOnly);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateInfoOnly);
+    window.visualViewport.addEventListener('scroll', updateInfoOnly);
+  }
 });
 
-// 監聽視窗縮放
-window.addEventListener('resize', () => {
-  updateResponsiveCell();
-  checkOrientation();
-});
-
-// 如果有 visualViewport，針對行動裝置網址列變動加強監測
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', updateResponsiveCell);
-}
-	
     function refreshAllTooltips() {
       // 1) 側邊欄的 tooltip（依 sidebar 圖示的 data-img）
       document.querySelectorAll('#sidebar .item-wrapper').forEach(w => {
