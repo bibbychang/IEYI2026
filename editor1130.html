@@ -1006,44 +1006,79 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
 function updateResponsiveCell() {
   const root = document.documentElement;
   const map = document.getElementById('map');
-  if (!map) return;
+  const sidebar = document.getElementById('sidebar'); // 取得地圖上方的元件
+  if (!map || !sidebar) return;
 
-  // 使用 visualViewport 讓手機瀏覽器地址列/工具列變化時也比較準
   const vv = window.visualViewport;
   const vw = vv ? vv.width : window.innerWidth;
   const vh = vv ? vv.height : window.innerHeight;
 
-  const bodyStyle = getComputedStyle(document.body);
-  const padL = parseFloat(bodyStyle.paddingLeft) || 0;
-  const padR = parseFloat(bodyStyle.paddingRight) || 0;
+  // ✅ 核心修正：計算「絕對 Top」，排除重新整理後的捲動干擾
+  const sidebarRect = sidebar.getBoundingClientRect();
+  const absoluteTop = sidebarRect.bottom + window.scrollY; 
 
-  const gap = parseFloat(getComputedStyle(map).gap) || 2; // px
-  const gapsTotal = gap * 7; // 8 格 → 7 個 gap
-
+  const gap = 2;
+  const gapsTotal = gap * 7; 
   const maxCell = 90;
   const minCell = 18;
-  const bottomPad = 16;
+  const bottomPad = 25; // 給予底部足夠緩衝，避免第 8 行被切掉
 
-  // 只在小螢幕時用「viewport 寬」做限制（桌機寬螢幕通常不需要）
+  // 計算剩餘可用高度
+  const availH = Math.max(0, vh - absoluteTop - bottomPad);
+
+  // 計算寬度限制
   const isNarrow = window.matchMedia('(max-width: 798px)').matches;
-  const maxMapW = isNarrow ? (vw - padL - padR) : Infinity;
+  const availW = isNarrow ? (vw - 32) : vw;
 
-  // 迭代 3~5 次：因為 cell 會影響 sidebar 高度，進而影響 map 的 top
-  let cell = parseFloat(getComputedStyle(root).getPropertyValue('--cell')) || 70;
+  const cellByH = (availH - gapsTotal) / 8;
+  const cellByW = (availW - gapsTotal) / 8;
 
-  for (let i = 0; i < 5; i++) {
-    const mapTop = map.getBoundingClientRect().top;
-    const maxMapH = vh - mapTop - bottomPad;
-
-    const cellByH = (maxMapH - gapsTotal) / 8;
-    const cellByW = (maxMapW === Infinity) ? maxCell : (maxMapW - gapsTotal) / 8;
-
-    const next = Math.max(minCell, Math.min(maxCell, cellByH, cellByW));
-    root.style.setProperty('--cell', `${next}px`);
-
-    if (Math.abs(next - cell) < 0.5) break;
-    cell = next;
+  // 取最小值確保地圖不超出螢幕
+  let next = Math.max(minCell, Math.min(maxCell, cellByH, cellByW));
+  
+  root.style.setProperty('--cell', `${next}px`);
+  updateScreenInfo();
+}
+// 新增：偵測手機橫放警告
+function checkOrientation() {
+  const vv = window.visualViewport;
+  const h = vv ? vv.height : window.innerHeight;
+  const w = vv ? vv.width : window.innerWidth;
+  if (w > h && h < 500) {
+    if (!document.getElementById("rotate-overlay")) {
+      const overlay = document.createElement("div");
+      overlay.id = "rotate-overlay";
+      overlay.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);color:white;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:sans-serif;";
+      overlay.innerHTML = `
+        <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
+        <h2>請將手機轉回「直向」</h2>
+        <p>橫向空間不足，建議使用直向模式進行編輯。</p>
+        <button onclick="this.parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold; cursor:pointer;">我知道了</button>`;
+      document.body.appendChild(overlay);
+    }
+  } else {
+    const node = document.getElementById("rotate-overlay");
+    if (node) node.remove();
   }
+}
+
+// 修正後的初始化監聽器
+window.addEventListener('load', () => {
+  updateResponsiveCell();
+  checkOrientation();
+  
+  // 二次校正：應對行動裝置捲動回復的微小延遲
+  setTimeout(updateResponsiveCell, 150);
+});
+
+// ✅ 務必在視窗變動時「重新計算」Cell，而不是只 updateInfo
+window.addEventListener('resize', () => {
+  updateResponsiveCell();
+  checkOrientation();
+});
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', updateResponsiveCell);
 }
 
 function updateScreenInfo() {
