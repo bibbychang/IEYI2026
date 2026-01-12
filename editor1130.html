@@ -546,28 +546,26 @@ body > *{
   
 	  <label id="ai-quiz-label" style="display:inline-block; margin-right:8px;">AI 出題：</label>
 	  <label style="margin-right:12px;">
-		<input type="radio" name="aiQuiz" value="yes" checked> <span id="ai-quiz-yes">是</span>	  </label>
+		<input type="radio" name="aiQuiz" value="yes" checked> <span id="ai-quiz-yes">是</span></label>
 	  <label>
-		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no">否</span>	  </label>
-	  <span id="ai-quiz-hint" style="font-size:12px;color:#666;margin-top:4px;padding-left:20px;">
-		選「否」使用題庫出題（不呼叫 API、快）。
-	  </span><!--
+		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no">否</span></label>
+	  <span id="ai-quiz-hint" style="font-size:12px;color:#666;padding-left:10px;">「否」用題庫（不呼叫 API、快）</span><!--
 	  <label>Gemini API Key：</label>
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
 	<button onclick="saveAPIKey()">儲存 Key</button>-->
 	
 	<div id="extra-settings" style="margin:8px 0 12px 0; border-top: 1px dashed #ccc; padding-top: 10px;">
   <div style="margin-bottom: 8px;">
-    <label style="display:inline-block; margin-right:8px;">作弊模式：</label>
-    <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" > 是</label>
-    <label><input type="radio" name="cheatMode" value="no" checked> 否</label>
-    <span style="font-size:12px;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
+    <label id="cheat-label" style="display:inline-block; margin-right:8px;">作弊模式：</label>
+    <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" ><span id="cheat-label-yes">是</span></label>
+    <label><input type="radio" name="cheatMode" value="no" checked><span id="cheat-label-no">否</span></label>
+    <span id="cheat-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
   </div>
   <div>
-    <label style="display:inline-block; margin-right:8px;">Debug 模式：</label>
-    <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"> 是</label>
-    <label><input type="radio" name="debugMode" value="no" checked> 否</label>
-    <span style="font-size:12px;color:#666;margin-left:10px;">(開啟後顯示螢幕資訊)</span>
+    <label id="debug-label" style="display:inline-block; margin-right:8px;">Debug 模式：</label>
+    <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"><span id="debug-label-yes">是</span></label>
+    <label><input type="radio" name="debugMode" value="no" checked><span id="debug-label-no">否</span></label>
+    <span id="debug-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後顯示螢幕資訊)</span>
   </div>
 </div>
 	
@@ -706,9 +704,17 @@ body > *{
         score_40: '40 分',
         people: '人數',
 		aiQuizLabel: 'AI 出題',
-aiQuizYes: '是',
-aiQuizNo: '否',
-aiQuizHint: '選「否」使用題庫出題（不呼叫 API、較快）',
+		aiQuizYes: '是',
+		aiQuizNo: '否',
+		aiQuizHint: '「否」用題庫（不呼叫 API、快）',
+		cheat_label: '作弊模式：',
+    cheat_yes: '是',
+    cheat_no: '否',
+    cheat_hint: '(遊戲中可指定骰子點數)',
+    debug_label: 'Debug 模式：',
+    debug_yes: '是',
+    debug_no: '否',
+    debug_hint: '(顯示螢幕資訊)',
         map1: '📌 地圖1',
         map2: '📌 地圖2',
         map3: '📌 地圖3',
@@ -731,7 +737,15 @@ aiQuizHint: '選「否」使用題庫出題（不呼叫 API、較快）',
 		aiQuizLabel: 'AI Questions',
 aiQuizYes: 'Yes',
 aiQuizNo: 'No',
-aiQuizHint: 'If "No", use built-in question bank (no API calls; faster).',
+aiQuizHint: '"No" use built-in question (no API , faster)',
+cheat_label: 'Cheat Mode: ',
+    cheat_yes: 'Yes',
+    cheat_no: 'No',
+    cheat_hint: '(Enable to specify dice rolls)',
+    debug_label: 'Debug Mode: ',
+    debug_yes: 'Yes',
+    debug_no: 'No',
+    debug_hint: '(Shows screen info overlay)',
 
         map1: '📌 Map 1',
         map2: '📌 Map 2',
@@ -966,12 +980,30 @@ const aiLabel = document.getElementById('ai-quiz-label');
 const aiYes = document.getElementById('ai-quiz-yes');
 const aiNo = document.getElementById('ai-quiz-no');
 const aiHint = document.getElementById('ai-quiz-hint');
-
 if (aiLabel) aiLabel.textContent = uiText[lang].aiQuizLabel + '：';
 if (aiYes) aiYes.textContent = uiText[lang].aiQuizYes;
 if (aiNo) aiNo.textContent = uiText[lang].aiQuizNo;
 if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
 
+// --- 作弊模式設定 ---
+  const cheatLabel = document.getElementById('cheat-label');
+  const cheatYes = document.getElementById('cheat-label-yes');
+  const cheatNo = document.getElementById('cheat-label-no');
+  const cheatHint = document.getElementById('cheat-hint');
+  if (cheatLabel) cheatLabel.textContent = uiText[lang].cheat_label;
+  if (cheatYes) cheatYes.textContent = uiText[lang].cheat_yes;
+  if (cheatNo) cheatNo.textContent = uiText[lang].cheat_no;
+  if (cheatHint) cheatHint.textContent = uiText[lang].cheat_hint;
+
+  // --- Debug 模式設定 ---
+  const debugLabel = document.getElementById('debug-label');
+  const debugYes = document.getElementById('debug-label-yes');
+  const debugNo = document.getElementById('debug-label-no');
+  const debugHint = document.getElementById('debug-hint');
+  if (debugLabel) debugLabel.textContent = uiText[lang].debug_label;
+  if (debugYes) debugYes.textContent = uiText[lang].debug_yes;
+  if (debugNo) debugNo.textContent = uiText[lang].debug_no;
+  if (debugHint) debugHint.textContent = uiText[lang].debug_hint;
 
 
       // 地圖按鈕
