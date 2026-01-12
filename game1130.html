@@ -795,7 +795,7 @@ transform: scale(0.95);
 /* 標題文字 (Legend) */
 .dice-override-group legend {
     display: inline-flex;
-  align-items: center;
+  align-items: left;
   color: #888; /* 將標題文字顏色調暗 */
     font-size: 0.9em;
     padding: 0;cursor: pointer;
@@ -813,7 +813,7 @@ transform: scale(0.95);
 /* 確保 Radio 按鈕是低調的顏色 */
 .dice-override-group input[type="radio"] {
   transform: scale(0.9);    /* 點點縮小 */
-  margin-right: 2px;
+  margin-right: 0px;
   accent-color: #FFF0AC;       /* 點選顏色變灰 */
   opacity: 0.6;
 }
@@ -841,14 +841,7 @@ transform: scale(0.95);
 <fieldset class="dice-override-group">
      
 <!--<legend>🎯 指定骰子點數（作弊用）</legend>!-->
-      <label><input type="radio" name="diceOverride" value="0" checked>不指定</label>
-      <label><input type="radio" name="diceOverride" value="1">1</label>
-      <label><input type="radio" name="diceOverride" value="2">2</label>
-      <label><input type="radio" name="diceOverride" value="3">3</label>
-      <label><input type="radio" name="diceOverride" value="4">4</label>
-      <label><input type="radio" name="diceOverride" value="5">5</label>
-      <label><input type="radio" name="diceOverride" value="6">6</label>
-</fieldset>
+      <label><input type="radio" name="diceOverride" value="0" checked>不指定</label><label><input type="radio" name="diceOverride" value="1">1</label><label><input type="radio" name="diceOverride" value="2">2</label><label><input type="radio" name="diceOverride" value="3">3</label><label><input type="radio" name="diceOverride" value="4">4</label><label><input type="radio" name="diceOverride" value="5">5</label><label><input type="radio" name="diceOverride" value="6">6</label></fieldset>
 
 
 
