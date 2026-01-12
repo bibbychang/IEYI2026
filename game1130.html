@@ -307,13 +307,14 @@
 
  .score-card {
  flex: 1 1 calc(25% - 8px);       /* 每張佔 25% */
+ min-width: 0;
  --accent: #e0e0e0;
  --bg: rgba(0, 0, 0, .03);
    background: #fff;
       border: 2px solid var(--accent);
 	   box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
       flex: 1;                        /* 平均分配寬度 */
-  min-width: 0;                   /* 允許卡片縮小到小於內容寬度 */
+                     /* 允許卡片縮小到小於內容寬度 */
   padding: 4px 6px !important;    /* 縮小內距 */
   display: flex;
   align-items: center;
@@ -328,7 +329,7 @@
 
 
     .score-grid {
-	/* 記分板容器：強制一行，不換行 */
+	
       display: flex !important;
 	 flex-wrap: wrap !important;      /* 允許換行 */
 	  gap: 4px !important;            /* 縮小間距 */
@@ -356,8 +357,9 @@
 
   /* 讓卡片高度可以稍微彈性一點，避免文字被擠爆 */
   .score-card {
+    flex: 0 0 calc(50% - 4px) !important; /* 強制每張卡片佔 50% 寬度 */
     height: auto;
-    min-height: 64px;
+    min-height: 60px;
   }
   
   .score-card .player-avatar .token {
