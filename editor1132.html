@@ -1034,34 +1034,40 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
       //updateScreenInfo();
 
     }
-
 function updateResponsiveCell() {
   const root = document.documentElement;
   const map = document.getElementById('map');
   const sidebar = document.getElementById('sidebar'); 
+  const topbar = document.querySelector('.topbar');
+  const header = document.querySelector('.header-row');
   if (!map || !sidebar) return;
 
   const vv = window.visualViewport;
   const vh = vv ? vv.height : window.innerHeight;
   const vw = vv ? vv.width : window.innerWidth;
 
-  // ✅ 絕對座標計算：不受重新整理後的捲動位置影響
-  const sidebarRect = sidebar.getBoundingClientRect();
-  const absoluteTop = sidebarRect.bottom + window.scrollY; 
+  // ✅ 改用穩定計算：排除捲動干擾
+  // 取得上方固定元素的高度總和
+  const headerH = header ? header.offsetHeight : 0;
+  const topbarH = topbar ? topbar.offsetHeight : 0;
+  const sidebarH = sidebar ? sidebar.offsetHeight : 0;
+  // 加上 padding 與 margin (大約值或精確計算)
+  const topOccupiedHeight = headerH + topbarH + sidebarH + 60; 
 
   const gap = 2;
   const gapsTotal = gap * 7; 
   const bottomPad = 25; 
 
-  // 可用高度 = 視窗總高 - (上方組件底部的絕對位置) - 底部預留
-  const availH = Math.max(0, vh - absoluteTop - bottomPad);
+  // 可用高度 = 當前視窗高 - 上方佔用空間
+  const availH = Math.max(0, vh - topOccupiedHeight - bottomPad);
 
-  const isNarrow = window.matchMedia('(max-width: 798px)').matches;
-  const availW = isNarrow ? (vw - 32) : vw;
+  const isNarrow = vw <= 798;
+  const availW = isNarrow ? (vw - 32) : (vw * 0.6); // 假設大螢幕地圖佔 60%
 
   const cellByH = (availH - gapsTotal) / 8;
   const cellByW = (availW - gapsTotal) / 8;
 
+  // 取最小值以確保地圖能完整顯示在螢幕內
   let next = Math.max(18, Math.min(90, cellByH, cellByW));
   
   root.style.setProperty('--cell', `${next}px`);
@@ -1132,7 +1138,7 @@ function updateScreenInfo() {
   const currentWidth = window.innerWidth;
   
   // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
-  if (currentWidth !== lastWidth) {
+  if (Math.abs(currentWidth - lastWidth) > 5) {
     updateResponsiveCell();
     lastWidth = currentWidth;
     console.log("寬度改變，重算 Cell");
