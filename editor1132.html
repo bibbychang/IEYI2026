@@ -60,10 +60,10 @@
   
     #sidebar {
       display: grid;
-      grid-template-columns: repeat(auto-fit, var(--cell));
+      grid-template-columns: repeat(8, 1fr); /* ✅ 強制 8 欄，每欄等寬 */
       gap: var(--gap);
       width: 100%;
-      max-width: calc(var(--cell) * 10 + var(--gap) * 9);
+      max-width: calc(var(--cell) * 8 + var(--gap) * 7);
       margin-bottom: 10px;
     }
     #sidebar img {
