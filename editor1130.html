@@ -1038,35 +1038,31 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
 function updateResponsiveCell() {
   const root = document.documentElement;
   const map = document.getElementById('map');
-  const sidebar = document.getElementById('sidebar'); // 取得地圖上方的元件
+  const sidebar = document.getElementById('sidebar'); 
   if (!map || !sidebar) return;
 
   const vv = window.visualViewport;
-  const vw = vv ? vv.width : window.innerWidth;
   const vh = vv ? vv.height : window.innerHeight;
+  const vw = vv ? vv.width : window.innerWidth;
 
-  // ✅ 核心修正：計算「絕對 Top」，排除重新整理後的捲動干擾
+  // ✅ 絕對座標計算：不受重新整理後的捲動位置影響
   const sidebarRect = sidebar.getBoundingClientRect();
   const absoluteTop = sidebarRect.bottom + window.scrollY; 
 
   const gap = 2;
   const gapsTotal = gap * 7; 
-  const maxCell = 90;
-  const minCell = 18;
-  const bottomPad = 25; // 給予底部足夠緩衝，避免第 8 行被切掉
+  const bottomPad = 25; 
 
-  // 計算剩餘可用高度
+  // 可用高度 = 視窗總高 - (上方組件底部的絕對位置) - 底部預留
   const availH = Math.max(0, vh - absoluteTop - bottomPad);
 
-  // 計算寬度限制
   const isNarrow = window.matchMedia('(max-width: 798px)').matches;
   const availW = isNarrow ? (vw - 32) : vw;
 
   const cellByH = (availH - gapsTotal) / 8;
   const cellByW = (availW - gapsTotal) / 8;
 
-  // 取最小值確保地圖不超出螢幕
-  let next = Math.max(minCell, Math.min(maxCell, cellByH, cellByW));
+  let next = Math.max(18, Math.min(90, cellByH, cellByW));
   
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
@@ -1149,25 +1145,47 @@ function updateScreenInfo() {
 	  updateScreenInfo();
 	  
     }
-	window.addEventListener('DOMContentLoaded', () => {
+	
+	
+	// 宣告一個變數記錄上次的寬度
+let lastWidth = window.innerWidth;
+
+window.addEventListener('DOMContentLoaded', () => {
   renderLangButton();
   const btn = document.getElementById('lang-toggle');
   if (btn) btn.addEventListener('click', toggleLang);
-
-  // ✅ 只算一次 cell，避免手機/平板 visualViewport 變動造成閃爍
-  updateResponsiveCell();
-  updateScreenInfo();
-
-  // （可選）之後只更新顯示資訊，不再重算 cell
-  const updateInfoOnly = () => updateScreenInfo();
-
-  window.addEventListener('resize', updateInfoOnly);
-  window.addEventListener('orientationchange', updateInfoOnly);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', updateInfoOnly);
-    window.visualViewport.addEventListener('scroll', updateInfoOnly);
-  }
 });
+
+// ✅ 修正點 1：使用 window.load 確保所有圖片與佈局已完全穩定
+window.addEventListener('load', () => {
+  lastWidth = window.innerWidth; // 記錄初始寬度
+  updateResponsiveCell();
+  checkOrientation();
+
+  // 針對重新整理後的捲動殘留，做一次微小的延遲校正
+  setTimeout(updateResponsiveCell, 200);
+});
+
+// ✅ 修正點 2：只有在「寬度改變」時才重算 CELL
+window.addEventListener('resize', () => {
+  const currentWidth = window.innerWidth;
+  
+  if (currentWidth !== lastWidth) {
+    // 寬度變了（例如轉向或拉動視窗），這才需要重算地圖大小
+    updateResponsiveCell();
+    lastWidth = currentWidth;
+  } else {
+    // 寬度沒變，只是捲動造成的網址列伸縮，只更新 debug 文字即可
+    updateScreenInfo();
+  }
+  
+  checkOrientation();
+});
+
+// 針對 Visual Viewport 的滾動（手機網址列變動）
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('scroll', updateScreenInfo);
+}
 
     function refreshAllTooltips() {
       // 1) 側邊欄的 tooltip（依 sidebar 圖示的 data-img）
