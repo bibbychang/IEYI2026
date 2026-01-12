@@ -1090,24 +1090,7 @@ function checkOrientation() {
   }
 }
 
-// 修正後的初始化監聽器
-window.addEventListener('load', () => {
-  updateResponsiveCell();
-  checkOrientation();
-  
-  // 二次校正：應對行動裝置捲動回復的微小延遲
-  setTimeout(updateResponsiveCell, 150);
-});
 
-// ✅ 務必在視窗變動時「重新計算」Cell，而不是只 updateInfo
-window.addEventListener('resize', () => {
-  updateResponsiveCell();
-  checkOrientation();
-});
-
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', updateResponsiveCell);
-}
 
 function updateScreenInfo() {
   const el = document.getElementById('screen-info');
@@ -1145,7 +1128,20 @@ function updateScreenInfo() {
 	  updateScreenInfo();
 	  
     }
-	
+	function handleResize() {
+  const currentWidth = window.innerWidth;
+  
+  // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
+  if (currentWidth !== lastWidth) {
+    updateResponsiveCell();
+    lastWidth = currentWidth;
+    console.log("寬度改變，重算 Cell");
+  } else {
+    // 寬度沒變（只是捲動），只更新 debug 資訊，不觸發重算
+    updateScreenInfo();
+  }
+  checkOrientation();
+}
 	
 	// 宣告一個變數記錄上次的寬度
 let lastWidth = window.innerWidth;
@@ -1167,25 +1163,17 @@ window.addEventListener('load', () => {
 });
 
 // ✅ 修正點 2：只有在「寬度改變」時才重算 CELL
-window.addEventListener('resize', () => {
-  const currentWidth = window.innerWidth;
-  
-  if (currentWidth !== lastWidth) {
-    // 寬度變了（例如轉向或拉動視窗），這才需要重算地圖大小
-    updateResponsiveCell();
-    lastWidth = currentWidth;
-  } else {
-    // 寬度沒變，只是捲動造成的網址列伸縮，只更新 debug 文字即可
-    updateScreenInfo();
-  }
-  
-  checkOrientation();
-});
+window.addEventListener('resize', handleResize);
 
-// 針對 Visual Viewport 的滾動（手機網址列變動）
+// 行動裝置視窗變動（包含網址列伸縮）
 if (window.visualViewport) {
+  // 修正點：這裡也要指向 handleResize，讓它受寬度檢查保護
+  window.visualViewport.addEventListener('resize', handleResize);
+  
+  // 捲動時只更新文字資訊
   window.visualViewport.addEventListener('scroll', updateScreenInfo);
 }
+
 
     function refreshAllTooltips() {
       // 1) 側邊欄的 tooltip（依 sidebar 圖示的 data-img）
