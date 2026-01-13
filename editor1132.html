@@ -24,6 +24,7 @@
       gap: var(--gap);
       width: calc(var(--cell) * 8 + var(--gap) * 7);
       height: calc(var(--cell) * 8 + var(--gap) * 7);     
+	  margin: 0 auto; /* 新增：讓地圖在地圖區塊內置中20260113 */
     }
 
 
@@ -64,7 +65,7 @@
       gap: var(--gap);
       width: 100%;
       max-width: calc(var(--cell) * 8 + var(--gap) * 7);
-     margin: 0 auto 20px 0; /* 靠左對齊地圖 */
+     margin: 0 auto 20px auto; /* 修改：最後一個值改為 auto 即可水平置中 */
     }
     #sidebar img {
       width: 100%;
@@ -209,9 +210,12 @@
     }
 
     #left-panel {
-      flex: 0 0 auto; /* 讓左側依內容寬度，不硬撐滿 */
-      max-width: 100%;
-    }
+  flex: 0 0 auto;
+  display: flex;           /* 新增 */
+  flex-direction: column;  /* 新增 */
+  align-items: center;     /* 新增：讓標題、按鈕、地圖全部水平置中 */
+  max-width: 100%;
+}
 
     #instructions {
       max-width: 500px;
@@ -514,7 +518,7 @@ body > *{
 	
 	<div class="header-row">
 	<h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 2px;">🧩 編輯地圖與設定</h2> 
-  <div id="screen-info" style="font-size:6px;color:#666;margin:6px 0 10px 0;"></div>
+  <div id="screen-info" style="font-size:10px;color:#666;margin:6px 0 10px 0;"></div>
 	</div>
 
   
