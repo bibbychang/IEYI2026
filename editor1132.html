@@ -301,7 +301,7 @@ body > *{
   letter-spacing: .5px;
 }
 #instructions h3{
-  margin: 0 0 10px;
+  margin: 0 0 5px;
   font-size: 18px;
 }
 
@@ -1089,8 +1089,10 @@ function checkOrientation() {
       overlay.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);color:white;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:sans-serif;";
       overlay.innerHTML = `
         <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
-        <h2>請將手機轉回「直向」</h2>
+        <h2>請將手機轉回「直向」 Please turn your phone back to "Handheld" mode.</h2>
         <p>橫向空間不足，建議使用直向模式進行編輯。</p>
+		<p>There is insufficient horizontal space; it is recommended to use portrait mode for editing.</p>
+		
         <button onclick="this.parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold; cursor:pointer;">我知道了</button>`;
       document.body.appendChild(overlay);
     }
@@ -1122,8 +1124,8 @@ function updateScreenInfo() {
  const cell = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 0;
 
   el.textContent =
-    `screen: ${sw}×${sh} (≈ ${physicalW}×${physicalH} px) ` +
-    `viewport: ${vw}×${vh}` ;
+    `screen${sw}×${sh}(${physicalW}×${physicalH}px)` +
+    `viewport${vw}×${vh}` ;
 
 
  
