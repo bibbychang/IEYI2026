@@ -486,9 +486,12 @@ height:28px;
 
 /* 讓下拉選單在膠囊內更緊湊 */
 .setting-pill select {
-  padding: 2px 4px;
+  height: 24px;
+  padding: 0 4px;
   border-radius: 4px;
   border: 1px solid #ddd;
+  background: #f9f9f9;
+  font-size: 13px;
 }
 
 </style>
@@ -578,11 +581,11 @@ height:28px;
 <div id="layout">
     <!-- 左邊：原本的控制與地圖 -->
     <div id="left-panel">
+	<h2 id="title-text" style="float:left;    margin-top: 0px;    margin-bottom: 2px;">🧩 編輯地圖與設定</h2> 
 	
-	<div class="header-row">
-	<h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 2px;">🧩 編輯地圖與設定</h2> 
-  <div id="screen-info" style="font-size:10px;color:#666;margin:6px 0 10px 0;"></div>
-	</div>
+	
+  
+	
 
   
   <div class="topbar">
@@ -611,44 +614,33 @@ height:28px;
       </select>
     </label>
   </div>
-  
- 
+  <br>
+ <!--「否」用題庫（不呼叫 API、快）(開啟後遊戲中可指定骰子點數)(開啟後顯示螢幕資訊)-->
+<div class="setting-pill">
 
-  <div id="ai-quiz-setting" style="margin:8px 0 12px 0;">
-  
-  
-  
-  
-  
-	  <label id="ai-quiz-label" style="display:inline-block; margin-right:8px;">AI 出題：</label>
-	  <label style="margin-right:12px;">
-		<input type="radio" name="aiQuiz" value="yes" checked> <span id="ai-quiz-yes">是</span></label>
-	  <label>
-		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no">否</span></label>
-	  <span id="ai-quiz-hint" style="font-size:12px;color:#666;padding-left:10px;">「否」用題庫（不呼叫 API、快）</span><!--
-	  <label>Gemini API Key：</label>
-	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
-	<button onclick="saveAPIKey()">儲存 Key</button>-->
-	
-	<div id="extra-settings" style="margin:8px 0 12px 0; border-top: 1px dashed #ccc; padding-top: 10px;">
-  <div style="margin-bottom: 8px;">
-    <label id="cheat-label" style="display:inline-block; margin-right:8px;">作弊模式：</label>
-    <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" ><span id="cheat-label-yes">是</span></label>
-    <label><input type="radio" name="cheatMode" value="no" checked><span id="cheat-label-no">否</span></label>
-    <span id="cheat-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
+	<span id="ai-quiz-label" onmouseenter="showHint('aiQuizHint')" onmouseleave="clearHint()">AI 出題：</span>
+    
+    <select name="aiQuiz" id="aiQuizSelect">
+      <option id="ai-quiz-yes" value="yes" selected>是</option>
+      <option id="ai-quiz-no" value="no">否</option>
+    </select>
+
+    <span id="cheat-label" onmouseenter="showHint('cheat_hint')" onmouseleave="clearHint()">作弊模式：</span>
+    <select name="cheatMode" id="cheatModeSelect">
+      <option id="cheat-label-yes" value="yes">是</option>
+      <option id="cheat-label-no" value="no" selected>否</option>
+    </select>
+
+    <span id="debug-label" onmouseenter="showHint('debug_hint')" onmouseleave="clearHint()">Debug 模式：</span>
+    <select name="debugMode" id="debugModeSelect">
+      <option id="debug-label-yes" value="yes">是</option>
+      <option id="debug-label-no" value="no" selected>否</option>
+    </select>
   </div>
-  <div>
-    <label id="debug-label" style="display:inline-block; margin-right:8px;">Debug 模式：</label>
-    <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"><span id="debug-label-yes">是</span></label>
-    <label><input type="radio" name="debugMode" value="no" checked><span id="debug-label-no">否</span></label>
-    <span id="debug-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後顯示螢幕資訊)</span>
-  </div>
-</div>
-	
-	
-</div>
-<button class="btn" onclick="loadMap1()">📌 地圖1</button><button class="btn" onclick="loadMap2()">📌 地圖2</button>
-<button class="btn" onclick="loadMap3()">📌 地圖3</button><button class="btn btn-danger" onclick="clearMap()">🧹 清空</button>
+  <div id="screen-info" style="height:8px;font-size:12px;color:#666;margin:6px 0 10px 0;"></div>
+  <br>
+<button class="btn" onclick="loadMap1()">📌地圖1</button><button class="btn" onclick="loadMap2()">📌地圖2</button>
+<button class="btn" onclick="loadMap3()">📌地圖3</button><button class="btn btn-danger" onclick="clearMap()">🧹清空</button>
 <button class="btn btn-primary" onclick="saveAndStart()">▶ 開始遊戲</button>
   
   
@@ -760,6 +752,24 @@ height:28px;
   </div>
 
   <script>
+  
+  function showHint(key) {
+  const infoEl = document.getElementById('screen-info');
+  if (infoEl && uiText[lang] && uiText[lang][key]) {
+    // 取得該語系的說明文字
+    const hintText = uiText[lang][key];
+    // 移除括號或多餘符號（如果需要的話），這裡直接顯示 uiText 裡的內容
+    infoEl.innerHTML = `<span style="color: #d32f2f; font-weight: bold;">💡 提示：${hintText}</span>`;
+  }
+}
+
+// 滑鼠移開時，恢復原本的螢幕資訊
+function clearHint() {
+  if (typeof updateScreenInfo === 'function') {
+    updateScreenInfo();
+  }
+}
+  
     const LANG_KEY = 'gameLang';
     let lang = localStorage.getItem(LANG_KEY) || 'zh'; // 'zh' or 'en'
     if (!lang) {
@@ -799,7 +809,7 @@ height:28px;
 		
       },
       en: {
-        title: 'Map Editor & Settings',
+        title: '🧩 Map Editor & Settings',
         toggle_to: '中文版',
         mode_time: 'Time',
         mode_score: 'Score',
