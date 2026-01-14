@@ -448,12 +448,14 @@ body > *{
   border-color: rgba(0,0,0,.10);
   background: rgba(245,245,245,.92);
 }
-.header-row{
-  display:flex;
+.header-row {
+  display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start; /* 強制內容從左側開始排列 */
+  width: 100%;               /* 確保寬度佔滿，才能推到最左邊 */
+  align-self: flex-start;    /* 關鍵：不受父層 (left-panel) 的 center 影響 */
   gap: 10px;
-  flex-wrap: wrap; /* 小螢幕可換行 */
+  flex-wrap: wrap;
 }
 #screen-info{
   width: auto;
@@ -550,7 +552,7 @@ body > *{
 	
 	<div class="header-row">
 	<h2 id="title-text" style="    margin-top: 0px;    margin-bottom: 2px;">🧩 編輯地圖與設定</h2> 
-  <!--<div id="screen-info" style="font-size:10px;color:#666;margin:6px 0 10px 0;"></div>-->
+ 
 	</div>
 
   
@@ -611,9 +613,7 @@ body > *{
 	
 	
 </div>
-<button class="btn" onclick="loadMap1()">📌 地圖1</button><button class="btn" onclick="loadMap2()">📌 地圖2</button><button class="btn" onclick="loadMap3()">📌 地圖3</button>
-<button class="btn btn-danger" onclick="clearMap()">🧹 清空</button><button class="btn btn-primary" onclick="saveAndStart()">▶ 開始遊戲</button>
-  
+<button class="btn" onclick="loadMap1()">📌 地圖1</button><button class="btn" onclick="loadMap2()">📌 地圖2</button><button class="btn" onclick="loadMap3()">📌 地圖3</button><button class="btn btn-danger" onclick="clearMap()">🧹 清空</button><button class="btn btn-primary" onclick="saveAndStart()">▶ 開始遊戲</button><div id="screen-info" style="font-size:10px;color:#666;margin:6px 0 10px 0;"></div>
   
 </div>
   
