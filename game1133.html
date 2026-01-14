@@ -573,22 +573,13 @@
 body{ flex-wrap: wrap; gap: 20px; box-sizing: border-box; }
 
 /* ==== 3) 版面順序：左(頂部) → 棋盤 → 右(Record最底) ==== */
-@media (max-width: 768px) {
-  /* 強制讓父容器換行 */
-  body > div:first-of-type {
-    flex-direction: column !important; /* 改為垂直排列 */
-    flex-wrap: wrap !important;
-  }
-
-  /* 強制左右面板都佔滿 100% */
-  #left-panel, #right-panel {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 1 1 100% !important;
-    margin-left: 0 !important;
-    padding: 0 !important;
-  }
+@media (max-width: 768px){
+  #left-panel{ order:1; flex:1 1 100%; width:100%; min-width:0; }
+  
+  #game-board, #board-wrap, #center-panel, #game-frame{ order:2; width:100%; max-width:100%; margin:0 auto; }
+  #right-panel{ order:3; flex:1 1 100%; width:100%; min-width:0; }
 }
+
 /* ==== 4) 取消右欄死寬，桌機仍能佔位 ==== */
 #right-panel{
   width: auto !important;           /* 覆蓋 750px */
@@ -843,13 +834,18 @@ transform: scale(0.95);
   inset: 0;
   background: rgba(0, 0, 0, 0.9);
   color: white;
-  display: none; /* ✅ 關鍵：預設絕對隱藏 */
-  flex-direction: column;
+  z-index: 100000;
+  display: none; /* 預設不顯示 */
   align-items: center;
   justify-content: center;
-  z-index: 100000;
+  text-align: center;
   padding: 20px;
   font-family: sans-serif;
+}
+.rotate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 </style>
@@ -858,19 +854,12 @@ transform: scale(0.95);
 </head>
 
 <body>
-<div id="rotate-overlay">
-  <div style="text-align:center;">
-    <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
-    <h2 style="margin: 0;">請將手機轉回「直向」</h2>
-    <p style="opacity: 0.8; margin-top: 10px;">手機橫放空間不足，建議使用直向模式以獲得最佳遊戲體驗。</p>
-    <button onclick="document.getElementById('rotate-overlay').style.display='none'" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold; cursor:pointer;">
-      我知道了
-    </button>
-  </div>
-</div>
+
+
 <div style="display: flex; align-items: flex-start; gap: 20px; width: 100%; min-height: 100vh; box-sizing: border-box;">
   <div id="left-panel">
   <div id="topbar">
+
   <!-- 記分板與設定原本的那些元素放這裡 -->
 <!--<input id="apikey" type="text" style="width: 80%;" placeholder="貼上你的 API Key">
 <button onclick="makeQuiz()">出一題火災防災題目</button>
@@ -926,7 +915,15 @@ transform: scale(0.95);
     <div id="quiz-list"></div>
     <button onclick="closeQuizHistory()">關閉</button>
   </div>
-
+<div id="rotate-overlay" style="display: none;">
+  <div class="rotate-content">
+    <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
+    <h2>請將手機轉「直向」 Please turn your phone to "Portrait mode".</h2>
+    <p>橫向空間不足，建議使用直向模式進行編輯。</p>
+    <p>There is insufficient horizontal space; it is recommended to use portrait mode for editing.</p>
+    <button onclick="document.getElementById('rotate-overlay').style.display='none'" class="btn btn-primary" style="margin-top: 20px;">我知道了</button>
+  </div>
+</div>
   <audio id="diceSound" src="dice-sound.mp3" preload="auto"></audio>
   <script>
 
@@ -1029,7 +1026,7 @@ function catNameTC(cat){
 
 
     const { mode, timeLimit, scoreTarget, playerCount, mapData, pathIndices } = config;
-    const nPlayers = config.playerCount || 2;
+    const nPlayers = config.playerCount || 4;
     document.getElementById("configInfo").innerText =
       mode === "time"
         ? `🎯 模式：限時制（${timeLimit} 秒）`
@@ -1458,35 +1455,44 @@ function fitCellToFirstScreen(force = false) {
   if (__cellFitDone && !force) return;
 
   const root = document.documentElement;
-  const topBar = document.getElementById("topbar");
-  if (!topBar) return;
+  const board = document.getElementById("game-board");
+  const topBar = document.getElementById("topbar"); // ✅ 抓取上方整塊區域
+  if (!board || !topBar) return;
 
   const vv = window.visualViewport;
   const vH = vv ? vv.height : window.innerHeight;
   const vW = vv ? vv.width : window.innerWidth;
 
-  // --- 關鍵修正：在手機版 (寬度 <= 768) 直接採用視窗寬度 ---
-  const isMobile = vW <= 768;
-  const leftPanel = document.getElementById("left-panel");
-  
-  // 如果是手機版，availW 直接用視窗寬度減去邊距；否則才抓左面板寬度
-  const availW = isMobile ? (vW - 20) : (leftPanel ? leftPanel.getBoundingClientRect().width - 16 : vW - 16);
-  // ---------------------------------------------------
-
+  // ✅ 修正點 1：取得「絕對座標」。
+  // 使用 getBoundingClientRect().bottom 加上目前的 window.scrollY
+  // 這樣算出來的數值代表：從網頁「最頂端」算起，骰子區到底部有多少像素。
+  // 它不會因為你重新整理後捲動位置在哪而改變。
   const rect = topBar.getBoundingClientRect();
   const absoluteTop = rect.bottom + window.scrollY; 
-  const gapsTotal = 2 * 7; 
-  const bottomPad = 25; 
 
+  const leftPanel = document.getElementById("left-panel");
+  const leftW = leftPanel ? leftPanel.getBoundingClientRect().width : vW;
+
+  const gap = 2;
+  const gapsTotal = gap * 7;
+  const sidePad = 16;
+  const bottomPad = 25; // 預留底部空間確保最後一行不被切掉
+
+  const availW = Math.max(0, leftW - sidePad);
   const availH = Math.max(0, vH - absoluteTop - bottomPad);
 
+  // ✅ 修正點 2：將詳細數值存入 Debug 物件供顯示
   debugMath = {
+    topSource: "Topbar Bottom",
     vH: vH,
+    mapTop: Math.round(absoluteTop), // 絕對高度
+    currentScroll: Math.round(window.scrollY),
     availH: Math.round(availH),
     byH: Math.round(((availH - gapsTotal) / 8) * 100) / 100,
     byW: Math.round(((availW - gapsTotal) / 8) * 100) / 100
   };
 
+  // 取寬與高中較小者
   let cell = Math.floor(Math.min(90, debugMath.byW, debugMath.byH));
   cell = Math.max(28, cell); 
 
@@ -3304,7 +3310,6 @@ function checkOrientation() {
   }
 }
 
-// ⚠️ 請刪除原本的 function showRotateOverlay() {...}，因為不再需要動態產生。
 
 
 
@@ -3328,7 +3333,6 @@ function initDimensionMonitor() {
 
   setInterval(updateScreenInfo, 1000);
 }
-
 
 
 
