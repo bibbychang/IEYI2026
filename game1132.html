@@ -829,7 +829,19 @@ transform: scale(0.95);
   accent-color: #FFF0AC;       /* 點選顏色變灰 */
   opacity: 0.6;
 }
-
+#rotate-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  display: none; /* ✅ 關鍵：預設絕對隱藏 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  padding: 20px;
+  font-family: sans-serif;
+}
 
 </style>
   
@@ -837,6 +849,16 @@ transform: scale(0.95);
 </head>
 
 <body>
+<div id="rotate-overlay">
+  <div style="text-align:center;">
+    <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
+    <h2 style="margin: 0;">請將手機轉回「直向」</h2>
+    <p style="opacity: 0.8; margin-top: 10px;">手機橫放空間不足，建議使用直向模式以獲得最佳遊戲體驗。</p>
+    <button onclick="document.getElementById('rotate-overlay').style.display='none'" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold; cursor:pointer;">
+      我知道了
+    </button>
+  </div>
+</div>
 <div style="display: flex; align-items: flex-start; gap: 20px; width: 100%; min-height: 100vh; box-sizing: border-box;">
   <div id="left-panel">
   <div id="topbar">
@@ -3270,45 +3292,26 @@ function checkOrientation() {
   const vv = window.visualViewport;
   const h = vv ? vv.height : window.innerHeight;
   const w = vv ? vv.width : window.innerWidth;
+  const overlay = document.getElementById("rotate-overlay");
+  
+  if (!overlay) return;
 
-  // 判斷條件：寬度 > 高度 (橫向) 且 高度小於 500px (常見 4~6 吋手機橫放高度)
+  // 判定條件：寬度 > 高度 (橫向) 且 高度小於 500px
   if (w > h && h < 500) {
-    if (!document.getElementById("rotate-overlay")) {
-      showRotateOverlay();
-    }
+    overlay.style.display = "flex";
   } else {
-    // 轉回直向時移除遮罩
-    const overlay = document.getElementById("rotate-overlay");
-    if (overlay) overlay.remove();
+    overlay.style.display = "none";
   }
 }
 
-function showRotateOverlay() {
-  const overlay = document.createElement("div");
-  overlay.id = "rotate-overlay";
-  overlay.style = `
-    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-    color: white; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; z-index: 100000;
-    text-align: center; padding: 20px; font-family: sans-serif;
-  `;
-  overlay.innerHTML = `
-    <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
-    <h2 style="margin: 0;">請將手機轉回「直向」</h2>
-    <p style="opacity: 0.8; margin-top: 10px;">手機橫放空間不足，建議使用直向模式以獲得最佳遊戲體驗。</p>
-    <button onclick="this.parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold;">
-      我知道了，繼續瀏覽
-    </button>
-  `;
-  document.body.appendChild(overlay);
-}
+
 
 
 function initDimensionMonitor() {
   const refresher = () => {
     fitCellToFirstScreen(true);
     updateScreenInfo();
-	checkOrientation(); // 新增：每次變動都檢查方向
+    checkOrientation(); 
   };
 
   window.addEventListener("resize", refresher);
@@ -3318,11 +3321,12 @@ function initDimensionMonitor() {
     window.visualViewport.addEventListener("resize", refresher);
     window.visualViewport.addEventListener("scroll", updateScreenInfo);
   }
-checkOrientation();
-  // 每秒更新一次，確保時間和狀態正常
+
+  // ✅ 修正點：載入後延遲 300ms 再做第一次方向檢查，避開視窗數值不穩定期
+  setTimeout(refresher, 300);
+
   setInterval(updateScreenInfo, 1000);
 }
-
 
 
 
