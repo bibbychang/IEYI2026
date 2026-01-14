@@ -2299,18 +2299,24 @@ category: category,
           </div>
         </div>
         <div class="right">
-          <div class="score">${score}pts</div>
+          <div class="score-row"">
+			  <div class="score">${score}pts</div>
+			   <div class="badges">            
+				<div class="skill-cards" aria-label="技能卡 ${skills} 張">${skillIcons}</div>${pausedBadge}
+				</div> 
+		  </div>  
 		  <div   class="goal"   title="目標 ${goalScore} 分"   role="progressbar"   aria-valuemin="0"   aria-valuemax="${goalScore}"   aria-valuenow="${score}" >
 			<div class="bar${isFull ? ' full' : ''}" style="width:${pctStr}"></div>
 		</div>
-          <div class="badges">            
-            <div class="skill-cards" aria-label="技能卡 ${skills} 張">${skillIcons}</div>${pausedBadge}
-          </div>  
+          
         </div>
       </div>`;
       }
       status.innerHTML = `<div class="score-grid">${cards}</div>`;
     }
+
+
+
 
 
     function showGameOverScreen(winnerText) {
