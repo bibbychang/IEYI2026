@@ -370,6 +370,26 @@ body > *{
 
 
 <style>
+
+#rotate-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  z-index: 100000;
+  display: none; /* 預設不顯示 */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  font-family: sans-serif;
+}
+.rotate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* ===== 通用漂亮按鈕（可套用到所有 button） ===== */
 .btn{
   appearance: none;
@@ -512,6 +532,18 @@ body > *{
 </head>
 
 <body>
+<div id="rotate-overlay" style="display: none;">
+  <div class="rotate-content">
+    <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
+    <h2>請將手機轉「直向」 Please turn your phone to "Portrait mode".</h2>
+    <p>橫向空間不足，建議使用直向模式進行編輯。</p>
+    <p>There is insufficient horizontal space; it is recommended to use portrait mode for editing.</p>
+    <button onclick="document.getElementById('rotate-overlay').style.display='none'" class="btn btn-primary" style="margin-top: 20px;">我知道了</button>
+  </div>
+</div>
+
+
+
 <div id="layout">
     <!-- 左邊：原本的控制與地圖 -->
     <div id="left-panel">
@@ -1086,23 +1118,15 @@ function checkOrientation() {
   const vv = window.visualViewport;
   const h = vv ? vv.height : window.innerHeight;
   const w = vv ? vv.width : window.innerWidth;
+  const overlay = document.getElementById("rotate-overlay");
+
+  if (!overlay) return;
+
+  // 判定條件：橫向且高度太小
   if (w > h && h < 500) {
-    if (!document.getElementById("rotate-overlay")) {
-      const overlay = document.createElement("div");
-      overlay.id = "rotate-overlay";
-      overlay.style = "position:fixed;inset:0;background:rgba(0,0,0,0.9);color:white;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:sans-serif;";
-      overlay.innerHTML = `
-        <div style="font-size: 50px; margin-bottom: 20px;">🔄</div>
-        <h2>請將手機轉「直向」 Please turn your phone to "Portrait mode".</h2>
-        <p>橫向空間不足，建議使用直向模式進行編輯。</p>
-		<p>There is insufficient horizontal space; it is recommended to use portrait mode for editing.</p>
-		
-        <button onclick="this.parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; border-radius: 8px; border: none; background: #ffd400; color: #111; font-weight: bold; cursor:pointer;">我知道了</button>`;
-      document.body.appendChild(overlay);
-    }
+    overlay.style.display = "flex";
   } else {
-    const node = document.getElementById("rotate-overlay");
-    if (node) node.remove();
+    overlay.style.display = "none";
   }
 }
 
@@ -1172,7 +1196,10 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('load', () => {
   lastWidth = window.innerWidth; // 記錄初始寬度
   updateResponsiveCell();
-  checkOrientation();
+  // 💡 關鍵修正：延遲 300 毫秒再執行第一次方向檢查，避開啟動時的閃爍
+  setTimeout(checkOrientation, 300);
+
+
 
   // 針對重新整理後的捲動殘留，做一次微小的延遲校正
   setTimeout(updateResponsiveCell, 200);
