@@ -61,10 +61,11 @@
   
    #sidebar {
       display: grid;
-      grid-template-columns: repeat(10, var(--cell));/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
+      grid-template-columns: repeat(10, 1fr);/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
       gap: var(--gap);
       width: 100%;
-      max-width: calc(var(--cell) * 10 + var(--gap) * 9);
+      /* 💡 確保側邊欄不會超過父容器寬度 */
+	max-width: 100%;
      margin: 0 0 5px 0; /* 修改：最後一個值改為 auto 即可水平置中 */
     }
     #sidebar img {
