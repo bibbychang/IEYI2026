@@ -61,11 +61,10 @@
   
    #sidebar {
       display: grid;
-      grid-template-columns: repeat(10, 1fr);/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
+      grid-template-columns: repeat(10, var(--cell));/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
       gap: var(--gap);
       width: 100%;
-      /* 💡 確保側邊欄不會超過父容器寬度 */
-	max-width: 100%;
+      max-width: calc(var(--cell) * 10 + var(--gap) * 9);
      margin: 0 0 5px 0; /* 修改：最後一個值改為 auto 即可水平置中 */
     }
     #sidebar img {
@@ -1108,9 +1107,16 @@ function updateResponsiveCell() {
 
   const cellByH = (availH - gapsTotal) / 8;
   const cellByW = (availW - gapsTotal) / 8;
+  
+  const cellByW8 = (availW - (gap * 7)) / 8;
+  
+  // 2. 為了側邊欄 (10 欄) 計算的寬度限制 (您建議的 w/10 邏輯)
+  const cellByW10 = (availW - (gap * 9)) / 10;
+
+
 
   // 取最小值以確保地圖能完整顯示在螢幕內
-  let next = Math.max(18, Math.min(90, cellByH, cellByW));
+  let next = Math.max(18, Math.min(90, cellByH, cellByW8, cellByW10));
   
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
