@@ -1137,21 +1137,37 @@ function updateResponsiveCell() {
   updateScreenInfo();
 }
 // 新增：偵測手機橫放警告
+let overlayOn = false;
+const SHOW_H = 480; // 小於這個高度才「開啟」overlay
+const HIDE_H = 520; // 大於這個高度才「關閉」overlay
 function checkOrientation() {
   const vv = window.visualViewport;
   const h = vv ? vv.height : window.innerHeight;
   const w = vv ? vv.width : window.innerWidth;
   const overlay = document.getElementById("rotate-overlay");
-
   if (!overlay) return;
+if (w > 900) {
+  overlayOn = false;
+  overlay.style.display = "none";
+  return;
+}
 
-  // 判定條件：橫向且高度太小
-  if (w > h && h < 500) {
+  const landscape = w > h;
+
+  // ✅ 只有「更嚴格的條件」才打開（避免在 500 附近抖動）
+  if (!overlayOn && landscape && h < SHOW_H) {
+    overlayOn = true;
     overlay.style.display = "flex";
-  } else {
+    return;
+  }
+
+  // ✅ 只有「更寬鬆的條件」才關掉（同樣避免抖動）
+  if (overlayOn && (!landscape || h > HIDE_H)) {
+    overlayOn = false;
     overlay.style.display = "none";
   }
 }
+
 
 
 
@@ -1191,20 +1207,26 @@ function updateScreenInfo() {
 	  updateScreenInfo();
 	  
     }
-	function handleResize() {
-  const currentWidth = window.innerWidth;
+	let resizeRaf = 0;
+
+function handleResize() {
+  if (resizeRaf) cancelAnimationFrame(resizeRaf);
   
-  // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
-  if (Math.abs(currentWidth - lastWidth) > 5) {
-    updateResponsiveCell();
-    lastWidth = currentWidth;
-    console.log("寬度改變，重算 Cell");
-  } else {
-    // 寬度沒變（只是捲動），只更新 debug 資訊，不觸發重算
-    updateScreenInfo();
-  }
-  checkOrientation();
+  resizeRaf = requestAnimationFrame(() => {
+    const currentWidth = window.innerWidth;
+
+    if (Math.abs(currentWidth - lastWidth) > 5) {
+      updateResponsiveCell();
+      lastWidth = currentWidth;
+      console.log("寬度改變，重算 Cell");
+    } else {
+      updateScreenInfo();
+    }
+
+    checkOrientation();
+  });
 }
+
 	
 	// 宣告一個變數記錄上次的寬度
 let lastWidth = window.innerWidth;
