@@ -603,7 +603,7 @@ body > *{
     <label><input type="radio" name="cheatMode" value="no" checked><span id="cheat-label-no">否</span></label>
     <span id="cheat-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
   </div>
-  <div>	
+  <div>
     <label id="debug-label" style="display:inline-block; margin-right:8px;">Debug 模式：</label>
     <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"><span id="debug-label-yes">是</span></label>
     <label><input type="radio" name="debugMode" value="no" checked><span id="debug-label-no">否</span></label>
@@ -1076,44 +1076,44 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
     }
 function updateResponsiveCell() {
   const root = document.documentElement;
-  const sidebar = document.getElementById('sidebar'); 
   const topbar = document.querySelector('.topbar');
   const header = document.querySelector('.header-row');
-  if (!sidebar) return;
 
   const vv = window.visualViewport;
   const vh = vv ? vv.height : window.innerHeight;
   const vw = vv ? vv.width : window.innerWidth;
 
-  // ✅ 關鍵修正 1：只計算真正「固定不動」的高度
-  // 標題和 topbar 的高度不隨 --cell 改變，測量它們是安全的
+  // 1. 計算固定高度
   const headerH = header ? header.offsetHeight : 0;
   const topbarH = topbar ? topbar.offsetHeight : 0;
-  
-  // 加上一些基礎邊距緩衝（取代原本的 +60）
   const fixedOccupiedHeight = headerH + topbarH + 40; 
 
   const gap = 2;
   const bottomPad = 25; 
 
-  // 可用垂直空間
-  const availH = Math.max(0, vh - fixedOccupiedHeight - bottomPad);
-
-  // 寬度限制邏輯（手機與大螢幕）
-  const isNarrow = vw <= 798;
+  // 2. 寬度限制：維持你的 1100px 邏輯
+  const isNarrow = vw <= 768;
   const availW = isNarrow ? (vw - 32) : (vw * 0.6); 
-
-  // ✅ 關鍵修正 2：改用預估總列數分配空間
-  // 側邊欄 2 列 + 地圖 8 列 = 總共需要 10 列 Cell 的高度
-  const totalVerticalCells = 10; 
-  const cellByH = (availH - (gap * (totalVerticalCells - 1))) / totalVerticalCells;
-
-  // 寬度限制：同時考慮地圖 (8欄) 與側邊欄 (10欄)
   const cellByW8 = (availW - (gap * 7)) / 8;
   const cellByW10 = (availW - (gap * 9)) / 10;
 
-  // ✅ 關鍵修正 3：使用 Math.floor 確保像素為整數，避免次像素四捨五入導致的抖動
-  let next = Math.floor(Math.max(18, Math.min(90, cellByH, cellByW8, cellByW10)));
+  // 3. 高度限制：加入彈性判斷
+  const availH = Math.max(0, vh - fixedOccupiedHeight - bottomPad);
+  const totalVerticalCells = 10; 
+  const cellByH = (availH - (gap * (totalVerticalCells - 1))) / totalVerticalCells;
+
+  // ✅ 核心優化：如果 cellByH 算出來小於 45px，就代表螢幕太扁了
+  // 此時我們「放棄」強迫塞進一螢幕，改用 45px 或是寬度決定的數值，讓頁面可以垂直捲動
+  let finalCell;
+  if (cellByH < 45) {
+    // 優先滿足寬度需求，但至少給 40px (保底大小)
+    finalCell = Math.max(30, Math.min(90, cellByW8, cellByW10));
+  } else {
+    // 空間充足，依照原本邏輯取最小值 (確保不捲動)
+    finalCell = Math.min(90, cellByH, cellByW8, cellByW10);
+  }
+  
+  let next = Math.floor(Math.max(18, finalCell));
   
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
