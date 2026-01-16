@@ -1078,43 +1078,58 @@ function updateResponsiveCell() {
   const root = document.documentElement;
   const topbar = document.querySelector('.topbar');
   const header = document.querySelector('.header-row');
+ 
 
   const vv = window.visualViewport;
   const vh = vv ? vv.height : window.innerHeight;
   const vw = vv ? vv.width : window.innerWidth;
 
-  // 1. 計算固定高度
+  // ✅ 修正點 1：只計算「固定高度」的元件 (標題 + 按鈕區)
+  // 不要把 sidebarH 放進去計算，因為 sidebar 的高度會隨 --cell 改變
   const headerH = header ? header.offsetHeight : 0;
   const topbarH = topbar ? topbar.offsetHeight : 0;
+  
+  // 基礎邊距與緩衝空間 (padding/margin)
   const fixedOccupiedHeight = headerH + topbarH + 40; 
 
   const gap = 2;
   const bottomPad = 25; 
 
-  // 2. 寬度限制：維持你的 1100px 邏輯
-  const isNarrow = vw <= 768;
-  const availW = isNarrow ? (vw - 32) : (vw * 0.6); 
-  const cellByW8 = (availW - (gap * 7)) / 8;
-  const cellByW10 = (availW - (gap * 9)) / 10;
-
-  // 3. 高度限制：加入彈性判斷
+  // 可用垂直空間
   const availH = Math.max(0, vh - fixedOccupiedHeight - bottomPad);
+
+  let availW;
+  if (vw <= 798) {
+    // 1. 手機版：接近滿版，減去左右邊距
+    availW = vw - 32;
+  } else if (vw <= 1100) {
+    // 2. 中型螢幕 (799-1100px)：佔螢幕寬度的 80%
+    availW = vw * 0.8;
+  } else {
+    // 3. 大螢幕 (1100px 以上)：佔螢幕寬度的 60%
+    availW = vw * 0.6;
+  }
+
+
+
+
+  // ✅ 修正點 2：直接預估側邊欄與地圖的總列數
+  // 地圖有 8 列，側邊欄(一行10個)在目前元件數下大約佔 2 列。總共約 10 列 Cell
   const totalVerticalCells = 10; 
   const cellByH = (availH - (gap * (totalVerticalCells - 1))) / totalVerticalCells;
 
-  // ✅ 核心優化：如果 cellByH 算出來小於 45px，就代表螢幕太扁了
-  // 此時我們「放棄」強迫塞進一螢幕，改用 45px 或是寬度決定的數值，讓頁面可以垂直捲動
-  let finalCell;
-  if (cellByH < 45) {
-    // 優先滿足寬度需求，但至少給 40px (保底大小)
-    finalCell = Math.max(30, Math.min(90, cellByW8, cellByW10));
-  } else {
-    // 空間充足，依照原本邏輯取最小值 (確保不捲動)
-    finalCell = Math.min(90, cellByH, cellByW8, cellByW10);
-  }
+  // 寬度計算 (以地圖 8 欄為準)
+  const cellByW = (availW - (gap * 7)) / 8;
   
-  let next = Math.floor(Math.max(18, finalCell));
+  // 側邊欄寬度檢查 (一行 10 欄)
+  const cellBySidebarW = (availW - (gap * 9)) / 10;
+
+  // ✅ 取最小值，確保寬度與高度都不會溢出，且數值穩定不再跳動
+  let next = Math.max(36, Math.min(90, cellByH, cellByW, cellBySidebarW));
   
+  // 使用 Math.floor 確保像素為整數，減少瀏覽器渲染抖動
+  next = Math.floor(next);
+
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
 }
