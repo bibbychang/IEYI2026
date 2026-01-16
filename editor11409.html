@@ -583,46 +583,46 @@ body > *{
     </select>
   </label>
 
-  <div id="ai-quiz-setting" style="margin:8px 0 12px 0;">
+  <div id="ai-quiz-setting" style="margin:4px 0 4px 0;">
   
   
   
   
   
-	  <label id="ai-quiz-label" style="display:inline-block; margin-right:8px;">AI 出題：</label>
+	  <label id="ai-quiz-label" style="display:inline-block; margin-right:8px;font-size:1em">AI 出題：</label>
 	  <label style="margin-right:12px;">
-		<input type="radio" name="aiQuiz" value="yes" checked> <span id="ai-quiz-yes">是</span></label>
+		<input type="radio" name="aiQuiz" value="yes" checked> <span id="ai-quiz-yes" style="font-size:1em">是</span></label>
 	  <label>
-		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no">否</span></label>
-	  <span id="ai-quiz-hint" style="font-size:12px;color:#666;padding-left:10px;">「否」用題庫（不呼叫 API、快）</span><!--
+		<input type="radio" name="aiQuiz" value="no"><span id="ai-quiz-no" style="font-size:1em">否</span></label>
+	  <span id="ai-quiz-hint" style="font-size:1em;color:#666;padding-left:10px;">「否」用題庫（不呼叫 API、快）</span><!--
 	  <label>Gemini API Key：</label>
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
 	<button onclick="saveAPIKey()">儲存 Key</button>-->
 	
-	<div id="extra-settings" style="margin:8px 0 12px 0; border-top: 1px dashed #ccc; padding-top: 10px;">
-  <div style="margin-bottom: 8px;">
-    <label id="cheat-label" style="display:inline-block; margin-right:8px;">作弊模式：</label>
-    <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" ><span id="cheat-label-yes">是</span></label>
-    <label><input type="radio" name="cheatMode" value="no" checked><span id="cheat-label-no">否</span></label>
-    <span id="cheat-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
-  </div>
+	<div id="extra-settings" style="margin:4px 0 4px 0; ">
   <div>
-    <label id="debug-label" style="display:inline-block; margin-right:8px;">Debug 模式：</label>
-    <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"><span id="debug-label-yes">是</span></label>
-    <label><input type="radio" name="debugMode" value="no" checked><span id="debug-label-no">否</span></label>
-    <span id="debug-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後顯示螢幕資訊)</span>
-  </div>
+    <label id="cheat-label" style="display:inline-block; margin-right:8px;font-size:1em">作弊模式：</label>
+    <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" ><span id="cheat-label-yes" style="font-size:1em">是</span></label>
+    <label><input type="radio" name="cheatMode" value="no" checked><span id="cheat-label-no" style="font-size:1em">否</span></label>
+    <span id="cheat-hint" style="font-size:1em;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
+  </div><!--
+  <div>
+    <label id="debug-label" style="display:inline-block; margin-right:8px;font-size:0.5em">Debug 模式：</label>
+    <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"><span id="debug-label-yes" style="font-size:0.5em">是</span></label>
+    <label><input type="radio" name="debugMode" value="no" checked><span id="debug-label-no" style="font-size:0.5em">否</span></label>
+    <span id="debug-hint" style="font-size:0.5em;color:#666;margin-left:10px;">(開啟後顯示螢幕資訊)</span>
+  </div>-->
 </div>
 	
 	
 </div>
 <button class="btn" onclick="loadMap1()">📌 地圖1</button><button class="btn" onclick="loadMap2()">📌 地圖2</button><button class="btn" onclick="loadMap3()">📌 地圖3</button><button class="btn btn-danger" onclick="clearMap()">🧹 清空</button><button class="btn btn-primary" onclick="saveAndStart()">▶ 開始遊戲</button>
-<div id="screen-info" style="font-size:10px;color:#666;margin:6px 0 10px 0;"></div>
+<div id="screen-info" style="font-size:10px;color:#666;margin:2px 0 2px 0;"></div>
   
 </div>
   
   
-  <div id="sidebar" style="padding-top:10px">
+  <div id="sidebar" style="">
     <div class="item-wrapper">
       <img src="start.png" class="item" draggable="true" data-img="start.png">
       <div class="tooltip">起點：玩家從這裡開始</div>
@@ -1128,7 +1128,7 @@ function updateResponsiveCell() {
   const cellBySidebarW = (availW - (gap * 9)) / 10;
 
   // ✅ 取最小值，確保寬度與高度都不會溢出，且數值穩定不再跳動
-  let next = Math.max(36, Math.min(90, cellByH, cellByW, cellBySidebarW));
+  let next = Math.max(32, Math.min(90, cellByH, cellByW, cellBySidebarW));
   
   // 使用 Math.floor 確保像素為整數，減少瀏覽器渲染抖動
   next = Math.floor(next);
@@ -1190,10 +1190,12 @@ function updateScreenInfo() {
 
  const cell = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 0;
 
-  el.textContent =
-    `screen${sw}×${sh}(${physicalW}×${physicalH}px)` +
-    `viewport${vw}×${vh}` ;
+  const cellPx = Math.round(cell); // 想要小數就改成 cell.toFixed(1)
 
+el.textContent =
+  `screen${sw}×${sh}(${physicalW}×${physicalH}px)` +
+  ` viewport${vw}×${vh}` +
+  ` cell${cellPx}px`;
 
  
 }
