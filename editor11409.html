@@ -1216,7 +1216,7 @@ function handleResize() {
       updateScreenInfo();
     }
 
-    checkOrientation();
+    //checkOrientation();
   });
 }
 
@@ -1235,7 +1235,7 @@ window.addEventListener('load', () => {
   lastWidth = window.innerWidth; // 記錄初始寬度
   updateResponsiveCell();
   // 💡 關鍵修正：延遲 300 毫秒再執行第一次方向檢查，避開啟動時的閃爍
-  setTimeout(checkOrientation, 300);
+  //setTimeout(checkOrientation, 300);
 
 
 
