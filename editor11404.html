@@ -1106,9 +1106,11 @@ function updateResponsiveCell() {
 
   const cellByH = (availH - gapsTotal) / 8;
   const cellByW = (availW - gapsTotal) / 8;
-
+const cellByW8 = (availW - (gap * 7)) / 8;
+// 2. 為了側邊欄 (10 欄) 計算的寬度限制 (您建議的 w/10 邏輯)
+  const cellByW10 = (availW - (gap * 9)) / 10;
   // 取最小值以確保地圖能完整顯示在螢幕內
-  let next = Math.max(18, Math.min(90, cellByH, cellByW));
+  let next = Math.max(18, Math.min(90, cellByH, cellByW8, cellByW10));
   
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
