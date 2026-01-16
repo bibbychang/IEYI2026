@@ -247,7 +247,9 @@
 
 
 
-
+html {
+  overflow-y: scroll; /* 永遠保留捲軸空間，防止寬度跳動 */
+}
 html, body { height: 100%; }
 
 body{
@@ -596,7 +598,7 @@ body > *{
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
 	<button onclick="saveAPIKey()">儲存 Key</button>-->
 	
-	<div id="extra-settings" style="margin:8px 0 12px 0; ">
+	<div id="extra-settings" style="margin:8px 0 12px 0; border-top: 1px dashed #ccc; padding-top: 10px;">
   <div style="margin-bottom: 8px;">
     <label id="cheat-label" style="display:inline-block; margin-right:8px;">作弊模式：</label>
     <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" ><span id="cheat-label-yes">是</span></label>
