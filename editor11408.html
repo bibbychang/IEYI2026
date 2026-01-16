@@ -596,14 +596,14 @@ body > *{
 	<input type="password" id="apiKeyInput" placeholder="輸入你的 API Key">
 	<button onclick="saveAPIKey()">儲存 Key</button>-->
 	
-	<div id="extra-settings" style="margin:8px 0 12px 0; border-top: 1px dashed #ccc; padding-top: 10px;">
+	<div id="extra-settings" style="margin:8px 0 12px 0; ">
   <div style="margin-bottom: 8px;">
     <label id="cheat-label" style="display:inline-block; margin-right:8px;">作弊模式：</label>
     <label style="margin-right:12px;"><input type="radio" name="cheatMode" value="yes" ><span id="cheat-label-yes">是</span></label>
     <label><input type="radio" name="cheatMode" value="no" checked><span id="cheat-label-no">否</span></label>
     <span id="cheat-hint" style="font-size:12px;color:#666;margin-left:10px;">(開啟後遊戲中可指定骰子點數)</span>
   </div>
-  <div>	
+  <div>
     <label id="debug-label" style="display:inline-block; margin-right:8px;">Debug 模式：</label>
     <label style="margin-right:12px;"><input type="radio" name="debugMode" value="yes"><span id="debug-label-yes">是</span></label>
     <label><input type="radio" name="debugMode" value="no" checked><span id="debug-label-no">否</span></label>
@@ -1076,21 +1076,20 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
     }
 function updateResponsiveCell() {
   const root = document.documentElement;
-  const sidebar = document.getElementById('sidebar'); 
   const topbar = document.querySelector('.topbar');
   const header = document.querySelector('.header-row');
-  if (!sidebar) return;
+ 
 
   const vv = window.visualViewport;
   const vh = vv ? vv.height : window.innerHeight;
   const vw = vv ? vv.width : window.innerWidth;
 
-  // ✅ 關鍵修正 1：只計算真正「固定不動」的高度
-  // 標題和 topbar 的高度不隨 --cell 改變，測量它們是安全的
+  // ✅ 修正點 1：只計算「固定高度」的元件 (標題 + 按鈕區)
+  // 不要把 sidebarH 放進去計算，因為 sidebar 的高度會隨 --cell 改變
   const headerH = header ? header.offsetHeight : 0;
   const topbarH = topbar ? topbar.offsetHeight : 0;
   
-  // 加上一些基礎邊距緩衝（取代原本的 +60）
+  // 基礎邊距與緩衝空間 (padding/margin)
   const fixedOccupiedHeight = headerH + topbarH + 40; 
 
   const gap = 2;
@@ -1099,22 +1098,38 @@ function updateResponsiveCell() {
   // 可用垂直空間
   const availH = Math.max(0, vh - fixedOccupiedHeight - bottomPad);
 
-  // 寬度限制邏輯（手機與大螢幕）
-  const isNarrow = vw <= 798;
-  const availW = isNarrow ? (vw - 32) : (vw * 0.6); 
+  let availW;
+  if (vw <= 798) {
+    // 1. 手機版：接近滿版，減去左右邊距
+    availW = vw - 32;
+  } else if (vw <= 1100) {
+    // 2. 中型螢幕 (799-1100px)：佔螢幕寬度的 80%
+    availW = vw * 0.8;
+  } else {
+    // 3. 大螢幕 (1100px 以上)：佔螢幕寬度的 60%
+    availW = vw * 0.6;
+  }
 
-  // ✅ 關鍵修正 2：改用預估總列數分配空間
-  // 側邊欄 2 列 + 地圖 8 列 = 總共需要 10 列 Cell 的高度
+
+
+
+  // ✅ 修正點 2：直接預估側邊欄與地圖的總列數
+  // 地圖有 8 列，側邊欄(一行10個)在目前元件數下大約佔 2 列。總共約 10 列 Cell
   const totalVerticalCells = 10; 
   const cellByH = (availH - (gap * (totalVerticalCells - 1))) / totalVerticalCells;
 
-  // 寬度限制：同時考慮地圖 (8欄) 與側邊欄 (10欄)
-  const cellByW8 = (availW - (gap * 7)) / 8;
-  const cellByW10 = (availW - (gap * 9)) / 10;
-
-  // ✅ 關鍵修正 3：使用 Math.floor 確保像素為整數，避免次像素四捨五入導致的抖動
-  let next = Math.floor(Math.max(18, Math.min(90, cellByH, cellByW8, cellByW10)));
+  // 寬度計算 (以地圖 8 欄為準)
+  const cellByW = (availW - (gap * 7)) / 8;
   
+  // 側邊欄寬度檢查 (一行 10 欄)
+  const cellBySidebarW = (availW - (gap * 9)) / 10;
+
+  // ✅ 取最小值，確保寬度與高度都不會溢出，且數值穩定不再跳動
+  let next = Math.max(36, Math.min(90, cellByH, cellByW, cellBySidebarW));
+  
+  // 使用 Math.floor 確保像素為整數，減少瀏覽器渲染抖動
+  next = Math.floor(next);
+
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
 }
