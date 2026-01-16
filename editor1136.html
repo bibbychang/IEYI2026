@@ -1077,47 +1077,50 @@ if (aiHint) aiHint.textContent = uiText[lang].aiQuizHint;
     }
 function updateResponsiveCell() {
   const root = document.documentElement;
-  const map = document.getElementById('map');
   const sidebar = document.getElementById('sidebar'); 
   const topbar = document.querySelector('.topbar');
   const header = document.querySelector('.header-row');
-  if (!map || !sidebar) return;
+  if (!sidebar) return;
 
   const vv = window.visualViewport;
   const vh = vv ? vv.height : window.innerHeight;
   const vw = vv ? vv.width : window.innerWidth;
 
-  // ✅ 改用穩定計算：排除捲動干擾
-  // 取得上方固定元素的高度總和
+  // ✅ 修正點 1：只計算「固定高度」的元件 (標題 + 按鈕區)
+  // 不要把 sidebarH 放進去計算，因為 sidebar 的高度會隨 --cell 改變
   const headerH = header ? header.offsetHeight : 0;
   const topbarH = topbar ? topbar.offsetHeight : 0;
-  const sidebarH = sidebar ? sidebar.offsetHeight : 0;
-  // 加上 padding 與 margin (大約值或精確計算)
-  const topOccupiedHeight = headerH + topbarH + sidebarH + 60; 
+  
+  // 基礎邊距與緩衝空間 (padding/margin)
+  const fixedOccupiedHeight = headerH + topbarH + 40; 
 
   const gap = 2;
-  const gapsTotal = gap * 7; 
   const bottomPad = 25; 
 
-  // 可用高度 = 當前視窗高 - 上方佔用空間
-  const availH = Math.max(0, vh - topOccupiedHeight - bottomPad);
+  // 可用垂直空間
+  const availH = Math.max(0, vh - fixedOccupiedHeight - bottomPad);
 
+  // 寬度限制邏輯
   const isNarrow = vw <= 798;
-  const availW = isNarrow ? (vw - 32) : (vw * 0.6); // 假設大螢幕地圖佔 60%
+  const availW = isNarrow ? (vw - 32) : (vw * 0.6); 
 
-  const cellByH = (availH - gapsTotal) / 8;
-  const cellByW = (availW - gapsTotal) / 8;
+  // ✅ 修正點 2：直接預估側邊欄與地圖的總列數
+  // 地圖有 8 列，側邊欄(一行10個)在目前元件數下大約佔 2 列。總共約 10 列 Cell
+  const totalVerticalCells = 10; 
+  const cellByH = (availH - (gap * (totalVerticalCells - 1))) / totalVerticalCells;
+
+  // 寬度計算 (以地圖 8 欄為準)
+  const cellByW = (availW - (gap * 7)) / 8;
   
-  const cellByW8 = (availW - (gap * 7)) / 8;
+  // 側邊欄寬度檢查 (一行 10 欄)
+  const cellBySidebarW = (availW - (gap * 9)) / 10;
+
+  // ✅ 取最小值，確保寬度與高度都不會溢出，且數值穩定不再跳動
+  let next = Math.max(18, Math.min(90, cellByH, cellByW, cellBySidebarW));
   
-  // 2. 為了側邊欄 (10 欄) 計算的寬度限制 (您建議的 w/10 邏輯)
-  const cellByW10 = (availW - (gap * 9)) / 10;
+  // 使用 Math.floor 確保像素為整數，減少瀏覽器渲染抖動
+  next = Math.floor(next);
 
-
-
-  // 取最小值以確保地圖能完整顯示在螢幕內
-  let next = Math.max(18, Math.min(90, cellByH, cellByW8, cellByW10));
-  
   root.style.setProperty('--cell', `${next}px`);
   updateScreenInfo();
 }
