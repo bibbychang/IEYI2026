@@ -1176,12 +1176,12 @@ function updateScreenInfo() {
   
   // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
   if (Math.abs(currentWidth - lastWidth) > 5) {
-    updateResponsiveCell();
+    //updateResponsiveCell();
     lastWidth = currentWidth;
     console.log("寬度改變，重算 Cell");
   } else {
     // 寬度沒變（只是捲動），只更新 debug 資訊，不觸發重算
-    updateScreenInfo();
+    //updateScreenInfo();
   }
   //checkOrientation();
 }
@@ -1198,7 +1198,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // ✅ 修正點 1：使用 window.load 確保所有圖片與佈局已完全穩定
 window.addEventListener('load', () => {
   lastWidth = window.innerWidth; // 記錄初始寬度
-  updateResponsiveCell();
+ // updateResponsiveCell();
   // 💡 關鍵修正：延遲 300 毫秒再執行第一次方向檢查，避開啟動時的閃爍
  // setTimeout(checkOrientation, 300);
 
