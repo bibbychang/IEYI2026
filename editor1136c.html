@@ -1178,7 +1178,7 @@ el.textContent =
   
   // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
   if (Math.abs(currentWidth - lastWidth) > 5) {
-    updateResponsiveCell();
+   // updateResponsiveCell();
     lastWidth = currentWidth;
     console.log("寬度改變，重算 Cell");
   } else {
