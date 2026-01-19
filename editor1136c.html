@@ -1176,7 +1176,7 @@ function updateScreenInfo() {
   
   // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
   if (Math.abs(currentWidth - lastWidth) > 5) {
-    updateResponsiveCell();
+    //updateResponsiveCell();
     lastWidth = currentWidth;
     console.log("寬度改變，重算 Cell");
   } else {
@@ -1205,7 +1205,7 @@ window.addEventListener('load', () => {
 
 
   // 針對重新整理後的捲動殘留，做一次微小的延遲校正
-  setTimeout(updateResponsiveCell, 200);
+  //setTimeout(updateResponsiveCell, 200);
 });
 
 // ✅ 修正點 2：只有在「寬度改變」時才重算 CELL
