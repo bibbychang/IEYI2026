@@ -61,11 +61,18 @@
   
    #sidebar {
       display: grid;
-      grid-template-columns: repeat(10, 1fr) !important;/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
-      gap: var(--gap);
-      width: 100%;
-      max-width: calc(var(--cell) * 10 + var(--gap) * 9);
-     margin: 0 0 5px auto; /* 修改：最後一個值改為 auto 即可水平置中 */
+  /* 💡 修正 1：改用 1fr 讓 10 個欄位平分寬度，確保在手機版自動縮小不溢出 */
+  grid-template-columns: repeat(10, 1fr) !important; 
+  gap: var(--gap);
+  
+  /* 💡 修正 2：寬度設為 100%，但限制最大寬度為 10 欄格子的總和 */
+  width: 100%;
+  max-width: calc(var(--cell) * 10 + var(--gap) * 9); 
+  
+  /* 💡 修正 3：使用 margin: 0 auto 確保側邊欄在 left-panel 中水平置中 */
+  margin: 0 auto 5px auto; 
+  
+  box-sizing: border-box; /* 確保 padding 不會額外撐開寬度 */
     }
     #sidebar img {
       width: 100%;
