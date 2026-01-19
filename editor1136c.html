@@ -1154,12 +1154,9 @@ function updateScreenInfo() {
 
  const cell = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell')) || 0;
 
-   const cellPx = Math.round(cell); // 想要小數就改成 cell.toFixed(1)
-
-el.textContent =
-  `screen${sw}×${sh}(${physicalW}×${physicalH}px)` +
-  ` viewport${vw}×${vh}` +
-  ` cell${cellPx}px`;
+  el.textContent =
+    `screen${sw}×${sh}(${physicalW}×${physicalH}px)` +
+    `viewport${vw}×${vh}` ;
 
 
  
@@ -1220,7 +1217,7 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', handleResize);
   
   // 捲動時只更新文字資訊
-  window.visualViewport.addEventListener('scroll', updateScreenInfo);
+  //window.visualViewport.addEventListener('scroll', updateScreenInfo);
 }
 
 
