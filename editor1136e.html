@@ -61,7 +61,7 @@
   
    #sidebar {
       display: grid;
-      grid-template-columns: repeat(10, var(--cell));/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
+      grid-template-columns: repeat(10, 1fr) !important;/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
       gap: var(--gap);
       width: 100%;
       max-width: calc(var(--cell) * 10 + var(--gap) * 9);
