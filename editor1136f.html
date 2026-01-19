@@ -66,11 +66,11 @@
   gap: var(--gap);
   
   /* 💡 修正 2：寬度設為 100%，但限制最大寬度為 10 欄格子的總和 */
-  width: 100%;
+  width: 96%;
   max-width: calc(var(--cell) * 10 + var(--gap) * 9); 
   
   /* 💡 修正 3：使用 margin: 0 auto 確保側邊欄在 left-panel 中水平置中 */
-  margin: 0 auto 5px auto; 
+  margin: 10px auto !important;
   
   box-sizing: border-box; /* 確保 padding 不會額外撐開寬度 */
     }
@@ -94,6 +94,9 @@
       width: 100%;
       aspect-ratio: 1 / 1;
       position: relative;
+	  display: flex;
+  justify-content: center;
+  align-items: center;
       
     }
 
