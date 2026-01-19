@@ -64,7 +64,7 @@
       grid-template-columns: repeat(10, 1fr) !important;/* ✅ 強制 10 欄，每欄等寬   repeat(8, 1fr)*/
       gap: var(--gap);
       width: 100%;
-      max-width: 100%;
+      max-width: calc(var(--cell) * 10 + var(--gap) * 9);
      margin: 0 0 5px auto; /* 修改：最後一個值改為 auto 即可水平置中 */
     }
     #sidebar img {
