@@ -1176,7 +1176,7 @@ function updateScreenInfo() {
   
   // 只有在寬度真的改變時（例如旋轉螢幕、拉動桌面視窗）才重新計算 Cell
   if (Math.abs(currentWidth - lastWidth) > 5) {
-    //updateResponsiveCell();
+  //  updateResponsiveCell();
     lastWidth = currentWidth;
     console.log("寬度改變，重算 Cell");
   } else {
@@ -1200,7 +1200,7 @@ window.addEventListener('load', () => {
   lastWidth = window.innerWidth; // 記錄初始寬度
   //updateResponsiveCell();
   // 💡 關鍵修正：延遲 300 毫秒再執行第一次方向檢查，避開啟動時的閃爍
-  setTimeout(checkOrientation, 300);
+ // setTimeout(checkOrientation, 300);
 
 
 
@@ -1217,7 +1217,7 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', handleResize);
   
   // 捲動時只更新文字資訊
-  window.visualViewport.addEventListener('scroll', updateScreenInfo);
+  //window.visualViewport.addEventListener('scroll', updateScreenInfo);
 }
 
 
