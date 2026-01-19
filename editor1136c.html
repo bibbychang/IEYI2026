@@ -1198,14 +1198,14 @@ window.addEventListener('DOMContentLoaded', () => {
 // ✅ 修正點 1：使用 window.load 確保所有圖片與佈局已完全穩定
 window.addEventListener('load', () => {
   lastWidth = window.innerWidth; // 記錄初始寬度
-  updateResponsiveCell();
+  //updateResponsiveCell();
   // 💡 關鍵修正：延遲 300 毫秒再執行第一次方向檢查，避開啟動時的閃爍
- // setTimeout(checkOrientation, 300);
+  setTimeout(checkOrientation, 300);
 
 
 
   // 針對重新整理後的捲動殘留，做一次微小的延遲校正
-  //setTimeout(updateResponsiveCell, 200);
+  setTimeout(updateResponsiveCell, 200);
 });
 
 // ✅ 修正點 2：只有在「寬度改變」時才重算 CELL
@@ -1217,7 +1217,7 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', handleResize);
   
   // 捲動時只更新文字資訊
-  //window.visualViewport.addEventListener('scroll', updateScreenInfo);
+  window.visualViewport.addEventListener('scroll', updateScreenInfo);
 }
 
 
