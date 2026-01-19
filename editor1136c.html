@@ -1198,7 +1198,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // ✅ 修正點 1：使用 window.load 確保所有圖片與佈局已完全穩定
 window.addEventListener('load', () => {
   lastWidth = window.innerWidth; // 記錄初始寬度
-  //updateResponsiveCell();
+  updateResponsiveCell();
   // 💡 關鍵修正：延遲 300 毫秒再執行第一次方向檢查，避開啟動時的閃爍
  // setTimeout(checkOrientation, 300);
 
@@ -1217,7 +1217,7 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', handleResize);
   
   // 捲動時只更新文字資訊
-  //window.visualViewport.addEventListener('scroll', updateScreenInfo);
+  window.visualViewport.addEventListener('scroll', updateScreenInfo);
 }
 
 
