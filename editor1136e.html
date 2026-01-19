@@ -1105,10 +1105,10 @@ function updateResponsiveCell() {
   const cellByW = (availW - (gap * 7)) / 8;
   
   // 側邊欄寬度檢查 (一行 10 欄)
-  const cellBySidebarW = (availW - (gap * 9)) / 10;
+  const cellBySidebarW = (availW - (gap * 9)) / 12;
 
   // ✅ 取最小值，確保寬度與高度都不會溢出，且數值穩定不再跳動
-  let next = Math.max(18, Math.min(90, cellByH, cellByW, cellBySidebarW));
+  let next = Math.max(32, Math.min(90, cellByH, cellByW, cellBySidebarW));
   
   // 使用 Math.floor 確保像素為整數，減少瀏覽器渲染抖動
   next = Math.floor(next);
