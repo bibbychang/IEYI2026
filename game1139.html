@@ -1144,7 +1144,7 @@ function handleResponsiveLayout() {
   if (!configInfo || !status || !topbar || !rightPanel) return;
 
   // 判定是否為直向 (或寬度較窄時)
-  const isPortrait = window.innerHeight > window.innerWidth;
+  const isPortrait = (window.innerHeight / window.innerWidth) > 0.9;
 
   if (isPortrait) {
     // 📱 直向：搬回 topbar
