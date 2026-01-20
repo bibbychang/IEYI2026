@@ -1134,7 +1134,38 @@ function catNameTC(cat){
     }
   }
 }
+function handleResponsiveLayout() {
+  const configInfo = document.getElementById('configInfo');
+  const status = document.getElementById('status');
+  const topbar = document.getElementById('topbar');
+  const rightPanel = document.getElementById('right-panel');
+  const log = document.getElementById('log');
 
+  if (!configInfo || !status || !topbar || !rightPanel) return;
+
+  // 判定是否為直向 (或寬度較窄時)
+  const isPortrait = window.innerHeight > window.innerWidth;
+
+  if (isPortrait) {
+    // 📱 直向：搬回 topbar
+    if (configInfo.parentElement !== topbar) {
+      topbar.prepend(configInfo); // 放在 topbar 最前面
+    }
+    if (status.parentElement !== topbar) {
+      // 放在 configInfo 之後
+      configInfo.after(status);
+    }
+  } else {
+    // 💻 橫向：搬到 right-panel
+    if (configInfo.parentElement !== rightPanel) {
+      rightPanel.prepend(configInfo); // 放在右側最前面
+    }
+    if (status.parentElement !== rightPanel) {
+      // 放在 configInfo 之後，紀錄 (log) 之前
+      configInfo.after(status);
+    }
+  }
+}
 
 function startTimer() {
   if (mode !== 'time' || gameEnded) return;
@@ -3398,6 +3429,7 @@ function checkOrientation() {
 
 function initDimensionMonitor() {
   const refresher = () => {
+  handleResponsiveLayout(); // 💡 新增這一行：切換位置
     fitCellToFirstScreen(true);
     updateScreenInfo();
     checkOrientation(); 
