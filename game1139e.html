@@ -983,7 +983,8 @@ transform: scale(0.95);
 let debugMath = {};
     let config = {};
     try { config = JSON.parse(localStorage.getItem("gameConfig") || '{}'); } catch (e) { config = {}; }
-	const USE_AI_QUIZ = !!(config.settings && config.settings.useAIQuiz);
+	//const USE_AI_QUIZ = !!(config.settings && config.settings.useAIQuiz);
+	const USE_AI_QUIZ = false;
 	// ✅ 新增：判斷作弊與 Debug 模式 default false
 const CHEAT_ENABLED = !!(config.settings && config.settings.cheatMode);
 const DEBUG_ENABLED = !!(config.settings && config.settings.debugMode);
